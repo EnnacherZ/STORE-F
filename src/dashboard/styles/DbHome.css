@@ -1,0 +1,33 @@
+.db-home{
+    position: absolute;
+    width: calc(100% - 230px);
+    top: 0;
+    right: 0;
+    margin: 0 5px;
+    background-color: #fafafa;
+    padding: 0 5px 5px;
+}
+.db-home.rtl{
+    position: absolute;
+    width: calc(100% - 230px);
+    top: 0;
+    left: 0;
+    margin: 0 5px;
+    background-color: #fafafa;
+    padding: 0 5px 5px;
+}
+.orders-table{
+    width:100%;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+@media(max-width:855px){
+    .db-home, .db-home.rtl{
+        position: static;
+        width:100%;
+        margin:0;
+        padding:0;
+    }
+
+}

@@ -1,0 +1,141 @@
+/* ─── Page header / logo ──────────────────────────────────────────────────────── */
+.success-page__logo-wrapper {
+  /* inherits Bootstrap d-flex justify-content-center */
+}
+
+.success-page__logo {
+  width: 80px;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.success-page__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+/* ─── Success message ─────────────────────────────────────────────────────────── */
+.success-page__message {
+  margin: auto;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: center;
+  color: #0e92e4;
+}
+
+/* ─── Animated check icon ─────────────────────────────────────────────────────── */
+.success-page__check-icon {
+  border: 10px solid greenyellow;
+  border-radius: 50%;
+  margin: auto;
+}
+
+/* ─── Invoice download button ─────────────────────────────────────────────────── */
+.invoice-download-btn {
+  /* inherits Bootstrap btn btn-warning fw-bold */
+}
+
+/* ─── Body: two-column layout ─────────────────────────────────────────────────── */
+.success-page__body {
+  display: flex;
+  flex-direction: row;
+}
+
+/* ─── Transaction details panel ───────────────────────────────────────────────── */
+.transaction-details {
+  width: 550px;
+  margin: 0 10px;
+  height: 430px;
+  position: sticky;
+  top: 5px;
+}
+
+.transaction-details__title {
+  /* inherits Bootstrap fw-bold text-center fs-3 my-1 */
+}
+
+.transaction-details__list {
+  padding: 0 4px;
+}
+
+.transaction-details__list-item {
+  height: 40px;
+  margin: 0 2px;
+  list-style: none;
+}
+
+.transaction-details__list-value {
+  color: #0e92e4;
+}
+
+/* ─── Order review panel ──────────────────────────────────────────────────────── */
+.order-review {
+  width: calc(100% - 520px);
+  background-color: #efefef;
+}
+
+.order-review__title {
+  background-color: white;
+  height: 56px;
+}
+
+/* ─── Order review item row ───────────────────────────────────────────────────── */
+.order-review-item {
+  height: 100px;
+}
+
+.order-review-item__image {
+  width: 90px;
+  aspect-ratio: 1;
+}
+
+.order-review-item__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.order-review-item__name {
+  /* inherits Bootstrap flex-column d-flex align-items-center justify-content-around */
+}
+
+.order-review-item__price {
+  /* inherits Bootstrap d-flex flex-column justify-content-around align-items-center mx-1 */
+}
+
+/* ─── Responsive: tablet ──────────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .success-page__body {
+    flex-direction: column;
+  }
+
+  .transaction-details {
+    margin: auto;
+    position: static;
+  }
+
+  .order-review {
+    width: 94%;
+    margin: auto;
+  }
+}
+
+/* ─── Responsive: mobile ──────────────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .transaction-details {
+    width: 94%;
+    margin: auto;
+    height: 102vw;
+  }
+
+  .transaction-details__list-item {
+    font-size: 3.3vw;
+    height: 10vw;
+  }
+
+  .order-review-item__name,
+  .order-review-item__price {
+    font-size: 3.1vw;
+  }
+}

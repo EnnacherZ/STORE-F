@@ -1,0 +1,231 @@
+/* ─── Reset ─────────────────────────────────────────────────────────────────── */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* ─── Top navigation bar ──────────────────────────────────────────────────────── */
+.checkout-topbar {
+  width: 100%;
+  height: 55px;
+  background-color: #efecec;
+  border: 1px solid black;
+}
+
+.checkout-topbar__currency {
+  width: 130px;
+  height: 100%;
+}
+
+.checkout-topbar__flag {
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Alert banner ────────────────────────────────────────────────────────────── */
+.checkout-alert {
+  background-color: rgb(234, 179, 8);
+  color: white;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 6px 10px;
+  height: auto;
+}
+
+.checkout-alert__icon {
+  /* inherits inline sizing from parent */
+}
+
+/* ─── Empty cart state ────────────────────────────────────────────────────────── */
+.checkout-empty-cart {
+  width: 100%;
+  height: 385px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.checkout-empty-cart__icon {
+  margin-bottom: 16px;
+}
+
+/* ─── Main layout ─────────────────────────────────────────────────────────────── */
+.checkout-layout {
+  display: flex;
+  justify-content: space-around;
+}
+
+/* ─── Client info form ────────────────────────────────────────────────────────── */
+.client-info-form {
+  width: 50%;
+  background-color: #fcfcfc;
+}
+
+.client-info-form--mobile {
+  /* shown on mobile via media query — desktop form hidden */
+}
+
+/* ─── Form rows ───────────────────────────────────────────────────────────────── */
+.form-row {
+  /* base: d-flex mb-2, direction overridden on mobile */
+}
+
+.form-field {
+  /* inherits Bootstrap input-group flex-column px-1 */
+}
+
+/* ─── Field error messages ────────────────────────────────────────────────────── */
+.field-error {
+  color: red;
+  font-size: 1.25vw;
+}
+
+/* ─── Back button ─────────────────────────────────────────────────────────────── */
+.btn-back {
+  width: 90px;
+  font-size: 12px;
+}
+
+/* ─── Payment panel ───────────────────────────────────────────────────────────── */
+.checkout-payment-panel {
+  width: 45%;
+}
+
+/* ─── Payment gateway card ────────────────────────────────────────────────────── */
+.payment-gateway {
+  width: 100%;
+}
+
+.payment-gateway__title {
+  width: 100%;
+  height: 50px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.payment-gateway__brand {
+  height: 40px;
+}
+
+.payment-gateway__brand span {
+  font-family: Mona-sans, sans-serif;
+  font-size: 12px;
+  margin-right: 5px;
+}
+
+.payment-gateway__brand-logo {
+  width: 60px;
+  height: 35px;
+}
+
+.payment-gateway__brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.payment-gateway__selection {
+  /* fw-bold fs-6 applied via Bootstrap */
+}
+
+/* ─── Payment method buttons ──────────────────────────────────────────────────── */
+.payment-method-btn {
+  width: 100%;
+  height: 45px;
+  border: none;
+  font-size: 18px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.payment-method-btn--cod {
+  background-image: linear-gradient(
+    90deg,
+    rgba(42, 123, 155, 1) 0%,
+    rgba(87, 199, 133, 1) 50%,
+    rgba(237, 221, 83, 1) 100%
+  );
+}
+
+.payment-method-btn--cod.is-selected {
+  border: 3px solid #57c785;
+  box-shadow: 0 0 1em #d8da5a;
+  font-weight: bold;
+}
+
+.payment-method-btn--online {
+  background-image: linear-gradient(
+    90deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(9, 9, 121, 1) 35%,
+    rgba(0, 212, 255, 1) 100%
+  );
+}
+
+.payment-method-btn--online.is-selected {
+  border: 3px solid #073194;
+  box-shadow: 0 0 1em #00d4ff;
+  font-weight: bold;
+}
+
+/* ─── Pay now button ──────────────────────────────────────────────────────────── */
+.pay-now-btn {
+  height: 40px;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  transition: 250ms ease;
+}
+
+.pay-now-btn:hover {
+  border: 3px solid #0d6efd;
+  color: #0d6efd;
+  background-color: white;
+}
+
+/* ─── Disabled state ──────────────────────────────────────────────────────────── */
+.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ─── Responsive: tablet ──────────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+  .checkout-layout {
+    flex-direction: column;
+  }
+
+  /* Hide desktop form, show mobile form */
+  .client-info-form:not(.client-info-form--mobile) {
+    display: none;
+  }
+
+  .client-info-form--mobile,
+  .payment-gateway {
+    display: flex;
+    width: 90%;
+    margin-left: 5%;
+  }
+
+  .checkout-topbar {
+    width: 98%;
+    margin-left: 1%;
+  }
+
+  .checkout-payment-panel {
+    width: 98%;
+    margin-left: 1%;
+  }
+
+  .pay-now-btn {
+    width: 90%;
+    margin-left: 5%;
+  }
+
+  .field-error {
+    font-size: 3.1vw;
+  }
+}

@@ -1,0 +1,33 @@
+.db-deficiency{
+    position: absolute;
+    width: calc(100% - 230px);
+    top: 0;
+    right: 0;
+    margin: 0 5px;
+    background-color: #fafafa;
+    padding: 0 5px 5px;
+}
+.db-deficiency.rtl{
+    position: absolute;
+    width: calc(100% - 230px);
+    top: 0;
+    left: 0;
+    margin: 0 5px;
+    background-color: #fafafa;
+    padding: 0 5px 5px;
+}
+
+.deficiencies-table{
+    width:100%;
+    font-size: 1em;
+}
+
+@media(max-width:855px){
+    .db-deficiency, .db-deficiency.rtl{
+        position: static;
+        width:100%;
+        margin:0;
+        padding:0;
+        
+    }
+}

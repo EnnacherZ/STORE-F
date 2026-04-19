@@ -1,0 +1,69 @@
+.footerX{
+    background-color: black;
+    color:white;
+    width:100%;
+    
+}
+.iconStoreWDiv{
+    width: 100px;
+    aspect-ratio: 1;
+    margin: auto;
+}
+.iconStoreWDiv img{
+    width: 100%;
+    height: 100%;
+}
+
+.socialLinks{
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+.privacy-policy:hover{
+    color: #0e92e4;
+}
+
+.footer-sm{
+    width: 120px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: box-shadow 0.3s ease;
+}
+.footer-sm.fb{
+    background-color: #3b5998;
+}
+
+.footer-sm.fb:hover {
+  box-shadow: 0 0 5px 3px transparent;
+  box-shadow: 
+            0 0 2px 1px #3b5998, 
+            0 0 3px 2px #415e9b, 
+            0 0 4px 3px #475e90;
+  transition: box-shadow 0.3s ease;
+}
+
+.footer-sm.ig{
+    background:linear-gradient(
+    to right,
+    #833ab4,#fd1d1d,#fcb045
+  );
+}
+.footer-sm.ig:hover {
+  box-shadow: 0 0 5px 3px transparent;
+  box-shadow: 
+            0 0 2px 1px #833ab4, 
+            0 0 3px 2px #fd1d1d, 
+            0 0 4px 3px #fcb045;
+  transition: box-shadow 0.3s ease;
+}
+
+
+@media(max-width:650px){
+
+    .iconStoreWDiv{
+        width: 80px;
+    }
+}

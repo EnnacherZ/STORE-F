@@ -1,0 +1,27 @@
+.crs-home{
+    width:100%;
+    height:20rem;
+    overflow: hidden;
+}
+.crs-inner-home{
+    position: absolute;
+    width:100%;
+    height:100%;
+}
+.crs-item-home{
+    position: absolute;
+    width:100%;
+    height:100%;
+}
+.crs-img{
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+/* .crs-home-butts{
+    position: absolute;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+
+} */

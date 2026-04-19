@@ -1,0 +1,31 @@
+
+.db-order-details{
+    position: absolute;
+    width: calc(100% - 230px);
+    top: 0;
+    right: 0;
+    margin: 0 5px;
+    background-color: #fafafa;
+    padding: 0 5px 5px;
+}
+
+.db-orders-details-client{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 0 15px;
+}
+
+.db-orders-details-client li {
+    display: flex;
+    justify-content: space-between;
+}
+
+@media(max-width:855px){
+    .db-order-details{
+        position: static;
+        width:100%;
+        margin:0;
+        padding:5;
+        
+    }
+}

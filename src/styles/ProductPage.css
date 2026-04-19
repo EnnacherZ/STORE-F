@@ -1,0 +1,85 @@
+/* ============================================================
+   ProductPage.css — Firdaous Store
+   Replaces Shoes.css (was generic enough to apply to all types)
+   ============================================================ */
+
+/* ── Banner ───────────────────────────────────────────────── */
+.product-banner {
+  width: 100%;
+  height: 15rem;
+  overflow: hidden;
+}
+
+.product-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Page title (e.g. "👟 Shoes 👟") ─────────────────────── */
+.product-page-title {
+  width: 100%;
+  height: 60px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0.8% 0;
+}
+
+.product-page-title__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Category marquee strip ───────────────────────────────── */
+.product-page-marquee {
+  background-color: #111;
+  color: #fff;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.product-page-marquee__item {
+  margin: 0 3.5rem;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* ── No-product state ─────────────────────────────────────── */
+.no-product {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 12px;
+}
+
+.no-product__icon {
+  font-size: 4rem;
+  color: #aaa;
+}
+
+.no-product__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.no-product__wave {
+  font-size: 2rem;
+  color: #0e92e4;
+}
+
+.no-product__subtitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+}

@@ -1,0 +1,238 @@
+/* ============================================================
+   FilterSection.css — Firdaous Store
+   ============================================================ */
+
+/* ── Filter panel ─────────────────────────────────────────── */
+.filter-section {
+  background-color: #f7f6f6;
+  width: 170px;
+  min-height: 480px;
+  position: sticky;
+  /* top matches header height + promo banner (see :root in header.css) */
+  top: calc(36px + var(--header-h-desktop, 80px) + 8px);
+  z-index: 100;
+  border: 1px solid #bcb8b8;
+  flex-shrink: 0;
+}
+
+.filter-section--rounded {
+  border-radius: 4px;
+}
+
+/* ── Filter title ─────────────────────────────────────────── */
+.filter-section__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-bottom: 1px solid #e0dede;
+}
+
+/* ── Inline inputs (> 650px) ──────────────────────────────── */
+.filter-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 8px 6px 6px;
+  gap: 10px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.filter-input,
+.filter-select {
+  width: 100%;
+  padding: 5px 7px;
+  font-size: 0.82rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  border-color: #0e92e4;
+}
+
+.filter-input--readonly {
+  background-color: #efefef;
+  font-weight: 700;
+  color: #333;
+}
+
+.filter-btn {
+  width: 100%;
+  padding: 7px 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.filter-btn:hover {
+  opacity: 0.88;
+}
+
+.filter-btn--primary {
+  background-color: #0e92e4;
+  color: #fff;
+}
+
+.filter-btn--secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TABLET (≤ 800px) — horizontal strip
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 800px) {
+  .filter-section {
+    width: 100%;
+    min-height: unset;
+    height: auto;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 6px;
+    position: sticky;
+    /* top = promo banner + mobile header */
+    top: calc(36px + var(--header-h-mobile, 64px));
+    background-color: #cac5c5;
+    border-bottom: 3px solid #222;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    z-index: 100;
+  }
+
+  .filter-section__title {
+    display: none;         /* space too tight on mobile strip */
+  }
+
+  .filter-inputs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 6px;
+    padding: 0;
+    width: 100%;
+  }
+
+  .filter-field,
+  .filter-inputs > div {
+    flex: 1 1 auto;
+    min-width: 80px;
+  }
+
+  .filter-btn {
+    width: 100%;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   PHONE (≤ 650px) — collapsed dropdown mode
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 650px) {
+  .filter-section {
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    min-height: 64px;
+    background-color: #fefefe;
+    border-bottom-color: #bcb8b8;
+    padding: 8px;
+    transition: height 0.5s ease;
+  }
+
+  .filter-section--expanded {
+    height: auto;
+  }
+
+  /* ── Collapsed "open" button ─────────────────────────── */
+  .filter-drop-toggle {
+    width: 46px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: none;
+    background-color: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+  }
+
+  .filter-drop-toggle:hover {
+    background-color: #555;
+  }
+
+  /* ── Expanded body ───────────────────────────────────── */
+  .filter-drop-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.4s ease;
+  }
+
+  .filter-drop-body--open {
+    max-height: 600px;          /* large enough to fit all fields */
+    opacity: 1;
+  }
+
+  .filter-drop-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+    align-items: flex-end;
+  }
+
+  .filter-drop-row > div {
+    flex: 1 1 120px;
+  }
+
+  /* ── Collapse button ─────────────────────────────────── */
+  .filter-drop-close {
+    width: 40px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: none;
+    background-color: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    align-self: center;
+    margin-top: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+  }
+
+  .filter-drop-close:hover {
+    background-color: #555;
+  }
+}

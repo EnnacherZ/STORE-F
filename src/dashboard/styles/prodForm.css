@@ -1,0 +1,12 @@
+.prodForm{
+    width: 100%;
+    padding: 10px;
+}
+
+.prodForm form div{
+    margin-top: 5px;
+}
+
+.prodForm form div img {
+    width: 280px;
+}

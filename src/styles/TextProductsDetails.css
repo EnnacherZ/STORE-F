@@ -1,0 +1,46 @@
+/* Style général pour les catégories de chaussures */
+.shoe-category {
+    margin: 30px 0;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+
+  }
+  
+  .category-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .category-description {
+    list-style-type: disc;
+    padding-left: 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+  
+  .shoe-category .category-description li {
+    margin-bottom: 8px;
+  }
+  
+  .shoe-category.classic {
+    border-left: 2px solid #4e4e4e;
+  }
+  
+  .shoe-category.basket {
+    border-left: 2px solid #99bdda;
+  }
+  
+  .shoe-category.medical {
+    border-left: 2px solid #698fb1;
+  }
+  
+  .shoe-category.mocassin {
+    border-left: 2px solid #96cae0;
+  }
+  

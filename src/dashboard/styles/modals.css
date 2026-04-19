@@ -1,0 +1,25 @@
+
+.db.modals.orders{
+    margin: auto;
+    margin-top: 10px;
+    max-width: 75%;
+    height: 500px;
+    background-color: aliceblue;
+    border-radius: 10px;
+    padding: 5px 0;
+}
+
+ul{
+    list-style: none;
+}
+
+.modal-orders-client-infos{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 15px;
+}
+
+.modal-orders-client-infos li {
+    display: flex;
+    justify-content: space-between;
+}

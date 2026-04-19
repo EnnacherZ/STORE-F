@@ -1,0 +1,364 @@
+/* ─── Reset ─────────────────────────────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ─── Page layout ────────────────────────────────────────────────────────────── */
+.cart-page {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  margin-bottom: 3%;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────────── */
+.cart-sidebar {
+  width: 34%;
+  height: 430px;
+  margin-top: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 115px;
+}
+
+/* ─── Currency bar ────────────────────────────────────────────────────────────── */
+.currency-bar {
+  position: relative;
+  width: 100%;
+  height: 55px;
+  background-color: #efecec;
+}
+
+.currency-bar__selector {
+  width: 130px;
+  height: 100%;
+  margin-left: 2px;
+}
+
+.currency-bar__flag {
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Order summary ───────────────────────────────────────────────────────────── */
+.order-summary {
+  position: relative;
+  width: 100%;
+  height: 365px;
+}
+
+.order-summary__title {
+  /* inherits Bootstrap text-center fs-4 fw-bold */
+}
+
+.order-summary__list {
+  /* inherits Bootstrap list-group px-1 */
+}
+
+.order-summary__list-item {
+  background-color: #efeded;
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.order-summary__grand-total {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* ─── Payment logos ───────────────────────────────────────────────────────────── */
+.payment-logos {
+  /* inherits Bootstrap container d-flex justify-content-center */
+}
+
+.payment-logos__grid {
+  position: absolute;
+  bottom: 0;
+  width: 180px;
+  height: 40px;
+}
+
+.payment-logos__grid img {
+  width: 100%;
+  height: auto;
+  max-width: 40px;
+  object-fit: contain;
+}
+
+/* ─── Cart items panel ────────────────────────────────────────────────────────── */
+.cart-items-panel {
+  width: 63%;
+  margin-top: 0;
+  z-index: 1;
+}
+
+.cart-items-panel__inner {
+  /* inherits Bootstrap text-center card */
+}
+
+.cart-items-panel__header {
+  /* inherits Bootstrap text-center my-2 fs-3 */
+}
+
+.cart-items-panel__footer {
+  /* inherits Bootstrap d-flex justify-content-center mb-2 */
+}
+
+/* ─── Empty cart state ────────────────────────────────────────────────────────── */
+.cart__empty {
+  width: 100%;
+  height: 385px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.cart__empty-icon {
+  margin-bottom: 16px;
+}
+
+/* ─── Cart list ───────────────────────────────────────────────────────────────── */
+.cart-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Column headers ──────────────────────────────────────────────────────────── */
+.cart-list-header {
+  display: grid;
+  grid-template-columns: 1fr 200px 140px;
+  padding: 10px 16px 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+}
+
+.cart-list-header__product  { text-align: left; }
+.cart-list-header__actions  { text-align: center; }
+.cart-list-header__total    { text-align: right; }
+
+/* ─── Cart row ────────────────────────────────────────────────────────────────── */
+/*
+  Single row renderer for all screen sizes.
+  Desktop: 3-column grid (product info | quantity controls | line total).
+  Mobile: stacks to a 2-column flex (image | details block with controls inside).
+*/
+.cart-row {
+  display: grid;
+  grid-template-columns: 1fr 200px 140px;
+  align-items: center;
+  border-top: 1px solid #f0f0f0;
+  padding: 10px 16px;
+  gap: 12px;
+  min-height: 110px;
+  background: #fff;
+  transition: background 0.15s ease;
+}
+
+.cart-row:hover {
+  background: #fafafa;
+}
+
+/* ─── Col 1: Product ──────────────────────────────────────────────────────────── */
+.cart-row__product {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;           /* allows text to truncate inside flex child */
+}
+
+/* ─── Cart item image ─────────────────────────────────────────────────────────── */
+.cart-item-image {
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.cart-item-image__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ─── Cart item details ───────────────────────────────────────────────────────── */
+.cart-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cart-item-details__ref {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cart-item-details__price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cart-item-details__size {
+  font-size: 12px;
+}
+
+/* ─── Col 2: Quantity + remove ────────────────────────────────────────────────── */
+.cart-row__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── Col 3: Line total ───────────────────────────────────────────────────────── */
+.cart-row__total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.cart-row__total-price {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ─── Price states ────────────────────────────────────────────────────────────── */
+.price--current {
+  color: green;
+}
+
+.price--original {
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: line-through;
+  text-decoration-color: red;
+  color: #888;
+}
+
+.price--discount {
+  color: red;
+  font-weight: bold;
+}
+
+/* ─── Quantity control ────────────────────────────────────────────────────────── */
+.quantity-control {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-control__input {
+  width: 40px;
+  height: 30px;
+  background-color: white;
+  color: black;
+  outline: none;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+.quantity-control__btn {
+  height: 30px;
+  width: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Remove button ───────────────────────────────────────────────────────────── */
+.cart-item-remove-btn {
+  border-color: red;
+  color: red;
+  outline: 0;
+}
+
+.cart-item-remove-btn:hover {
+  background-color: red;
+  color: white;
+}
+
+/* ─── Responsive: mobile ──────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+
+  /* Hide column headers */
+  .cart-list-header {
+    display: none;
+  }
+
+  /*
+    On mobile, each row becomes a flex column:
+    top: image + details side by side
+    bottom: quantity controls + total in a row
+  */
+  .cart-row {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    padding: 12px 10px;
+    gap: 10px;
+  }
+
+  .cart-row__product {
+    grid-column: 1;
+  }
+
+  .cart-item-image {
+    width: 75px;
+    height: 75px;
+  }
+
+  .cart-row__actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    grid-column: 1;
+  }
+
+  .cart-row__total {
+    display: none; /* total shown inline in actions row on mobile */
+  }
+
+  /* Show total inline next to remove button on mobile */
+  .cart-row__actions::after {
+    content: attr(data-total);
+    font-weight: 700;
+    color: green;
+    font-size: 14px;
+  }
+}
+
+/* ─── Responsive: tablet — sidebar stacks above items panel ──────────────────── */
+@media (max-width: 800px) {
+  .cart-page {
+    flex-direction: column;
+  }
+
+  .cart-sidebar {
+    width: 98%;
+    height: auto;
+    margin-left: 1%;
+    position: relative;
+    top: 0;
+  }
+
+  .cart-items-panel {
+    width: 98%;
+    margin-left: 1%;
+    height: auto;
+  }
+}

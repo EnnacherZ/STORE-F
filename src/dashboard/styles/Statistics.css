@@ -1,0 +1,10 @@
+
+.db-statistics{
+    position: absolute;
+    width: calc(100% - 230px);
+    top: 0;
+    right: 0;
+    margin: 0 5px;
+    background-color: #fafafa;
+    padding: 0 5px 5px;
+}

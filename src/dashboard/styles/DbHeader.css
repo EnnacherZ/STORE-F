@@ -1,0 +1,24 @@
+.db-header{
+    width: 100%;
+    margin: 0 ;
+    padding: 5px;
+}
+.db-notConfirmed{
+    width: 305px;
+    height:70px;
+    background-color: white;
+    font-size: .9rem;
+    box-shadow: 0 .5rem 1rem rgba(254, 1, 31, 0.15);
+}
+.db-notConfirmed-lg{
+    width:50px;
+    aspect-ratio: 1;
+    background-color: #ffe2e2;
+}
+
+.db-notConfirmed.null{
+    box-shadow: 0 .5rem 1rem rgba(254, 195, 1, 0.15);
+}
+.db-notConfirmed-lg.null{
+    background-color: #ffe69c;
+}

@@ -1,0 +1,77 @@
+.productCarousel{
+    width: 100%;
+    height: auto;
+    background-color: #fcf7f7;
+    padding-bottom: 30px;
+    margin: auto;
+}
+.productCarouselCard{
+    width:225px;
+    height: 400px;;
+    margin: auto;
+    background-color: #FFF;
+    display: flex;
+    justify-content: space-between;
+    transition: 0.2s ease-in;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+}
+
+.productCarouselCard:hover{
+    background-color: #e9e9e9;
+    cursor: pointer;
+    box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.175);
+
+}
+.productCImgCont{
+    width:100%;
+    height: 180px;
+}
+.productCImgCont img{
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+.productCInfos1{
+    text-transform: capitalize;
+    font-size: 0.9rem;
+}
+.productCInfos2{
+    text-transform: capitalize;
+    font-size: 0.9rem;
+}
+.productCPriceP{
+    color:green;
+    font-weight: bold;
+    font-size: 1em;
+}
+.productCPriceD{
+    color: black;
+    text-decoration: line-through;
+    text-decoration-color: red;
+    font-size: 0.9em;
+}
+.productCDiscount{
+    color:red;
+    font-weight: bold;
+    font-size: 1em;
+}
+.productCView{
+    height:50px;
+    outline: none;
+    border: none;
+    background-color: #ffc107;
+    transition: 0.2s ease-in-out
+}
+.productCView:hover{
+    color:#ffc107;
+    background-color: #000;
+}
+
+
+@media(max-width:464px){
+    .productCarouselCard{
+        width:225px;
+        margin:auto;
+    }
+}
