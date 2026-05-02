@@ -111,6 +111,13 @@ i18n
             methods: 'Payments',
             pay: 'Pay',
             checkoutAlert: 'Fill the form firstly, then choose the payment method 👍🏻',
+            // ── Checkout overlay stages ────────────────────────────────────
+            overlayUrlTitle:      'Initializing Payment',
+            overlayUrlSub:        'Setting up your secure session…',
+            overlayCodTitle:      'Placing Your Order',
+            overlayCodSub:        'Confirming your order…',
+            overlayRedirectTitle: 'Redirecting to Payment',
+            overlayRedirectSub:   'Taking you to the payment page…',
           },
 
           transaction: {
@@ -170,12 +177,12 @@ i18n
             failedCategory_generic:            'Payment Failed',
 
             // ── TransactionFailed — contextual hints ───────────────────────
-            failedHintCancelled:         'You cancelled the payment. Your reserved items are still held — click "Try Again" to return to the payment page.',
-            failedHintFunds:             'Your card was declined due to insufficient funds. Please use a different card or top up your account and try again.',
-            failedHintDeclined:          'Your card was declined by the bank. Please check your card details or contact your bank before trying again.',
-            failedHintExpired:           'Your card appears to be expired. Please update your card information and try with a valid card.',
-            failedHintAuth:              '3-D Secure authentication failed. Please try again and follow the verification steps sent by your bank.',
-            failedHintTimeout:           'The payment session timed out. This can happen if the page was left open too long. Please try again.',
+            failedHintCancelled:  'You cancelled the payment. Your reserved items are still held — click "Try Again" to return to the payment page.',
+            failedHintFunds:      'Your card was declined due to insufficient funds. Please use a different card or top up your account and try again.',
+            failedHintDeclined:   'Your card was declined by the bank. Please check your card details or contact your bank before trying again.',
+            failedHintExpired:    'Your card appears to be expired. Please update your card information and try with a valid card.',
+            failedHintAuth:       '3-D Secure authentication failed. Please try again and follow the verification steps sent by your bank.',
+            failedHintTimeout:    'The payment session timed out. This can happen if the page was left open too long. Please try again.',
           },
 
           form: {
@@ -468,6 +475,13 @@ i18n
             methods: 'Paiements',
             pay: 'Payer',
             checkoutAlert: 'Remplissez d\'abord le formulaire, puis choisissez le mode de paiement 👍🏻',
+            // ── Checkout overlay stages ────────────────────────────────────
+            overlayUrlTitle:      'Initialisation du paiement',
+            overlayUrlSub:        'Configuration de votre session sécurisée…',
+            overlayCodTitle:      'Passage de votre commande',
+            overlayCodSub:        'Confirmation de votre commande…',
+            overlayRedirectTitle: 'Redirection vers le paiement',
+            overlayRedirectSub:   'Vous allez être redirigé vers la page de paiement…',
           },
 
           transaction: {
@@ -527,12 +541,12 @@ i18n
             failedCategory_generic:            'Paiement échoué',
 
             // ── TransactionFailed — contextual hints ───────────────────────
-            failedHintCancelled:         'Vous avez annulé le paiement. Vos articles sont toujours réservés — cliquez sur « Réessayer » pour revenir à la page de paiement.',
-            failedHintFunds:             'Votre carte a été refusée en raison de fonds insuffisants. Veuillez utiliser une autre carte ou recharger votre compte et réessayer.',
-            failedHintDeclined:          'Votre carte a été refusée par la banque. Vérifiez vos coordonnées ou contactez votre banque avant de réessayer.',
-            failedHintExpired:           'Votre carte semble expirée. Veuillez mettre à jour vos informations bancaires et réessayer avec une carte valide.',
-            failedHintAuth:              'L\'authentification 3-D Secure a échoué. Veuillez réessayer et suivre les étapes de vérification envoyées par votre banque.',
-            failedHintTimeout:           'La session de paiement a expiré. Cela peut arriver si la page est restée ouverte trop longtemps. Veuillez réessayer.',
+            failedHintCancelled:  'Vous avez annulé le paiement. Vos articles sont toujours réservés — cliquez sur « Réessayer » pour revenir à la page de paiement.',
+            failedHintFunds:      'Votre carte a été refusée en raison de fonds insuffisants. Veuillez utiliser une autre carte ou recharger votre compte et réessayer.',
+            failedHintDeclined:   'Votre carte a été refusée par la banque. Vérifiez vos coordonnées ou contactez votre banque avant de réessayer.',
+            failedHintExpired:    'Votre carte semble expirée. Veuillez mettre à jour vos informations bancaires et réessayer avec une carte valide.',
+            failedHintAuth:       'L\'authentification 3-D Secure a échoué. Veuillez réessayer et suivre les étapes de vérification envoyées par votre banque.',
+            failedHintTimeout:    'La session de paiement a expiré. Cela peut arriver si la page est restée ouverte trop longtemps. Veuillez réessayer.',
           },
 
           form: {
@@ -825,6 +839,13 @@ i18n
             methods: 'طرق الدفع',
             pay: 'دفع',
             checkoutAlert: 'قم أولاً بملء نموذج الدفع، ثم اختر طريقة الدفع 👍🏻',
+            // ── Checkout overlay stages ────────────────────────────────────
+            overlayUrlTitle:      'بدء عملية الدفع',
+            overlayUrlSub:        'جاري إعداد جلستك الآمنة…',
+            overlayCodTitle:      'جاري تسجيل طلبيتكم',
+            overlayCodSub:        'جاري تأكيد طلبيتكم…',
+            overlayRedirectTitle: 'جاري التوجيه نحو الدفع',
+            overlayRedirectSub:   'سيتم توجيهكم إلى صفحة الدفع…',
           },
 
           transaction: {
@@ -884,58 +905,58 @@ i18n
             failedCategory_generic:            'فشل الدفع',
 
             // ── TransactionFailed — contextual hints ───────────────────────
-            failedHintCancelled:         'لقد ألغيت عملية الدفع. لا تزال عناصرك محجوزة — انقر على "إعادة المحاولة" للعودة إلى صفحة الدفع.',
-            failedHintFunds:             'تم رفض بطاقتك بسبب عدم كفاية الرصيد. يرجى استخدام بطاقة أخرى أو شحن حسابك والمحاولة مجدداً.',
-            failedHintDeclined:          'تم رفض بطاقتك من قِبل البنك. يرجى التحقق من بياناتك أو التواصل مع بنكك قبل المحاولة مجدداً.',
-            failedHintExpired:           'يبدو أن بطاقتك منتهية الصلاحية. يرجى تحديث معلوماتك البنكية والمحاولة ببطاقة سارية.',
-            failedHintAuth:              'فشل التحقق عبر 3-D Secure. يرجى المحاولة مجدداً واتباع خطوات التحقق التي أرسلها بنكك.',
-            failedHintTimeout:           'انتهت مهلة جلسة الدفع. قد يحدث ذلك إذا تُركت الصفحة مفتوحة طويلاً. يرجى المحاولة مجدداً.',
+            failedHintCancelled:  'لقد ألغيت عملية الدفع. لا تزال عناصرك محجوزة — انقر على "إعادة المحاولة" للعودة إلى صفحة الدفع.',
+            failedHintFunds:      'تم رفض بطاقتك بسبب عدم كفاية الرصيد. يرجى استخدام بطاقة أخرى أو شحن حسابك والمحاولة مجدداً.',
+            failedHintDeclined:   'تم رفض بطاقتك من قِبل البنك. يرجى مراجعة بيانات البطاقة أو التواصل مع البنك قبل إعادة المحاولة.',
+            failedHintExpired:    'يبدو أن بطاقتك منتهية الصلاحية. يرجى تحديث بياناتك البنكية والمحاولة مرة أخرى ببطاقة سارية.',
+            failedHintAuth:       'فشل التحقق 3-D Secure. يرجى إعادة المحاولة واتباع خطوات التحقق التي أرسلها البنك.',
+            failedHintTimeout:    'انتهت مهلة جلسة الدفع. قد يحدث هذا إذا تركت الصفحة مفتوحة طويلاً. يرجى المحاولة مجدداً.',
           },
 
           form: {
             firstName: {
               label: 'الاسم',
-              required: 'اسمك مطلوب',
+              required: 'الاسم مطلوب',
             },
             lastName: {
-              label: 'النسب',
-              required: 'الاسم النسب مطلوب',
+              label: 'اللقب',
+              required: 'اللقب مطلوب',
             },
             fullName: 'الاسم الكامل',
             email: {
               label: 'البريد الإلكتروني',
-              required: 'بريدكم الإلكتروني مطلوب',
+              required: 'البريد الإلكتروني مطلوب',
             },
             phone: {
               label: 'رقم الهاتف',
-              required: 'رقم هاتفكم مطلوب',
+              required: 'رقم الهاتف مطلوب',
               minLength: '10 أحرف على الأقل',
-              invalidFormat: 'أدخل رقمًا صالحًا: 06.. أو 07.. أو +212..',
+              invalidFormat: 'أدخل رقمًا صحيحًا: 06.. أو 07.. أو +212..',
             },
             address: {
               label: 'العنوان',
-              required: 'عنوانكم مطلوب',
+              required: 'العنوان مطلوب',
             },
             city: {
               label: 'المدينة',
-              required: 'اسم مدينتكم مطلوب',
+              required: 'المدينة مطلوبة',
             },
             save: 'حفظ',
-            saveChanges: 'حفظ التغييرات',
+            saveChanges: 'حفظ التعديلات',
             modify: 'تعديل',
-            submit: 'حفظ',
-            clientInfo: 'معلومات الزبون',
-            selectCity: 'اختر المدينة',
+            submit: 'إرسال',
+            clientInfo: 'معلومات العميل',
+            selectCity: 'اختر مدينتك',
           },
 
           review: {
             title: 'مراجعات المنتج',
-            add: 'إضافة مراجعة',
-            submit: 'إضافة المراجعة',
-            stars: 'التقييم',
+            add: 'إضافة تقييمك',
+            submit: 'إضافة التقييم',
+            stars: 'نجوم',
             username: 'اسم المستخدم',
-            yourReview: 'تعليقك',
-            firstReview: 'نشر المراجعة الأولى !',
+            yourReview: 'تقييمك',
+            firstReview: 'كن أول من يضع تقييمًا !',
           },
 
           pagination: {
@@ -945,17 +966,17 @@ i18n
 
           ui: {
             loading: 'جاري التحميل . . .',
-            back: 'الرجوع',
-            search: 'البحث',
-            reset: 'تحيين',
+            back: 'رجوع',
+            search: 'بحث',
+            reset: 'إعادة تعيين',
             enterName: 'أدخل اسمًا',
             enterRef: 'أدخل مرجعًا',
             save: 'حفظ',
           },
 
           home: {
-            promotions: 'العروض و التخفيضات',
-            products: 'منتوجاتنا',
+            promotions: 'عروضنا وتخفيضاتنا',
+            products: 'منتجاتنا',
             goToShoes: 'الذهاب إلى قسم الأحذية',
             goToSandals: 'الذهاب إلى قسم الصنادل',
             goToShirts: 'الذهاب إلى قسم القمصان',
@@ -968,35 +989,35 @@ i18n
 
           admin: {
             orders: {
-              remaining: 'طلبيات في انتظار التأكيد',
-              delivered: 'الطلبيات المُسلّمة',
-              all: 'جميع الطلبيات',
-              notConfirmed: 'الطلبيات الغير معالجة',
-              showAll: 'إظهار جميع الطلبيات',
-              noRemaining: 'لا توجد أي طلبية في الانتظار حتى الان',
-              noDelivered: 'لا توجد أي طلبية مسلمة حتى الان',
-              noOrders: 'لا توجد أي طلبية حتى الان',
+              remaining: 'الطلبيات المتبقية',
+              delivered: 'الطلبيات المسلمة',
+              all: 'كل الطلبيات',
+              notConfirmed: 'الطلبيات غير المؤكدة',
+              showAll: 'عرض كل الطلبيات',
+              noRemaining: 'لا توجد طلبية متبقية',
+              noDelivered: 'لم يتم تسليم أي طلبية بعد',
+              noOrders: 'لا توجد طلبيات بعد',
               treated: 'تمت معالجة الطلبية بنجاح',
-              alreadyTreated: 'لقد تمت معالجة الطلبية بالفعل',
-              process: 'معالجة الطلبية',
-              waiting: 'قيد الانتظار',
+              alreadyTreated: 'الطلبية تمت معالجتها بالفعل',
+              process: 'معالجة',
+              waiting: 'انتظار',
               done: 'تمت',
-              treated_label: 'تمت معالجته',
+              treated_label: 'تمت المعالجة',
               status: 'الحالة',
               date: 'التاريخ',
-              action: 'إجراء',
+              action: 'الإجراء',
               extractDeliveryForm: 'استخراج نموذج التسليم',
-              extractSuccess: 'تم استخراج استمارة الشحن بنجاح !',
+              extractSuccess: 'تم استخراج نموذج التسليم بنجاح',
             },
             deficiency: {
               title: 'نقص الكميات',
-              current: 'حالات نقص الكمية',
-              showAll: 'كل نقص الكميات',
+              current: 'النقص الحالي',
+              showAll: 'عرض كل النقصات',
               process: 'معالجة',
-              message: 'يرجى معالجة نقص، ثم معالجة الطلب !',
-              confirm: 'تأكيد معالجة نقص الكمية',
-              success: 'تمت معالجة نقص الكمية بنجاح !',
-              noFound: 'لم يتم العثور على أي نقص للكمية',
+              message: 'يرجى معالجة النقصات أولاً، ثم معالجة الطلبية !',
+              confirm: 'تأكيد معالجة النقص',
+              success: 'تمت معالجة النقص بنجاح',
+              noFound: 'لم يتم العثور على أي نقص',
               quantityRequested: 'الكمية المطلوبة',
             },
             product: {

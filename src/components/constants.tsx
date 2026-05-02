@@ -9,11 +9,12 @@ import { connecter } from "../server/connecter";
 import { clientData } from "../contexts/PaymentContext";
 import { toast, Zoom } from "react-toastify";
 
+type Lang   = "fr" | "en" | "ar";
 
 export const goTo = (ref:string) => {window.location.href = ref}
 
-  export const selectedLang = (l:string) => {
-    let a = '';
+  export const selectedLang = (l:string) : Lang => {
+    let a : Lang = 'ar';
     switch(l){
         case    'العربية':
             a = 'ar';

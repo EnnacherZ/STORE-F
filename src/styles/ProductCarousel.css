@@ -1,4 +1,21 @@
- 0 8px;      /* 8px on each side = 16px gap between cards */
+/* ─────────────────────────────────────────────────────────────────────────────
+   ProductCarousel — Enhanced Design  (light-theme compatible)
+   Drop this into:  src/styles/ProductCarousel.css
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Section wrapper ─────────────────────────────────────────────────────────── */
+.productCarousel {
+  width: 100%;
+  background: #f5f6fa;
+  padding: 0 0 32px;   /* no horizontal padding — carousel handles it */
+  margin: 0;
+}
+
+/* ── react-multi-carousel: give each slide padding so cards don't touch ───────
+   This is the correct way to add gaps between cards in react-multi-carousel.
+   Margin on the card itself overflows the slide container and causes overlap.   */
+.react-multi-carousel-item {
+  padding: 0 8px;      /* 8px on each side = 16px gap between cards */
   box-sizing: border-box;
 }
 

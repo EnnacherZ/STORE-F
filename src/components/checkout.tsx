@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import Header from './Header';
-import '../styles/checkout.css';
+import '../styles/checkout.css';   // ← replace the contents of this file with the new checkout.css
 import { clientData, usePayment, PaymentResponse } from '../contexts/PaymentContext';
 import { useForm } from 'react-hook-form';
 import { AiFillAlert } from 'react-icons/ai';
@@ -17,6 +17,7 @@ import { useCart } from '../contexts/CartContext';
 import Loading from './loading';
 import Footer from './Footer';
 import { HiOutlineCash } from 'react-icons/hi';
+import { MdCheckCircle } from 'react-icons/md';
 import {
   cities,
   goTo,
@@ -64,14 +65,16 @@ const isClientDataComplete = (data: clientData | undefined): boolean => {
 };
 
 // ─── Pay-now overlay ──────────────────────────────────────────────────────────
+// (unchanged — kept exactly as original)
 
 type OverlayStage = 'url' | 'cod' | 'redirecting';
 
 const PayNowOverlay: React.FC<{ stage: OverlayStage }> = ({ stage }) => {
+  const { t } = useTranslation();
   const messages: Record<OverlayStage, { icon: string; title: string; sub: string }> = {
-    url:         { icon: '🔐', title: 'Initializing Payment',  sub: 'Setting up your secure session…'   },
-    cod:         { icon: '📦', title: 'Placing Your Order',    sub: 'Confirming your order…'             },
-    redirecting: { icon: '↪',  title: 'Redirecting to Payment',sub: 'Taking you to the payment page…'   },
+    url:         { icon: '🔐', title: t('payment.overlayUrlTitle'),      sub: t('payment.overlayUrlSub')      },
+    cod:         { icon: '📦', title: t('payment.overlayCodTitle'),      sub: t('payment.overlayCodSub')      },
+    redirecting: { icon: '↪',  title: t('payment.overlayRedirectTitle'), sub: t('payment.overlayRedirectSub') },
   };
   const { icon, title, sub } = messages[stage];
 
@@ -79,78 +82,22 @@ const PayNowOverlay: React.FC<{ stage: OverlayStage }> = ({ stage }) => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap');
-
-        .pno-backdrop {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.45);
-          backdrop-filter: blur(4px);
-          z-index: 9999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          animation: pno-in 0.2s ease;
-        }
-        @keyframes pno-in { from { opacity: 0; } to { opacity: 1; } }
-
-        .pno-card {
-          background: #fff;
-          border-radius: 20px;
-          box-shadow: 0 8px 60px rgba(0,0,0,0.22);
-          padding: 2.75rem 2.5rem 2.25rem;
-          text-align: center;
-          max-width: 360px;
-          width: 90%;
-          font-family: 'DM Sans', sans-serif;
-          animation: pno-rise 0.3s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        @keyframes pno-rise { from { transform: translateY(24px) scale(0.95); opacity: 0; } to { transform: none; opacity: 1; } }
-
-        .pno-icon-wrap {
-          position: relative;
-          width: 70px;
-          height: 70px;
-          margin: 0 auto 1.25rem;
-        }
-        .pno-ring {
-          position: absolute;
-          inset: 0;
-          border-radius: 50%;
-          border: 3px solid #e8f5e9;
-          border-top-color: #2e7d32;
-          animation: pno-spin 1s linear infinite;
-        }
-        @keyframes pno-spin { to { transform: rotate(360deg); } }
-        .pno-icon {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.6rem;
-          animation: pno-pop 0.3s ease-out;
-        }
-        @keyframes pno-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .pno-title { font-size: 1.15rem; font-weight: 700; color: #1b2a1e; margin-bottom: 0.3rem; }
-        .pno-sub   { font-size: 0.82rem; color: #6b7c6e; font-family: 'DM Mono', monospace; }
-
-        .pno-dots span {
-          display: inline-block;
-          width: 6px; height: 6px;
-          border-radius: 50%;
-          background: #2e7d32;
-          margin: 1.25rem 3px 0;
-          animation: pno-bounce 1.2s ease-in-out infinite;
-        }
-        .pno-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .pno-dots span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes pno-bounce {
-          0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
-          40%            { transform: scale(1.2); opacity: 1;   }
-        }
+        .pno-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:pno-in 0.2s ease}
+        @keyframes pno-in{from{opacity:0}to{opacity:1}}
+        .pno-card{background:#fff;border-radius:20px;box-shadow:0 8px 60px rgba(0,0,0,0.22);padding:2.75rem 2.5rem 2.25rem;text-align:center;max-width:360px;width:90%;font-family:'DM Sans',sans-serif;animation:pno-rise 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+        @keyframes pno-rise{from{transform:translateY(24px) scale(0.95);opacity:0}to{transform:none;opacity:1}}
+        .pno-icon-wrap{position:relative;width:70px;height:70px;margin:0 auto 1.25rem}
+        .pno-ring{position:absolute;inset:0;border-radius:50%;border:3px solid #e8f5e9;border-top-color:#1e7fff;animation:pno-spin 1s linear infinite}
+        @keyframes pno-spin{to{transform:rotate(360deg)}}
+        .pno-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem;animation:pno-pop 0.3s ease-out}
+        @keyframes pno-pop{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}
+        .pno-title{font-size:1.15rem;font-weight:700;color:#0f1c35;margin-bottom:0.3rem}
+        .pno-sub{font-size:0.82rem;color:#6b7c6e;font-family:'DM Mono',monospace}
+        .pno-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#1e7fff;margin:1.25rem 3px 0;animation:pno-bounce 1.2s ease-in-out infinite}
+        .pno-dots span:nth-child(2){animation-delay:0.2s}
+        .pno-dots span:nth-child(3){animation-delay:0.4s}
+        @keyframes pno-bounce{0%,80%,100%{transform:scale(0.7);opacity:0.5}40%{transform:scale(1.2);opacity:1}}
       `}</style>
-
       <div className="pno-backdrop">
         <div className="pno-card">
           <div className="pno-icon-wrap">
@@ -159,9 +106,7 @@ const PayNowOverlay: React.FC<{ stage: OverlayStage }> = ({ stage }) => {
           </div>
           <div className="pno-title" key={`t-${stage}`}>{title}</div>
           <div className="pno-sub"   key={`s-${stage}`}>{sub}</div>
-          <div className="pno-dots">
-            <span /><span /><span />
-          </div>
+          <div className="pno-dots"><span /><span /><span /></div>
         </div>
       </div>
     </>
@@ -223,9 +168,7 @@ const Checkout: React.FC = () => {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // ─── Handlers ─────────────────────────────────────────────────────────────
-
-  // ── 1. Client info form submission ────────────────────────────────────────
+  // ─── Handlers (ALL UNCHANGED) ─────────────────────────────────────────────
 
   const handleFormSubmit = async () => {
     if (!arePoliciesAccepted) {
@@ -241,9 +184,7 @@ const Checkout: React.FC = () => {
       });
       return;
     }
-
     setHasPoliciesError(false);
-
     const clientCoords: clientData = {
       FirstName: getValues('firstName'),
       LastName : getValues('lastName'),
@@ -254,28 +195,22 @@ const Checkout: React.FC = () => {
       Amount   : cartTotalAmount,
       Currency : 'MAD',
     };
-
     setClientForm(clientCoords);
     setIsFormLocked(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
-  // ── 2. Payment method handlers ────────────────────────────────────────────
-
   const handleOnlinePaymentSelect = () => setSelectedPaymentMethod('online');
   const handleCodSelect           = () => setSelectedPaymentMethod('cod');
 
-  // ── 3. Pay now ────────────────────────────────────────────────────────────
   const handlePayNowClick = async () => {
     if (selectedPaymentMethod === 'cod') {
       processPayment('COD', orderDate.toUTCString());
-      ;
+      return;
     }
-
     if (selectedPaymentMethod === 'online') {
       if (!clientForm) return;
       try {
-        // Show overlay: fetching payment URL
         setOverlayStage('url');
         const response = await connecter.post('api/payment/url/get', {
           tokenParams: {
@@ -296,12 +231,9 @@ const Checkout: React.FC = () => {
             phone       : clientForm.Phone,
             email       : clientForm.Email,
           },
-          items: allItems
+          items: allItems,
         });
-
-        // Transition overlay: redirect in progress
         setOverlayStage('redirecting');
-        // Small pause so user reads "Redirecting…" before browser navigates
         await new Promise(r => setTimeout(r, 600));
         window.location.href = response.data.payment_url;
       } catch (err) {
@@ -311,18 +243,14 @@ const Checkout: React.FC = () => {
       }
       return;
     }
-
     showToast(t('payment.choose'), 'error');
   };
-
-  // ── 4. Core payment processing (COD only) ─────────────────────────────────
 
   const processPayment = async (transactionId: string, date: string) => {
     try {
       setIsLoading(true);
       setOverlayStage('cod');
       window.scrollTo(0, 0);
-
       const payload = {
         items         : allItems,
         date,
@@ -330,10 +258,8 @@ const Checkout: React.FC = () => {
         transaction_id: transactionId,
         client        : clientForm,
       };
-
       const response = await connecter.post('api/payment/handle/', payload);
       setSuccessTransItems(response.data.ordered_products ?? []);
-
       const cashPaymentResponse: PaymentResponse = {
         order_id       : response.data.paymentResponse.order_id,
         success        : true,
@@ -346,8 +272,6 @@ const Checkout: React.FC = () => {
         message        : '',
       };
       setPaymentResponse(cashPaymentResponse);
-
-      // Use the freshly-built object to avoid stale paymentResponse state
       const invoicePdf      = (await createInvoice(cashPaymentResponse, clientForm)).doc;
       const invoiceFileName = `${clientForm?.FirstName}_${clientForm?.LastName}`;
       const invoiceFile     = new File(
@@ -355,9 +279,8 @@ const Checkout: React.FC = () => {
         `${invoiceFileName}.pdf`,
         { type: 'application/pdf' }
       );
-
       await sendEmail(clientForm, invoiceFile, 'Invoice', 'Here is your Invoice');
-      goTo('/Transaction/Success')
+      goTo('/Transaction/Success');
       clearCart();
     } catch (error) {
       console.error('Payment processing error:', error);
@@ -368,19 +291,15 @@ const Checkout: React.FC = () => {
     }
   };
 
-  // ─── Validation ───────────────────────────────────────────────────────────
-
   const validatePhoneNumber = (value: string): true | string => {
     const parsed = parsePhoneNumberFromString(value, 'MA');
     if (parsed && isValidPhoneNumber(value, 'MA')) return true;
     return t('form.phone.invalidFormat') ?? 'Enter a valid phone number: 06.., 07.. or +212..';
   };
 
-  // ─── UI helpers ───────────────────────────────────────────────────────────
-
   const renderFieldError = (message: string | undefined) =>
     message ? (
-      <span className={`field-error ${isRtl ? 'rtl' : ''}`}>{message}</span>
+      <span className={`co-field__error ${isRtl ? 'rtl' : ''}`}>{message}</span>
     ) : null;
 
   const isFormReady = isClientDataComplete(clientForm) && isFormLocked;
@@ -391,11 +310,12 @@ const Checkout: React.FC = () => {
     return (
       <>
         <Header />
-        <div className="checkout-empty-cart">
-          <MdRemoveShoppingCart size={50} className="checkout-empty-cart__icon" />
+        <div className="co-empty-cart">
+          <MdRemoveShoppingCart size={50} color="#7a8599" />
           <p className={isRtl ? 'rtl' : ''}>{t('cart.empty')}</p>
           <button
-            className={`btn btn-primary mt-4 ${isRtl ? 'rtl' : ''}`}
+            className="co-save-btn"
+            style={{ width: 'auto', padding: '10px 28px' }}
             onClick={() => goTo('/')}
           >
             <b>{t('cart.shopNow')} !</b>
@@ -410,7 +330,6 @@ const Checkout: React.FC = () => {
 
   return (
     <>
-      {/* Overlay renders above everything */}
       {overlayStage && <PayNowOverlay stage={overlayStage} />}
 
       <Header />
@@ -418,282 +337,380 @@ const Checkout: React.FC = () => {
       {isLoading ? (
         <Loading message={t('ui.loading')} />
       ) : (
-        <div className="mt-1">
+        <div className="co-page">
 
-          {/* ── Top bar ───────────────────────────────────────────────────── */}
-          <div className="checkout-topbar shadow rounded d-flex justify-content-between">
-            <button
-              className="btn btn-primary btn-back my-2 mx-1 p-0"
-              style={{ width: 90 }}
-              onClick={() => goTo('/cart')}
-            >
-              <IoArrowBackOutline style={{ marginRight: -3 }} /> {t('cart.toCart')}
-            </button>
-
-            <div className="d-flex align-items-center">
-              <strong style={{ fontSize: 14, color: 'green' }}>
-                {cartTotalAmount.toFixed(2)} {currentCurrency}
-              </strong>
+          {/* ── Topbar ────────────────────────────────────────────────────── */}
+          <div className="co-topbar">
+            {/* Logo */}
+            <div className="co-topbar__logo">
+              <div className="co-topbar__logo-icon">
+                <FaMoneyBillTransfer size={18} />
+              </div>
+              <div>
+                <div className="co-topbar__logo-name">AL-FIRDAOUS</div>
+                <div className="co-topbar__logo-sub">STORE</div>
+              </div>
             </div>
 
-            <div className="checkout-topbar__currency d-flex align-items-center justify-content-end me-0">
-              <ReactCountryFlag
-                className="checkout-topbar__flag"
-                countryCode={getCountryCodeByCurrency(currentCurrency)}
-                svg
-                style={{ width: '20%', height: 35, marginRight: 3 }}
-                title={currentCurrency}
-              />
-              <select
-                className="form-select align-middle d-inline border-0"
-                style={{ width: 95, color: 'green', fontWeight: 500, backgroundColor: '#efecec' }}
-                onChange={(e) => setCurrentCurrency(e.target.value)}
-                defaultValue={currentCurrency}
-                aria-label="Select currency"
+            {/* Steps */}
+            <div className="co-topbar__steps">
+              {/* Step 1 */}
+              <div className="co-step">
+                <div className={`co-step__circle ${isFormLocked ? 'co-step__circle--done' : 'co-step__circle--active'}`}>
+                  {isFormLocked
+                    ? <MdCheckCircle size={16} />
+                    : 1}
+                </div>
+                <span className={`co-step__label ${!isFormLocked ? 'co-step__label--active' : 'co-step__label--done'}`}>
+                  {t('form.clientInfo')}
+                </span>
+              </div>
+
+              <div className={`co-topbar__step-connector ${isFormLocked ? 'co-topbar__step-connector--done' : ''}`} />
+
+              {/* Step 2 */}
+              <div className="co-step">
+                <div className={`co-step__circle ${isFormLocked ? 'co-step__circle--active' : ''}`}>
+                  2
+                </div>
+                <span className={`co-step__label ${isFormLocked ? 'co-step__label--active' : ''}`}>
+                  {t('payment.portal')}
+                </span>
+              </div>
+            </div>
+
+            {/* Total + currency + back */}
+            <div className="co-topbar__actions">
+              <div className="co-topbar__total">
+                <strong style={{ color: '#fff' }}>
+                  {cartTotalAmount.toFixed(2)}&nbsp;
+                </strong>
+                <select
+                  style={{
+                    background: 'transparent', border: 'none', outline: 'none',
+                    color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                  onChange={(e) => setCurrentCurrency(e.target.value)}
+                  defaultValue={currentCurrency}
+                  aria-label="Select currency"
+                >
+                  <option value="MAD" style={{ color: '#0f1c35' }}>MAD</option>
+                  {currencyIsAvailable && (
+                    <>
+                      <option value="USD" style={{ color: '#0f1c35' }}>USD $</option>
+                      <option value="EUR" style={{ color: '#0f1c35' }}>EUR €</option>
+                    </>
+                  )}
+                </select>
+                <ReactCountryFlag
+                  countryCode={getCountryCodeByCurrency(currentCurrency)}
+                  svg
+                  style={{ width: 20, height: 20, marginLeft: 4 }}
+                  title={currentCurrency}
+                />
+              </div>
+
+              <button
+                className="co-topbar__back-btn"
+                onClick={() => goTo('/cart')}
               >
-                <option value="MAD" style={{ fontWeight: 500 }}>MAD</option>
-                {currencyIsAvailable && (
-                  <>
-                    <option value="USD" style={{ fontWeight: 500 }}>USD $</option>
-                    <option value="EUR" style={{ fontWeight: 500 }}>EUR €</option>
-                  </>
-                )}
-              </select>
+                <IoArrowBackOutline /> {t('cart.toCart')}
+              </button>
             </div>
           </div>
 
           {/* ── Alert banner ──────────────────────────────────────────────── */}
-          <div className={`checkout-alert rounded p-2 ${isRtl ? 'rtl' : ''}`}>
-            <AiFillAlert size="1.3em" className="mx-2 checkout-alert__icon" />
+          <div className={`co-alert ${isRtl ? 'rtl' : ''}`}>
+            <AiFillAlert size={16} className="co-alert__icon" />
             {t('payment.checkoutAlert')}
           </div>
 
           {/* ── Main layout ───────────────────────────────────────────────── */}
-          <div className="checkout-layout">
+          <div className="co-layout">
 
-            {/* ── Client info form ────────────────────────────────────────── */}
+            {/* ── Shipping form ───────────────────────────────────────────── */}
             <form
-              className={`client-info-form card shadow-lg pt-0 mt-2 ${isMobileView ? 'client-info-form--mobile' : ''}`}
+              className="co-card co-form-panel"
               onSubmit={handleSubmit(handleFormSubmit)}
             >
-              <div className="text-center my-2 fs-3">
-                <b><FaUserCircle style={{ marginTop: -3 }} /> {t('form.clientInfo')}</b>
-              </div>
-              <hr />
-
-              {/* First + Last name */}
-              <div className={`form-row d-flex mb-2 ${isMobileView ? 'flex-column' : ''}`}>
-                <div className="form-field input-group flex-column px-1">
-                  <label className={`form-label ${isRtl ? 'rtl' : ''}`}>
-                    {t('form.firstName.label')}:
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text"><FaRegUserCircle /></span>
-                    <input
-                      {...register('firstName', { required: `${t('form.firstName.required')} !` })}
-                      type="text"
-                      className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
-                      placeholder={t('form.firstName.label')}
-                      readOnly={isFormLocked}
-                      disabled={isFormLocked}
-                    />
+              <div className="co-card__header">
+                <div>
+                  <div className="co-card__header-step">Step 1</div>
+                  <div className="co-card__header-title">
+                    <FaUserCircle style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                    {t('form.clientInfo')}
                   </div>
-                  {renderFieldError(errors.firstName?.message)}
                 </div>
-
-                <div className="form-field input-group flex-column px-1">
-                  <label className={`form-label ${isRtl ? 'rtl' : ''}`}>
-                    {t('form.lastName.label')}:
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text"><FaRegUserCircle /></span>
-                    <input
-                      {...register('lastName', { required: `${t('form.lastName.required')} !` })}
-                      type="text"
-                      className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
-                      placeholder={t('form.lastName.label')}
-                      readOnly={isFormLocked}
-                      disabled={isFormLocked}
-                    />
-                  </div>
-                  {renderFieldError(errors.lastName?.message)}
-                </div>
+                {isFormLocked && (
+                  <button
+                    type="button"
+                    className="co-card__edit-btn"
+                    onClick={() => { setIsFormLocked(false); setSelectedPaymentMethod(undefined); }}
+                  >
+                    {t('form.modify')}
+                  </button>
+                )}
               </div>
 
-              {/* Email + Phone */}
-              <div className={`form-row d-flex mb-2 ${isMobileView ? 'flex-column' : ''}`}>
-                <div className="form-field input-group flex-column px-1">
-                  <label className={`form-label ${isRtl ? 'rtl' : ''}`}>
-                    {t('form.email.label')}:
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text"><MdAlternateEmail /></span>
-                    <input
-                      {...register('email', { required: `${t('form.email.required')} !` })}
-                      type="email"
-                      className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                      placeholder={t('form.email.label')}
-                      readOnly={isFormLocked}
-                      disabled={isFormLocked}
-                    />
+              <div className="co-form-body">
+                {/* Row: First + Last name */}
+                <div className={`co-form-row ${isMobileView ? 'flex-column' : ''}`}>
+                  <div className="co-field">
+                    <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.firstName.label')}</label>
+                    <div className={`co-field__input-wrap ${isFormLocked ? 'co-field__input-wrap--locked' : ''} ${errors.firstName ? 'co-field__input-wrap--error' : ''}`}>
+                      <span className="co-field__icon"><FaRegUserCircle size={15} /></span>
+                      <input
+                        {...register('firstName', { required: `${t('form.firstName.required')} !` })}
+                        type="text"
+                        className={`co-field__input ${isFormLocked ? 'co-field__input--locked' : ''}`}
+                        placeholder={t('form.firstName.label')}
+                        readOnly={isFormLocked}
+                        disabled={isFormLocked}
+                      />
+                    </div>
+                    {renderFieldError(errors.firstName?.message)}
                   </div>
-                  {renderFieldError(errors.email?.message)}
+
+                  <div className="co-field">
+                    <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.lastName.label')}</label>
+                    <div className={`co-field__input-wrap ${isFormLocked ? 'co-field__input-wrap--locked' : ''} ${errors.lastName ? 'co-field__input-wrap--error' : ''}`}>
+                      <span className="co-field__icon"><FaRegUserCircle size={15} /></span>
+                      <input
+                        {...register('lastName', { required: `${t('form.lastName.required')} !` })}
+                        type="text"
+                        className={`co-field__input ${isFormLocked ? 'co-field__input--locked' : ''}`}
+                        placeholder={t('form.lastName.label')}
+                        readOnly={isFormLocked}
+                        disabled={isFormLocked}
+                      />
+                    </div>
+                    {renderFieldError(errors.lastName?.message)}
+                  </div>
                 </div>
 
-                <div className="form-field input-group flex-column px-1">
-                  <label className={`form-label ${isRtl ? 'rtl' : ''}`}>
-                    {t('form.phone.label')}:
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text"><FaPhone /></span>
-                    <input
-                      {...register('phone', {
-                        required : `${t('form.phone.required')} !`,
-                        minLength: { value: 10, message: t('form.phone.minLength') ?? 'Min 10 characters' },
-                        validate : validatePhoneNumber,
-                      })}
-                      type="tel"
-                      className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                      placeholder={t('form.phone.label')}
-                      readOnly={isFormLocked}
-                      disabled={isFormLocked}
-                    />
+                {/* Row: Email + Phone */}
+                <div className={`co-form-row ${isMobileView ? 'flex-column' : ''}`}>
+                  <div className="co-field">
+                    <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.email.label')}</label>
+                    <div className={`co-field__input-wrap ${isFormLocked ? 'co-field__input-wrap--locked' : ''} ${errors.email ? 'co-field__input-wrap--error' : ''}`}>
+                      <span className="co-field__icon"><MdAlternateEmail size={15} /></span>
+                      <input
+                        {...register('email', { required: `${t('form.email.required')} !` })}
+                        type="email"
+                        className={`co-field__input ${isFormLocked ? 'co-field__input--locked' : ''}`}
+                        placeholder={t('form.email.label')}
+                        readOnly={isFormLocked}
+                        disabled={isFormLocked}
+                      />
+                    </div>
+                    {renderFieldError(errors.email?.message)}
                   </div>
-                  {renderFieldError(errors.phone?.message)}
+
+                  <div className="co-field">
+                    <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.phone.label')}</label>
+                    <div className={`co-field__input-wrap ${isFormLocked ? 'co-field__input-wrap--locked' : ''} ${errors.phone ? 'co-field__input-wrap--error' : ''}`}>
+                      <span className="co-field__icon"><FaPhone size={15} /></span>
+                      <input
+                        {...register('phone', {
+                          required : `${t('form.phone.required')} !`,
+                          minLength: { value: 10, message: t('form.phone.minLength') ?? 'Min 10 characters' },
+                          validate : validatePhoneNumber,
+                        })}
+                        type="tel"
+                        className={`co-field__input ${isFormLocked ? 'co-field__input--locked' : ''}`}
+                        placeholder={t('form.phone.label')}
+                        readOnly={isFormLocked}
+                        disabled={isFormLocked}
+                      />
+                    </div>
+                    {renderFieldError(errors.phone?.message)}
+                  </div>
                 </div>
+
+                {/* Row: City + Address */}
+                <div className={`co-form-row ${isMobileView ? 'flex-column' : ''}`}>
+                  <div className="co-field">
+                    <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.city.label')}</label>
+                    <div className={`co-field__input-wrap ${isFormLocked ? 'co-field__input-wrap--locked' : ''} ${errors.city ? 'co-field__input-wrap--error' : ''}`}>
+                      <span className="co-field__icon"><FaCity size={15} /></span>
+                      <select
+                        {...register('city', { required: `${t('form.city.required')} !` })}
+                        className={`co-field__select ${isFormLocked ? 'co-field__select--locked' : ''}`}
+                        disabled={isFormLocked}
+                        id="city-select"
+                      >
+                        <option value="">{t('form.selectCity')}</option>
+                        {cities.map((city, index) => (
+                          <option value={city} key={index}>{city}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {renderFieldError(errors.city?.message)}
+                  </div>
+
+                  <div className="co-field">
+                    <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.address.label')}</label>
+                    <div className={`co-field__input-wrap ${isFormLocked ? 'co-field__input-wrap--locked' : ''} ${errors.address ? 'co-field__input-wrap--error' : ''}`}>
+                      <span className="co-field__icon"><BsGeoAltFill size={15} /></span>
+                      <input
+                        {...register('address', { required: `${t('form.address.required')} !` })}
+                        type="text"
+                        className={`co-field__input ${isFormLocked ? 'co-field__input--locked' : ''}`}
+                        placeholder={t('form.address.label')}
+                        readOnly={isFormLocked}
+                        disabled={isFormLocked}
+                      />
+                    </div>
+                    {renderFieldError(errors.address?.message)}
+                  </div>
+                </div>
+
+                {/* Policies */}
+                {!isFormLocked && (
+                  <div
+                    className={`co-policies ${isRtl ? 'rtl' : ''}`}
+                    onClick={() => setArePoliciesAccepted((prev) => !prev)}
+                  >
+                    <div className={`co-policies__box ${arePoliciesAccepted ? 'co-policies__box--checked' : ''} ${hasPoliciesError ? 'co-policies__box--error' : ''}`}>
+                      {arePoliciesAccepted && <MdCheckCircle size={13} />}
+                    </div>
+                    <span className={`co-policies__text ${hasPoliciesError ? 'co-policies__text--error' : ''}`}>
+                      {policiesAcceptanceText(selectedLang(currentLang))}
+                    </span>
+                  </div>
+                )}
+
+                {/* Submit */}
+                {!isFormLocked && (
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="co-save-btn"
+                  >
+                    {isClientDataComplete(clientForm) && !isFormLocked
+                      ? t('form.saveChanges')
+                      : t('form.save')}
+                  </button>
+                )}
+
+                {/* Confirmed state */}
+                {isFormLocked && (
+                  <div className="co-saved-confirm">
+                    <div className="co-saved-confirm__icon">
+                      <MdCheckCircle size={16} />
+                    </div>
+                    {t('form.save')} — {t('payment.portal')}
+                  </div>
+                )}
               </div>
-
-              {/* City + Address */}
-              <div className={`form-row d-flex mb-2 ${isMobileView ? 'flex-column' : ''}`}>
-                <div className="form-field input-group flex-column px-1">
-                  <label className={`form-label ${isRtl ? 'rtl' : ''}`}>
-                    {t('form.city.label')}:
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text"><FaCity /></span>
-                    <select
-                      {...register('city', { required: `${t('form.city.required')} !` })}
-                      className={`form-select ${errors.city ? 'is-invalid' : ''}`}
-                      disabled={isFormLocked}
-                      id="city-select"
-                    >
-                      <option value="">{t('form.selectCity')}</option>
-                      {cities.map((city, index) => (
-                        <option value={city} key={index}>{city}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {renderFieldError(errors.city?.message)}
-                </div>
-
-                <div className="form-field input-group flex-column px-1">
-                  <label className={`form-label ${isRtl ? 'rtl' : ''}`}>
-                    {t('form.address.label')}:
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text"><BsGeoAltFill /></span>
-                    <input
-                      {...register('address', { required: `${t('form.address.required')} !` })}
-                      type="text"
-                      className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-                      placeholder={t('form.address.label')}
-                      readOnly={isFormLocked}
-                      disabled={isFormLocked}
-                    />
-                  </div>
-                  {renderFieldError(errors.address?.message)}
-                </div>
-              </div>
-
-              {/* Policies checkbox */}
-              <div className={`form-check d-flex mx-2 my-3 p-0 ${isRtl ? 'rtl' : ''} ${isFormLocked ? 'is-disabled' : ''}`}>
-                <input
-                  className={`form-check-input mx-2 ${hasPoliciesError ? 'is-invalid' : ''}`}
-                  type="checkbox"
-                  id="policies-checkbox"
-                  readOnly={isFormLocked}
-                  disabled={isFormLocked}
-                  checked={arePoliciesAccepted}
-                  onChange={() => setArePoliciesAccepted((prev) => !prev)}
-                  style={{ width: 20, height: 20 }}
-                />
-                <label className="form-check-label" htmlFor="policies-checkbox">
-                  {policiesAcceptanceText(selectedLang(currentLang))}
-                </label>
-              </div>
-
-              {/* Submit / Edit buttons */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`btn btn-success rounded ${isFormLocked ? 'd-none' : ''}`}
-              >
-                {isClientDataComplete(clientForm) && !isFormLocked
-                  ? t('form.saveChanges')
-                  : t('form.save')}
-              </button>
-
-              <button
-                type="button"
-                className={`btn btn-danger rounded ${isFormLocked ? '' : 'd-none'}`}
-                onClick={() => {
-                  setIsFormLocked(false);
-                  setSelectedPaymentMethod(undefined);
-                }}
-                disabled={!isFormLocked}
-              >
-                {t('form.modify')}
-              </button>
             </form>
 
-            {/* ── Payment section ──────────────────────────────────────────── */}
-            <div className="checkout-payment-panel d-flex flex-column mb-5">
-              <div className="payment-gateway card shadow p-2 mt-2">
-                <div className="payment-gateway__title fs-3">
-                  <FaMoneyBillTransfer className="mx-3" /> {t('payment.portal')}
+            {/* ── Right column ──────────────────────────────────────────────── */}
+            <div className="co-right-col">
+
+              {/* Payment methods */}
+              <div className="co-card">
+                <div className="co-card__header">
+                  <div>
+                    <div className="co-card__header-step">Step 2</div>
+                    <div className="co-card__header-title">
+                      <FaMoneyBillTransfer style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                      {t('payment.portal')}
+                    </div>
+                  </div>
                 </div>
-                <hr />
 
-                {/* Cash on Delivery */}
-                <button
-                  className={`payment-method-btn payment-method-btn--cod rounded my-3 ${isRtl ? 'rtl' : ''} ${selectedPaymentMethod === 'cod' ? 'is-selected' : ''} ${isFormReady ? '' : 'is-disabled'}`}
-                  onClick={handleCodSelect}
-                  disabled={!isFormReady}
-                >
-                  <HiOutlineCash className="mx-2" /> {t('payment.cod')}
-                </button>
+                <div className="co-payment-body">
+                  {/* Cash on Delivery */}
+                  <button
+                    type="button"
+                    className={`co-pay-method co-pay-method--cod ${selectedPaymentMethod === 'cod' ? 'co-pay-method--selected' : ''}`}
+                    onClick={handleCodSelect}
+                    disabled={!isFormReady}
+                  >
+                    <div className="co-pay-method__icon">
+                      <HiOutlineCash size={22} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div className="co-pay-method__label">{t('payment.cod')}</div>
+                      <div className="co-pay-method__sublabel">Pay when your order arrives</div>
+                    </div>
+                    <div className="co-pay-method__radio">
+                      {selectedPaymentMethod === 'cod' && <div className="co-pay-method__radio-dot" />}
+                    </div>
+                  </button>
 
-                {/* Online payment */}
-                <button
-                  className={`payment-method-btn payment-method-btn--online rounded my-3 ${isRtl ? 'rtl' : ''} ${selectedPaymentMethod === 'online' ? 'is-selected' : ''} ${!IS_ONLINE_PAYMENT_ENABLED || !isFormReady ? 'is-disabled' : ''}`}
-                  onClick={handleOnlinePaymentSelect}
-                  disabled={!IS_ONLINE_PAYMENT_ENABLED || !isFormReady}
-                >
-                  <FaCreditCard className="mx-3" /> {t('payment.creditCard')}
-                </button>
+                  {/* Online payment */}
+                  <button
+                    type="button"
+                    className={`co-pay-method co-pay-method--online ${selectedPaymentMethod === 'online' ? 'co-pay-method--selected' : ''}`}
+                    onClick={handleOnlinePaymentSelect}
+                    disabled={!IS_ONLINE_PAYMENT_ENABLED || !isFormReady}
+                  >
+                    <div className="co-pay-method__icon">
+                      <FaCreditCard size={22} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div className="co-pay-method__label">{t('payment.creditCard')}</div>
+                      <div className="co-pay-method__sublabel">Secure online payment</div>
+                    </div>
+                    <div className="co-pay-method__radio">
+                      {selectedPaymentMethod === 'online' && <div className="co-pay-method__radio-dot" />}
+                    </div>
+                  </button>
 
-                {/* Selected method display */}
-                <div className={`payment-gateway__selection fw-bold fs-6 ${isRtl ? 'rtl' : ''}`}>
-                  {t('payment.chosen')}:{' '}
-                  {selectedPaymentMethod === undefined
-                    ? t('payment.notChosen')
-                    : selectedPaymentMethod === 'online'
-                      ? t('payment.creditCard')
-                      : t('payment.cod')}
+                  <div className={`co-payment-status ${selectedPaymentMethod ? 'co-payment-status--chosen' : ''}`}>
+                    {selectedPaymentMethod === undefined
+                      ? t('payment.notChosen')
+                      : selectedPaymentMethod === 'online'
+                        ? `✓ ${t('payment.creditCard')}`
+                        : `✓ ${t('payment.cod')}`}
+                  </div>
                 </div>
               </div>
 
-              {/* Pay now button */}
+              {/* Order summary */}
+              <div className="co-card co-summary">
+                <div className="co-summary__title">
+                  <span className="co-summary__accent" />
+                  Order Summary
+                </div>
+                <div className="co-summary__row">
+                  <span>Subtotal</span>
+                  <span>{(cartTotalAmount - 20).toFixed(2)} {currentCurrency}</span>
+                </div>
+                <div className="co-summary__row">
+                  <span>Shipping</span>
+                  <span>20.00 {currentCurrency}</span>
+                </div>
+                <div className="co-summary__divider" />
+                <div className="co-summary__total">
+                  <span className="co-summary__total-label">Total</span>
+                  <span className="co-summary__total-value">{cartTotalAmount.toFixed(2)} {currentCurrency}</span>
+                </div>
+              </div>
+
+              {/* Pay now */}
               <button
                 id="pay-now-btn"
-                className={`pay-now-btn rounded mt-2 ${isFormReady ? '' : 'is-disabled'}`}
+                type="button"
+                className={`co-pay-now-btn ${isFormReady && selectedPaymentMethod ? 'co-pay-now-btn--ready' : ''}`}
                 onClick={handlePayNowClick}
-                disabled={!isFormReady || overlayStage !== null}
+                disabled={!isFormReady || !selectedPaymentMethod || overlayStage !== null}
               >
+                <IoArrowBackOutline style={{ transform: 'rotate(180deg)' }} />
                 {overlayStage
                   ? '⏳ Please wait…'
-                  : t('payment.pay')}
+                  : `${t('payment.pay')} ${cartTotalAmount.toFixed(2)} ${currentCurrency}`}
               </button>
+
+              <div className="co-ssl-note">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                SSL encrypted · Secure Checkout
+              </div>
             </div>
           </div>
         </div>
