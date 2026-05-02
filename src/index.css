@@ -2,3 +2,62 @@ body{
     background-color: rgb(255, 255, 255);
     scroll-behavior: smooth;
 }
+/* ═══════════════════════════════════════════════════════════════════════════
+   global_mobile_fix.css
+   Add ONE import at the top of your src/index.css or src/App.css:
+       @import './global_mobile_fix.css';
+
+   This file has no visual side effects on desktop (> 768px).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Kill horizontal scroll & the white right-side gap ─────────────────
+   The gap is Bootstrap's container padding bleeding out on mobile.
+   Locking overflow-x on html/body stops any element from creating
+   a horizontal scrollbar that makes the right side look "wider".           */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── 2. Remove Bootstrap container padding on mobile ──────────────────────
+   .container / .container-fluid add padding-x (15px in BS4, ~12px in BS5)
+   on all screen sizes.  On mobile these create the visible side gaps.
+   We remove them only on screens ≤ 768px so desktop layout is untouched.  */
+@media (max-width: 768px) {
+  .container,
+  .container-fluid,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl {
+    padding-right: 0 !important;
+    padding-left:  0 !important;
+  }
+}
+
+/* ── 3. Revert carousel / section content back to a comfortable 12px gutter
+   Without any container padding, text content sits flush against the edge.
+   We add a small 12px padding to the main content blocks so text breathes,
+   while keeping the carousel images fully edge-to-edge.                    */
+@media (max-width: 768px) {
+  /* Product carousel section title — keep left-border accent visible */
+  .ProductsPromoAnnouncement {
+    padding-right: 12px !important;
+    padding-left:  12px !important;
+  }
+
+  /* "See all" link row */
+  .carsl-see-all {
+    padding-right: 12px;
+    padding-left:  12px;
+  }
+
+  /* Product detail info padding */
+  .pd-secondary,
+  .pd-reviews {
+    padding-right: 12px !important;
+    padding-left:  12px !important;
+  }
+}

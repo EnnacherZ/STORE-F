@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import storeLogo from '../assets/FIRDAOUS STORE.png';
-import '../styles/SuccessTransaction.css'
+import '../styles/SuccessTransaction.css';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
@@ -16,7 +16,6 @@ import { useCart } from '../contexts/CartContext';
 import { selectedLang } from './constants';
 import { usePayment } from '../contexts/PaymentContext';
 import createInvoice from '../contexts/CreateInvoice';
-
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -64,12 +63,13 @@ const SuccessTransaction: React.FC = () => {
     ? successTransItems
     : successTransItems?.slice(0, 2);
 
-  // ── Download link renderer ────────────────────────────────────────────────────
+  // ── Download button ───────────────────────────────────────────────────────────
 
   const renderDownloadTicketButton = () => (
-    <a href={invoiceUrl} download={`${invoiceFileName}.pdf`}>
-      <button className="invoice-download-btn btn btn-warning fw-bold">
-        <GiTicket size={25} /> {t('transaction.downloadTicket')}
+    <a href={invoiceUrl} download={`${invoiceFileName}.pdf`} className="suc-download-link">
+      <button className="suc-download-btn">
+        <GiTicket size={18} />
+        <span>{t('transaction.downloadTicket')}</span>
       </button>
     </a>
   );
@@ -80,107 +80,108 @@ const SuccessTransaction: React.FC = () => {
     <>
       <Header />
 
-      {/* Store logo link */}
-      <Link to="/home">
-        <div className="success-page__logo-wrapper d-flex justify-content-center">
-          <div className="success-page__logo mt-3">
-            <img src={storeLogo} alt="Store logo" />
+      <div className={`suc-root ${isRtl ? 'rtl' : 'ltr'}`}>
+
+        {/* ── Hero section ── */}
+        <div className="suc-hero">
+          <Link to="/home" className="suc-logo-link">
+            <div className="suc-logo">
+              <img src={storeLogo} alt="Store logo" />
+            </div>
+          </Link>
+
+          <div className="suc-check-ring">
+            <FontAwesomeIcon
+              icon={faCircleCheck}
+              className="suc-check-icon"
+              beat
+            />
           </div>
-        </div>
-      </Link>
 
-      {/* Success message */}
-      <p className="success-page__message mt-3">{t('transaction.success')}</p>
-      <p className="success-page__message mt-1">{t('transaction.thank')}</p>
+          <h1 className="suc-hero-title">{t('transaction.success')}</h1>
+          <p className="suc-hero-sub">{t('transaction.thank')}</p>
 
-      {/* Animated check icon */}
-      <div className="d-flex justify-content-center my-4">
-        <FontAwesomeIcon
-          icon={faCircleCheck}
-          size="2xl"
-          className="success-page__check-icon"
-          beat
-          style={{ color: '#38d400' }}
-        />
-      </div>
-
-      {/* Top download button */}
-      <div className="d-flex justify-content-center">
-        {renderDownloadTicketButton()}
-      </div>
-
-      {/* Transaction details + order summary */}
-      <div className="success-page__body d-flex">
-
-        {/* Transaction info table */}
-        <div className={`transaction-details card shadow mt-3 ${isRtl ? 'rtl' : ''}`}>
-          <div className="transaction-details__title fw-bold text-center fs-3 my-1">
-            <GrTransaction size={25} className="mx-1" /> {t('transaction.info')}
-          </div>
-          <hr className="my-2" />
-          <ul className="transaction-details__list px-1">
-            {[
-              { label: t('transaction.currency'), value: paymentResponse?.currency },
-              { label: t('transaction.amount'),   value: paymentResponse?.amount },
-              { label: t('order.orderId'),         value: paymentResponse?.order_id },
-              {
-                label: t('transaction.transactionId'),
-                value: paymentResponse?.isOnlinePayment
-                  ? paymentResponse?.transaction_id
-                  : t('payment.cod'),
-              },
-            ].map(({ label, value }, index) => (
-              <li
-                key={index}
-                className="transaction-details__list-item d-flex justify-content-between align-items-center px-1 my-2"
-              >
-                <span className="fw-bold text-muted">{label}:</span>
-                <span className="fw-bold transaction-details__list-value">{value}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="d-flex justify-content-center mb-1">
+          <div className="suc-hero-download">
             {renderDownloadTicketButton()}
           </div>
         </div>
 
-        {/* Ordered items summary */}
-        <div className={`order-review card shadow mt-3 ${isRtl ? 'rtl' : ''}`}>
-          <div className="order-review__title fw-bold text-center fs-3 p-1">
-            <BsBagCheckFill size={25} className="mx-2" /> {t('order.yourOrder')}
+        {/* ── Body panels ── */}
+        <div className="suc-body">
+
+          {/* ── Transaction details ── */}
+          <div className={`suc-panel suc-panel--details ${isRtl ? 'rtl' : ''}`}>
+            <div className="suc-panel-header">
+              <GrTransaction size={18} />
+              <span>{t('transaction.info')}</span>
+            </div>
+
+            <ul className="suc-detail-list">
+              {[
+                { label: t('transaction.currency'), value: paymentResponse?.currency },
+                { label: t('transaction.amount'),   value: paymentResponse?.amount },
+                { label: t('order.orderId'),         value: paymentResponse?.order_id },
+                {
+                  label: t('transaction.transactionId'),
+                  value: paymentResponse?.isOnlinePayment
+                    ? paymentResponse?.transaction_id
+                    : t('payment.cod'),
+                },
+              ].map(({ label, value }, index) => (
+                <li key={index} className="suc-detail-item">
+                  <span className="suc-detail-label">{label}</span>
+                  <span className="suc-detail-value">{value}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="suc-panel-footer">
+              {renderDownloadTicketButton()}
+            </div>
           </div>
-          <hr className="m-0" />
 
-          {visibleItems?.map((item, index) => (
-            <div key={index} className="order-review-item d-flex flex-row justify-content-between my-2 mx-1">
-              <div className="order-review-item__image card p-1 rounded m-1">
-                <img src={item.image} className="rounded" alt={item.name} />
-              </div>
-              <div className="order-review-item__name d-flex flex-column align-items-center justify-content-around">
-                <div className="fw-bold">{item.category} {item.ref}</div>
-                <div className="fw-bold">{item.name}</div>
-                <div className="text-muted">{t('product.size')}: {item.size}</div>
-              </div>
-              <div className="order-review-item__price d-flex flex-column justify-content-around align-items-center mx-1">
-                <div className="fw-bold" style={{ color: 'green' }}>
-                  {getItemTotal(item.price, item.promo, item.quantity)} {t('product.currency')}
+          {/* ── Order summary ── */}
+          <div className={`suc-panel suc-panel--order ${isRtl ? 'rtl' : ''}`}>
+            <div className="suc-panel-header">
+              <BsBagCheckFill size={18} />
+              <span>{t('order.yourOrder')}</span>
+            </div>
+
+            <div className="suc-items">
+              {visibleItems?.map((item, index) => (
+                <div key={index} className="suc-item">
+                  <div className="suc-item-img">
+                    <img src={item.image} alt={item.name} />
+                  </div>
+
+                  <div className="suc-item-info">
+                    <div className="suc-item-ref">{item.category} {item.ref}</div>
+                    <div className="suc-item-name">{item.name}</div>
+                    <div className="suc-item-size">{t('product.size')}: <strong>{item.size}</strong></div>
+                  </div>
+
+                  <div className="suc-item-pricing">
+                    <div className="suc-item-total">
+                      {getItemTotal(item.price, item.promo, item.quantity)} {t('product.currency')}
+                    </div>
+                    <div className="suc-item-qty">× {item.quantity}</div>
+                  </div>
                 </div>
-                <div className="text-muted">{t('product.quantity')}: {item.quantity}</div>
-              </div>
+              ))}
             </div>
-          ))}
 
-          {/* Expand / collapse if more than 2 items */}
-          {successTransItems && successTransItems.length > 2 && (
-            <div className="text-center my-3">
-              <button
-                className="btn btn-outline-primary border border-2 border-primary fw-bold"
-                onClick={() => setIsOrderExpanded((prev) => !prev)}
-              >
-                {isOrderExpanded ? t('product.readLess') : t('product.readMore')}
-              </button>
-            </div>
-          )}
+            {successTransItems && successTransItems.length > 2 && (
+              <div className="suc-expand">
+                <button
+                  className="suc-expand-btn"
+                  onClick={() => setIsOrderExpanded((prev) => !prev)}
+                >
+                  {isOrderExpanded ? t('product.readLess') : t('product.readMore')}
+                </button>
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
 

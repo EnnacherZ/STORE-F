@@ -6,160 +6,183 @@
 }
 
 /* ─── Page layout ────────────────────────────────────────────────────────────── */
+/*
+  Desktop: sidebar (~34%) on left, items panel (~63%) on right.
+  Mobile:  stacks vertically — items panel FIRST (order:1), sidebar SECOND (order:2).
+  The order swap is done with CSS `order` so the DOM stays untouched.
+*/
 .cart-page {
-  width: 100%;
-  display: flex;
+  width:           100%;
+  display:         flex;
+  align-items:     flex-start;
   justify-content: space-between;
-  margin-top: 5px;
-  margin-bottom: 3%;
+  gap:             16px;
+  margin-top:      12px;
+  margin-bottom:   3%;
+  padding:         0 12px;
 }
 
 /* ─── Sidebar ─────────────────────────────────────────────────────────────────── */
+/*
+  FIX: removed `height: 430px` — fixed heights cause overflow/clipping when
+  content or viewport size changes. Let content drive the height.
+*/
 .cart-sidebar {
-  width: 34%;
-  height: 430px;
-  margin-top: 0;
-  flex-direction: column;
-  justify-content: space-between;
-  position: sticky;
-  top: 115px;
+  width:            34%;
+  flex-shrink:      0;
+  display:          flex;
+  flex-direction:   column;
+  gap:              12px;
+  position:         sticky;
+  top:              115px;
+  align-self:       flex-start;
 }
 
 /* ─── Currency bar ────────────────────────────────────────────────────────────── */
 .currency-bar {
-  position: relative;
-  width: 100%;
-  height: 55px;
+  width:            100%;
+  height:           55px;
   background-color: #efecec;
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  border-radius:    8px;
+  padding:          0 10px 0 4px;
+  border:           1px solid #ccc;
+  box-shadow:       0 1px 4px rgba(0,0,0,0.07);
 }
 
 .currency-bar__selector {
-  width: 130px;
-  height: 100%;
-  margin-left: 2px;
+  display:     flex;
+  align-items: center;
+  gap:         4px;
+  height:      100%;
 }
 
 .currency-bar__flag {
-  display: flex;
+  display:     flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 /* ─── Order summary ───────────────────────────────────────────────────────────── */
+/*
+  FIX: removed `height: 365px` — same issue as sidebar.
+  `.payment-logos__grid` was `position: absolute; bottom: 0` inside a fixed-height
+  parent; that's now replaced with normal flow inside a flex column.
+*/
 .order-summary {
-  position: relative;
-  width: 100%;
-  height: 365px;
+  width:            100%;
+  background-color: #efeded;
+  border-radius:    10px;
+  display:          flex;
+  flex-direction:   column;
+  overflow:         hidden;
+  padding-bottom:   12px;
 }
 
 .order-summary__title {
-  /* inherits Bootstrap text-center fs-4 fw-bold */
-}
-
-.order-summary__list {
-  /* inherits Bootstrap list-group px-1 */
+  padding: 14px 0 0;
 }
 
 .order-summary__list-item {
   background-color: #efeded;
-  font-weight: 600;
-  font-size: 17px;
+  font-weight:      600;
+  font-size:        15px;
 }
 
 .order-summary__grand-total {
   font-weight: 700;
-  font-size: 18px;
+  font-size:   17px;
+  padding:     10px 12px 6px;
 }
 
 /* ─── Payment logos ───────────────────────────────────────────────────────────── */
+/*
+  FIX: changed from `position: absolute` to normal flow so it doesn't
+  escape the now-auto-height parent.
+*/
 .payment-logos {
-  /* inherits Bootstrap container d-flex justify-content-center */
+  display:         flex;
+  justify-content: center;
+  padding-top:     8px;
 }
 
 .payment-logos__grid {
-  position: absolute;
-  bottom: 0;
-  width: 180px;
-  height: 40px;
+  display:         flex;
+  justify-content: center;
+  gap:             6px;
+  width:           auto;
+  height:          38px;
 }
 
 .payment-logos__grid img {
-  width: 100%;
-  height: auto;
-  max-width: 40px;
-  object-fit: contain;
+  width:       auto;
+  height:      100%;
+  max-width:   40px;
+  object-fit:  contain;
 }
 
 /* ─── Cart items panel ────────────────────────────────────────────────────────── */
 .cart-items-panel {
-  width: 63%;
-  margin-top: 0;
-  z-index: 1;
-}
-
-.cart-items-panel__inner {
-  /* inherits Bootstrap text-center card */
-}
-
-.cart-items-panel__header {
-  /* inherits Bootstrap text-center my-2 fs-3 */
-}
-
-.cart-items-panel__footer {
-  /* inherits Bootstrap d-flex justify-content-center mb-2 */
+  flex: 1;
+  min-width: 0;
 }
 
 /* ─── Empty cart state ────────────────────────────────────────────────────────── */
 .cart__empty {
-  width: 100%;
-  height: 385px;
-  display: flex;
-  align-items: center;
+  width:           100%;
+  min-height:      300px;
+  display:         flex;
+  align-items:     center;
   justify-content: center;
-  flex-direction: column;
+  flex-direction:  column;
+  gap:             12px;
+  padding:         32px 16px;
 }
 
 .cart__empty-icon {
-  margin-bottom: 16px;
+  color: #aaa;
 }
 
 /* ─── Cart list ───────────────────────────────────────────────────────────────── */
 .cart-list {
-  width: 100%;
-  display: flex;
+  width:          100%;
+  display:        flex;
   flex-direction: column;
 }
 
 /* ─── Column headers ──────────────────────────────────────────────────────────── */
 .cart-list-header {
-  display: grid;
-  grid-template-columns: 1fr 200px 140px;
-  padding: 10px 16px 6px;
-  font-weight: 600;
-  font-size: 13px;
-  color: #888;
-  text-align: center;
+  display:               grid;
+  grid-template-columns: 1fr 180px 120px;
+  padding:               8px 16px 6px;
+  font-weight:           600;
+  font-size:             12px;
+  color:                 #888;
+  text-transform:        uppercase;
+  letter-spacing:        0.05em;
 }
 
-.cart-list-header__product  { text-align: left; }
-.cart-list-header__actions  { text-align: center; }
-.cart-list-header__total    { text-align: right; }
+.cart-list-header__product { text-align: left; }
+.cart-list-header__actions { text-align: center; }
+.cart-list-header__total   { text-align: right; }
 
 /* ─── Cart row ────────────────────────────────────────────────────────────────── */
 /*
-  Single row renderer for all screen sizes.
-  Desktop: 3-column grid (product info | quantity controls | line total).
-  Mobile: stacks to a 2-column flex (image | details block with controls inside).
+  Desktop: 3-column grid — product info | controls | line total.
+  The columns match `.cart-list-header` exactly so headers stay aligned.
 */
 .cart-row {
-  display: grid;
-  grid-template-columns: 1fr 200px 140px;
-  align-items: center;
-  border-top: 1px solid #f0f0f0;
-  padding: 10px 16px;
-  gap: 12px;
-  min-height: 110px;
-  background: #fff;
-  transition: background 0.15s ease;
+  display:               grid;
+  grid-template-columns: 1fr 180px 120px;
+  align-items:           center;
+  border-top:            1px solid #f0f0f0;
+  padding:               12px 16px;
+  gap:                   12px;
+  min-height:            100px;
+  background:            #fff;
+  transition:            background 0.15s ease;
 }
 
 .cart-row:hover {
@@ -168,197 +191,381 @@
 
 /* ─── Col 1: Product ──────────────────────────────────────────────────────────── */
 .cart-row__product {
-  display: flex;
+  display:     flex;
   align-items: center;
-  gap: 14px;
-  min-width: 0;           /* allows text to truncate inside flex child */
+  gap:         12px;
+  min-width:   0;
 }
 
 /* ─── Cart item image ─────────────────────────────────────────────────────────── */
 .cart-item-image {
-  flex-shrink: 0;
-  width: 90px;
-  height: 90px;
+  flex-shrink:   0;
+  width:         80px;
+  height:        80px;
   border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #eee;
+  overflow:      hidden;
+  border:        1px solid #eee;
 }
 
 .cart-item-image__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width:       100%;
+  height:      100%;
+  object-fit:  cover;
+  display:     block;
 }
 
 /* ─── Cart item details ───────────────────────────────────────────────────────── */
 .cart-item-details {
-  display: flex;
+  display:        flex;
   flex-direction: column;
-  gap: 3px;
-  min-width: 0;
+  gap:            3px;
+  min-width:      0;
 }
 
 .cart-item-details__ref {
-  font-weight: 600;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
+  font-weight:   600;
+  font-size:     13px;
+  white-space:   nowrap;
+  overflow:      hidden;
   text-overflow: ellipsis;
 }
 
 .cart-item-details__price {
-  display: flex;
+  display:     flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap:         6px;
+  flex-wrap:   wrap;
 }
 
 .cart-item-details__size {
   font-size: 12px;
+  color:     #888;
 }
 
 /* ─── Col 2: Quantity + remove ────────────────────────────────────────────────── */
 .cart-row__actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             6px;
 }
 
 /* ─── Col 3: Line total ───────────────────────────────────────────────────────── */
 .cart-row__total {
-  display: flex;
+  display:        flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  align-items:    flex-end;
+  gap:            3px;
 }
 
 .cart-row__total-price {
-  font-size: 15px;
+  font-size:   15px;
   font-weight: 700;
 }
 
 /* ─── Price states ────────────────────────────────────────────────────────────── */
 .price--current {
-  color: green;
+  color: #1a6b3c;
 }
 
 .price--original {
-  font-size: 11px;
-  font-weight: 500;
-  text-decoration: line-through;
-  text-decoration-color: red;
-  color: #888;
+  font-size:            11px;
+  font-weight:          500;
+  text-decoration:      line-through;
+  text-decoration-color: #d0021b;
+  color:                #aaa;
 }
 
 .price--discount {
-  color: red;
+  color:       #d0021b;
   font-weight: bold;
 }
 
 /* ─── Quantity control ────────────────────────────────────────────────────────── */
 .quantity-control {
-  display: flex;
+  display:     flex;
   align-items: center;
 }
 
 .quantity-control__input {
-  width: 40px;
-  height: 30px;
-  background-color: white;
-  color: black;
-  outline: none;
-  text-align: center;
-  border: 1px solid #dee2e6;
+  width:            40px;
+  height:           30px;
+  background-color: #fff;
+  color:            #1a1a1a;
+  outline:          none;
+  text-align:       center;
+  border:           1px solid #dee2e6;
+  font-size:        14px;
 }
 
 .quantity-control__btn {
-  height: 30px;
-  width: 30px;
-  padding: 0;
-  display: flex;
-  align-items: center;
+  height:          30px;
+  width:           30px;
+  padding:         0;
+  display:         flex;
+  align-items:     center;
   justify-content: center;
+  font-size:       16px;
+  line-height:     1;
 }
 
 /* ─── Remove button ───────────────────────────────────────────────────────────── */
 .cart-item-remove-btn {
-  border-color: red;
-  color: red;
-  outline: 0;
+  border-color: #d0021b;
+  color:        #d0021b;
+  outline:      none;
+  transition:   background 0.15s ease, color 0.15s ease;
 }
 
 .cart-item-remove-btn:hover {
-  background-color: red;
-  color: white;
+  background-color: #d0021b;
+  color:            #fff;
+  border-color:     #d0021b;
 }
 
-/* ─── Responsive: mobile ──────────────────────────────────────────────────────── */
-@media (max-width: 600px) {
+/* ─── RTL text adjustments ────────────────────────────────────────────────────── */
+/*
+  IMPORTANT: `dir="rtl"` must NEVER be placed on grid or flex layout containers
+  (.cart-row, .cart-page, .cart-sidebar, .cart-items-panel) because it reverses
+  the entire column/item order and causes the deformation seen in the screenshots.
 
-  /* Hide column headers */
+  RTL is handled here exclusively via text-align and direction on text-content
+  elements. The grid layout columns stay in LTR order at all times.
+*/
+
+/* Text alignment for sidebar content in RTL */
+.cart-page--rtl .order-summary__grand-total,
+.cart-page--rtl .order-summary__list-item,
+.cart-page--rtl .currency-bar {
+  direction: rtl;
+}
+
+/* Row total text aligns left in RTL (it's the "end" side) */
+.cart-page--rtl .cart-row__total {
+  align-items: flex-start;
+}
+
+/* ─── Responsive: tablet (800px) — sidebar stacks below items ─────────────────── */
+/*
+  KEY FIX: on tablet/mobile the sidebar (order summary) should appear BELOW
+  the cart items, not above. Users need to see their items first.
+  We use CSS `order` so the DOM doesn't need to change.
+*/
+@media (max-width: 800px) {
+  .cart-page {
+    flex-direction: column;
+    gap:            16px;
+    padding:        0 8px;
+  }
+
+  /* Sidebar (order summary) floats to top on mobile */
+  .cart-sidebar {
+    order:    1;
+    width:    100%;
+    position: relative;
+    top:      0;
+  }
+
+  /* Items panel comes below */
+  .cart-items-panel {
+    order: 2;
+    width: 100%;
+  }
+
+  /* Add bottom padding so rows aren't hidden behind the floating bar */
+  .cart-list {
+    padding-bottom: 80px;
+  }
+}
+
+/* ─── Responsive: large phone (560px) ────────────────────────────────────────── */
+/*
+  3-row breathing layout — every zone gets its own full-width row.
+  No element shares a row, no cramping possible.
+
+    Row 1 │  [image]  [name / price / size]          (full width)  │
+    Row 2 │  [−  qty  +]   [🗑 remove]               (full width)  │
+    Row 3 │  [line total]                             (full width)  │
+
+  Component JSX is unchanged — no new wrapper divs needed.
+  All 3 grid children (.cart-row__product / __actions / __total)
+  each span the full 2 columns.
+*/
+@media (max-width: 560px) {
   .cart-list-header {
     display: none;
   }
 
-  /*
-    On mobile, each row becomes a flex column:
-    top: image + details side by side
-    bottom: quantity controls + total in a row
-  */
+  /* Switch to a single-column stack — each child is full width */
   .cart-row {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-    padding: 12px 10px;
-    gap: 10px;
+    display:        flex;
+    flex-direction: column;
+    gap:            12px;
+    padding:        14px 12px;
+    min-height:     unset;
+    align-items:    stretch;
   }
 
+  /* Row 1: image on the left, details on the right */
   .cart-row__product {
-    grid-column: 1;
+    flex-direction: row;
+    align-items:    flex-start;
+    gap:            12px;
+    width:          100%;
   }
 
   .cart-item-image {
-    width: 75px;
-    height: 75px;
+    width:       76px;
+    height:      76px;
+    flex-shrink: 0;
   }
 
+  .cart-item-details {
+    flex:      1;
+    min-width: 0;
+    gap:       5px;
+  }
+
+  .cart-item-details__ref  { font-size: 13px; }
+  .cart-item-details__size { font-size: 12px; }
+
+  /* Row 2: stepper on the left, trash on the right — well spaced */
   .cart-row__actions {
-    flex-direction: row;
+    flex-direction:  row;
     justify-content: space-between;
-    align-items: center;
-    grid-column: 1;
+    align-items:     center;
+    width:           100%;
+    padding:         2px 0;
   }
 
+  /* Row 3: total right-aligned — full breathing room */
   .cart-row__total {
-    display: none; /* total shown inline in actions row on mobile */
+    flex-direction:  row;
+    justify-content: flex-end;
+    align-items:     baseline;
+    gap:             10px;
+    width:           100%;
+    padding-top:     2px;
+    border-top:      1px solid #f0f0f0;
   }
 
-  /* Show total inline next to remove button on mobile */
-  .cart-row__actions::after {
-    content: attr(data-total);
-    font-weight: 700;
-    color: green;
-    font-size: 14px;
+  .cart-row__total-price  { font-size: 16px; }
+  .price--original        { font-size: 12px; }
+
+  /* Center the price row inside the product details at small widths */
+  .cart-item-details__price {
+    justify-content: center;
+  }
+
+  /* Also center the size label */
+  .cart-item-details__size {
+    text-align: center;
+    width:      100%;
   }
 }
 
-/* ─── Responsive: tablet — sidebar stacks above items panel ──────────────────── */
+/* ─── Floating checkout bar ───────────────────────────────────────────────────── */
+/*
+  Sticks to the bottom of the viewport on mobile only.
+  Hidden on desktop (sidebar checkout button is visible there).
+  Extra padding on the cart-list prevents items from hiding behind it.
+*/
+.cart-float-bar {
+  display: none; /* hidden by default — shown only on mobile below */
+}
+
 @media (max-width: 800px) {
-  .cart-page {
+  .cart-float-bar {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    position:        fixed;
+    bottom:          0;
+    left:            0;
+    right:           0;
+    z-index:         100;
+    background:      #1a1a1a;
+    color:           #fff;
+    padding:         12px 16px;
+    gap:             12px;
+    box-shadow:      0 -2px 16px rgba(0,0,0,0.18);
+  }
+
+  .cart-float-bar__total {
+    display:        flex;
     flex-direction: column;
+    gap:            1px;
   }
 
-  .cart-sidebar {
-    width: 98%;
-    height: auto;
-    margin-left: 1%;
-    position: relative;
-    top: 0;
+  .cart-float-bar__label {
+    font-size:      0.62rem;
+    font-weight:    600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color:          #aaa;
   }
 
-  .cart-items-panel {
-    width: 98%;
-    margin-left: 1%;
-    height: auto;
+  .cart-float-bar__amount {
+    font-size:   1.05rem;
+    font-weight: 800;
+    color:       #4ade80;
   }
+
+  .cart-float-bar__btn {
+    display:         flex;
+    align-items:     center;
+    gap:             8px;
+    background:      #0e92e4;
+    color:           #fff;
+    border:          none;
+    border-radius:   8px;
+    padding:         10px 20px;
+    font-size:       0.78rem;
+    font-weight:     700;
+    letter-spacing:  0.06em;
+    text-transform:  uppercase;
+    cursor:          pointer;
+    white-space:     nowrap;
+    transition:      background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .cart-float-bar__btn:hover:not(:disabled) {
+    background:  #0a7bc4;
+    box-shadow:  0 4px 12px rgba(14,146,228,0.4);
+  }
+
+  .cart-float-bar__btn:disabled {
+    background: #444;
+    color:      #888;
+    cursor:     not-allowed;
+  }
+}
+
+/* ─── Responsive: small phone (380px) ────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .cart-page {
+    padding: 0 4px;
+  }
+
+  .cart-row {
+    padding: 10px 8px;
+    gap:     6px 0;
+  }
+
+  .cart-item-image {
+    width:  60px;
+    height: 60px;
+  }
+
+  .cart-item-details__ref  { font-size: 11px; }
+  .cart-item-details__size { font-size: 11px; }
+  .price--current          { font-size: 12px; }
+
+  .quantity-control__input { width: 32px; height: 28px; font-size: 13px; }
+  .quantity-control__btn   { width: 28px; height: 28px; }
+
+  .cart-row__total-price          { font-size: 13px; }
+  .order-summary__list-item       { font-size: 13px; }
+  .order-summary__grand-total     { font-size: 15px; }
 }

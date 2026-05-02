@@ -116,8 +116,8 @@ export const cities = [
 ];
 
 
-export const sendEmail = async (emailData:clientData | undefined, file: File, subject:any, body: any): Promise<void> => {
-  try {
+export const sendEmail = async (emailData:clientData | undefined, file: File, subject:any, body: any): Promise<boolean> => {
+
 
       const formData = new FormData();
 
@@ -138,15 +138,10 @@ export const sendEmail = async (emailData:clientData | undefined, file: File, su
           "Content-Type": "multipart/form-data",
         },
       })
-      if(res.status == 200){
-        showToast(res.data.message, "success");
-      }
+      return res.status == 200
 
     
-  } catch (error: any) {
-    console.error(error);
-    alert("Error sending email");
-  }
+
 };
 
 export const showToast = (message:string, event : "success" | "error") => {

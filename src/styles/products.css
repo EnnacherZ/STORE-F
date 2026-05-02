@@ -1,19 +1,19 @@
 /* ─── CSS custom properties ───────────────────────────────────────────────────── */
 :root {
-  --pc-white:       #ffffff;
-  --pc-black:       #0e0e0e;
-  --pc-ink:         #1a1a1a;
-  --pc-muted:       #888888;
-  --pc-border:      #e8e8e8;
-  --pc-surface:     #f6f6f6;
-  --pc-brand:       #0e92e4;
-  --pc-green:       #1a6b3c;
-  --pc-red:         #d0021b;
-  --pc-radius:      8px;
-  --pc-radius-lg:   12px;
-  --pc-transition:  0.2s cubic-bezier(0.22, 1, 0.36, 1);
-  --pc-shadow-sm:   0 1px 4px rgba(0,0,0,0.06);
-  --pc-shadow-hover:0 6px 20px rgba(0,0,0,0.10);
+  --pc-white:        #ffffff;
+  --pc-black:        #0e0e0e;
+  --pc-ink:          #1a1a1a;
+  --pc-muted:        #888888;
+  --pc-border:       #e8e8e8;
+  --pc-surface:      #f6f6f6;
+  --pc-brand:        #0e92e4;
+  --pc-green:        #1a6b3c;
+  --pc-red:          #d0021b;
+  --pc-radius:       8px;
+  --pc-radius-lg:    12px;
+  --pc-transition:   0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  --pc-shadow-sm:    0 1px 4px rgba(0,0,0,0.06);
+  --pc-shadow-hover: 0 6px 20px rgba(0,0,0,0.10);
 }
 
 /* ─── RTL ─────────────────────────────────────────────────────────────────────── */
@@ -21,79 +21,84 @@
 
 /* ─── Page layout ─────────────────────────────────────────────────────────────── */
 .products-layout {
-  display: flex;
-  align-items: flex-start;
-  width: 100%;
-  min-height: 60vh;
-  margin-bottom: 40px;
+  display:        flex;
+  align-items:    flex-start;
+  width:          100%;
+  min-height:     60vh;
+  margin-bottom:  40px;
 }
 
 /* ─── Grid ────────────────────────────────────────────────────────────────────── */
 /*
-  auto-fill + minmax: browser fills as many 220px columns as fit.
-  Cards never stretch wider than 280px regardless of how many items exist.
-  With the filter sidebar (~220px) subtracted, ~3 cols fit on desktop, ~2 on tablet.
+  FIX: replaced minmax(220px, 280px) + max-width: 280px on the card.
+  That combination is the root cause of deformation: when the grid column
+  is, say, 260px, the card is capped at 280px — fine — but at 221px the
+  card's max-width and the column width disagree and the card collapses
+  awkwardly.
+
+  Solution: use `repeat(auto-fill, minmax(200px, 1fr))` so each column
+  always stretches to fill the available width evenly. Then cap the whole
+  grid container instead of individual cards — cleaner and deform-proof.
+  Removing max-width from .product-card allows the card to be exactly
+  as wide as its column — no mismatch possible.
 */
 .products-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 280px));
-  gap: 16px 12px;
-  padding: 14px 12px 0;
-  /* Left-align cards — don't stretch them to fill row */
-  justify-content: start;
-  /* Prevent grid from overflowing its flex parent */
-  min-width: 0;
+  flex:                    1;
+  display:                 grid;
+  grid-template-columns:   repeat(auto-fill, minmax(200px, 1fr));
+  gap:                     16px 12px;
+  padding:                 14px 12px 0;
+  min-width:               0;
+  /* Prevent runaway card widths when there are only 1-2 products */
+  max-width:               900px;
 }
 
 /* ─── Product card shell ──────────────────────────────────────────────────────── */
 .product-card {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  /* Hard cap — a card is never wider than this no matter the grid column */
-  max-width: 280px;
-  background: var(--pc-white);
-  border-radius: var(--pc-radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--pc-border);
-  box-shadow: var(--pc-shadow-sm);
-  cursor: pointer;
+  display:           flex;
+  flex-direction:    column;
+  width:             100%;
+  /* No max-width here — let the grid column dictate card width */
+  background:        var(--pc-white);
+  border-radius:     var(--pc-radius-lg);
+  overflow:          hidden;
+  border:            1px solid var(--pc-border);
+  box-shadow:        var(--pc-shadow-sm);
+  cursor:            pointer;
   transition:
-    box-shadow  var(--pc-transition),
+    box-shadow   var(--pc-transition),
     border-color var(--pc-transition);
 }
 
 .product-card:hover {
-  box-shadow: var(--pc-shadow-hover);
+  box-shadow:   var(--pc-shadow-hover);
   border-color: #d0d0d0;
 }
 
 /* ─── Image wrap ──────────────────────────────────────────────────────────────── */
 /*
-  KEY FIX: The original used aspect-ratio: 1/1 + max-height: 220px together.
-  On a narrow 3-column grid those two rules fight — max-height wins and collapses
-  the image well below the intended ratio, leaving white space.
-  Solution: use a padding-top % trick — 75% = 4:3 ratio, always correct regardless
-  of column width. No max-height override needed.
+  padding-top: 75% = 4:3 ratio. Because the card is now always 100% of its
+  column, this ratio holds perfectly at every viewport width — no
+  max-height fighting the aspect ratio.
 */
 .product-card__image-wrap {
-  position: relative;
-  width: 100%;
-  padding-top: 75%;         /* 4:3 ratio — reliable across all column widths */
-  overflow: hidden;
+  position:   relative;
+  width:      100%;
+  padding-top: 75%;
+  overflow:   hidden;
   background: var(--pc-surface);
   flex-shrink: 0;
+  cursor:     pointer;
 }
 
 .product-card__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  position:    absolute;
+  inset:       0;
+  width:       100%;
+  height:      100%;
+  object-fit:  cover;
+  display:     block;
+  transition:  transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .product-card:hover .product-card__img {
@@ -102,83 +107,79 @@
 
 /* ─── Promo badge ─────────────────────────────────────────────────────────────── */
 .product-card__promo-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: var(--pc-red);
-  color: var(--pc-white);
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  border-radius: 3px;
-  pointer-events: none;
-  z-index: 2;
+  position:        absolute;
+  top:             8px;
+  right:           8px;
+  background:      var(--pc-red);
+  color:           var(--pc-white);
+  font-size:       0.62rem;
+  font-weight:     800;
+  letter-spacing:  0.06em;
+  text-transform:  uppercase;
+  padding:         2px 7px;
+  border-radius:   3px;
+  pointer-events:  none;
+  z-index:         2;
 }
 
 [dir="rtl"] .product-card__promo-badge {
   right: auto;
-  left: 8px;
+  left:  8px;
 }
 
 /* ─── Body ────────────────────────────────────────────────────────────────────── */
 .product-card__body {
   padding: 10px 12px 4px;
-  cursor: pointer;
-  flex: 1;
+  cursor:  pointer;
+  flex:    1;
 }
 
-/* Category · ref line */
 .product-card__meta {
-  font-size: 0.6rem;
-  font-weight: 600;
+  font-size:      0.6rem;
+  font-weight:    600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--pc-muted);
-  margin: 0 0 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color:          var(--pc-muted);
+  margin:         0 0 3px;
+  white-space:    nowrap;
+  overflow:       hidden;
+  text-overflow:  ellipsis;
 }
 
-/* Product name */
 .product-card__name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--pc-ink);
-  margin: 0 0 6px;
-  line-height: 1.3;
-  /* Clamp to 2 lines — never blows up card height */
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size:              0.82rem;
+  font-weight:            700;
+  color:                  var(--pc-ink);
+  margin:                 0 0 6px;
+  line-height:            1.3;
+  display:                -webkit-box;
+  line-clamp:             2;
+  -webkit-line-clamp:     2;
+  -webkit-box-orient:     vertical;
+  overflow:               hidden;
 }
 
-/* Price row */
 .product-card__price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 2px;
+  display:         flex;
+  align-items:     baseline;
+  gap:             6px;
+  flex-wrap:       wrap;
+  margin-bottom:   2px;
 }
 
 .product-card__price--final {
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: var(--pc-ink);
+  font-size:      0.9rem;
+  font-weight:    800;
+  color:          var(--pc-ink);
   letter-spacing: -0.01em;
 }
 
 .product-card__price--original {
-  font-size: 0.7rem;
-  color: var(--pc-muted);
-  text-decoration: line-through;
+  font-size:            0.7rem;
+  color:                var(--pc-muted);
+  text-decoration:      line-through;
   text-decoration-color: var(--pc-red);
-  font-weight: 400;
+  font-weight:          400;
 }
 
 /* ─── Sizes section ───────────────────────────────────────────────────────────── */
@@ -187,82 +188,81 @@
 }
 
 .product-card__sizes-label {
-  display: block;
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--pc-muted);
-  margin-bottom: 5px;
+  display:         block;
+  font-size:       0.58rem;
+  font-weight:     700;
+  letter-spacing:  0.1em;
+  text-transform:  uppercase;
+  color:           var(--pc-muted);
+  margin-bottom:   5px;
 }
 
 .product-card__size-grid {
-  display: flex;
+  display:   flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap:       4px;
 }
 
 /* ─── Size chip ───────────────────────────────────────────────────────────────── */
 .size-chip {
-  min-width: 28px;
-  height: 26px;
-  padding: 0 6px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  border: 1.5px solid var(--pc-border);
-  border-radius: 4px;
-  background: var(--pc-white);
-  color: var(--pc-ink);
-  cursor: pointer;
-  line-height: 1;
+  min-width:      28px;
+  height:         26px;
+  padding:        0 6px;
+  font-size:      0.65rem;
+  font-weight:    700;
+  border:         1.5px solid var(--pc-border);
+  border-radius:  4px;
+  background:     var(--pc-white);
+  color:          var(--pc-ink);
+  cursor:         pointer;
+  line-height:    1;
   letter-spacing: 0.02em;
   transition:
-    background     var(--pc-transition),
-    color          var(--pc-transition),
-    border-color   var(--pc-transition),
-    box-shadow     var(--pc-transition);
+    background   var(--pc-transition),
+    color        var(--pc-transition),
+    border-color var(--pc-transition),
+    box-shadow   var(--pc-transition);
 }
 
 .size-chip:hover:not(:disabled) {
-  background: var(--pc-ink);
-  color: var(--pc-white);
+  background:   var(--pc-ink);
+  color:        var(--pc-white);
   border-color: var(--pc-ink);
 }
 
 .size-chip--selected {
-  background: var(--pc-ink);
-  color: var(--pc-white);
+  background:   var(--pc-ink);
+  color:        var(--pc-white);
   border-color: var(--pc-ink);
-  /* Focus ring so selected state is distinct */
-  box-shadow: 0 0 0 2px var(--pc-white), 0 0 0 3.5px var(--pc-ink);
+  box-shadow:   0 0 0 2px var(--pc-white), 0 0 0 3.5px var(--pc-ink);
 }
 
 .size-chip--out-of-stock {
-  color: #ccc;
-  border-color: #ebebeb;
-  background: #fafafa;
+  color:           #ccc;
+  border-color:    #ebebeb;
+  background:      #fafafa;
   text-decoration: line-through;
-  cursor: not-allowed;
-  opacity: 0.6;
+  cursor:          not-allowed;
+  opacity:         0.6;
 }
 
 /* ─── CTA button ──────────────────────────────────────────────────────────────── */
 .product-card__cta-btn {
-  display: flex;
-  align-items: center;
+  display:         flex;
+  align-items:     center;
   justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 11px 8px;
-  border: none;
-  background: var(--pc-ink);
-  color: var(--pc-white);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  cursor: pointer;
-  margin-top: auto;
+  gap:             6px;
+  width:           100%;
+  padding:         11px 8px;
+  border:          none;
+  background:      var(--pc-ink);
+  color:           var(--pc-white);
+  font-size:       0.7rem;
+  font-weight:     700;
+  letter-spacing:  0.07em;
+  text-transform:  uppercase;
+  cursor:          pointer;
+  margin-top:      auto;
   transition:
     background  var(--pc-transition),
     color       var(--pc-transition),
@@ -276,8 +276,8 @@
 
 .product-card__cta-btn--sold-out {
   background: #e8e8e8;
-  color: #aaa;
-  cursor: not-allowed;
+  color:      #aaa;
+  cursor:     not-allowed;
 }
 
 .product-card__cta-btn:disabled {
@@ -286,39 +286,39 @@
 
 /* ─── Pagination ──────────────────────────────────────────────────────────────── */
 .pagination {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
+  list-style:      none;
+  display:         flex;
+  flex-wrap:       wrap;
   justify-content: center;
-  align-items: center;
-  gap: 6px;
-  padding: 24px 0 32px;
-  margin: 0;
+  align-items:     center;
+  gap:             6px;
+  padding:         24px 0 32px;
+  margin:          0;
 }
 
 .pagination li a,
 .pagination li span {
-  display: inline-flex;
-  align-items: center;
+  display:         inline-flex;
+  align-items:     center;
   justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 10px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  min-width:       36px;
+  height:          36px;
+  padding:         0 10px;
+  font-size:       0.82rem;
+  font-weight:     600;
   text-decoration: none;
-  border: 1.5px solid var(--pc-border);
-  color: var(--pc-ink);
-  background: var(--pc-white);
-  border-radius: 6px;
+  border:          1.5px solid var(--pc-border);
+  color:           var(--pc-ink);
+  background:      var(--pc-white);
+  border-radius:   6px;
   transition:
-    background    0.15s ease,
-    border-color  0.15s ease;
+    background   0.15s ease,
+    border-color 0.15s ease;
   cursor: pointer;
 }
 
 .pagination li a:hover {
-  background: #f0f0f0;
+  background:   #f0f0f0;
   border-color: #bbb;
 }
 
@@ -328,14 +328,14 @@
 }
 
 .pagination__page--active a {
-  background: var(--pc-ink);
-  color: var(--pc-white);
+  background:   var(--pc-ink);
+  color:        var(--pc-white);
   border-color: var(--pc-ink);
 }
 
 .pagination__item--disabled a {
-  opacity: 0.4;
-  cursor: not-allowed;
+  opacity:        0.4;
+  cursor:         not-allowed;
   pointer-events: none;
 }
 
@@ -351,45 +351,71 @@
   .products-layout {
     flex-direction: column;
   }
+
   .products-grid {
-    width: 100%;
-    /* With full width available, allow up to 3 cards per row naturally */
-    grid-template-columns: repeat(auto-fill, minmax(180px, 260px));
-    gap: 12px 10px;
-    padding: 10px 8px 0;
-    justify-content: start;
-  }
-  .product-card {
-    max-width: 260px;
+    width:                   100%;
+    max-width:               100%;
+    grid-template-columns:   repeat(auto-fill, minmax(160px, 1fr));
+    gap:                     12px 10px;
+    padding:                 10px 8px 0;
   }
 }
 
-/* ─── Responsive: large phone — 2 cards per row ───────────────────────────────── */
+/* ─── Responsive: large phone ─────────────────────────────────────────────────── */
+/*
+  FIX: Previously used minmax(180px, 260px) here, which reverts to the
+  same column/card-width mismatch bug at ~560-800px. Now using 1fr columns
+  so cards are always exactly the column width — no deformation.
+  2 columns are forced at this breakpoint for readability.
+*/
 @media (max-width: 560px) {
   .products-grid {
-    /* Force exactly 2 equal columns — stretch fills are fine at this width */
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px 8px;
-    padding: 8px 6px 0;
-    justify-content: stretch;
+    gap:                   10px 8px;
+    padding:               8px 6px 0;
   }
-  .product-card {
-    max-width: 100%;
+
+  /* Scale down body text slightly to keep cards tidy at 2-col */
+  .product-card__name {
+    font-size: 0.78rem;
   }
+
+  .product-card__price--final {
+    font-size: 0.82rem;
+  }
+
   .product-card__cta-btn {
-    padding: 10px 6px;
+    padding:   10px 6px;
     font-size: 0.62rem;
+    gap:       4px;
   }
 }
 
 /* ─── Responsive: small phone ─────────────────────────────────────────────────── */
 @media (max-width: 380px) {
   .products-grid {
-    gap: 8px 6px;
-    padding: 6px 4px 0;
+    grid-template-columns: repeat(2, 1fr);
+    gap:                   8px 6px;
+    padding:               6px 4px 0;
   }
-  .product-card__body          { padding: 8px 10px 3px; }
-  .product-card__sizes-section { padding: 3px 10px 8px; }
-  .product-card__cta-btn       { padding: 9px 4px; font-size: 0.6rem; }
-  .size-chip                   { min-width: 24px; height: 22px; font-size: 0.58rem; }
+
+  .product-card__body           { padding: 8px 8px 3px; }
+  .product-card__sizes-section  { padding: 3px 8px 8px; }
+  .product-card__name           { font-size: 0.72rem; }
+  .product-card__price--final   { font-size: 0.76rem; }
+  .product-card__cta-btn        { padding: 9px 4px; font-size: 0.58rem; gap: 3px; }
+  .size-chip                    { min-width: 24px; height: 22px; font-size: 0.58rem; }
+}
+
+/* ─── Very small phone (320px) ────────────────────────────────────────────────── */
+/*
+  At 320px wide, 2 columns each become ~146px. Switch to 1 column
+  so the card doesn't become illegible.
+*/
+@media (max-width: 360px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap:                   10px 0;
+    padding:               6px 8px 0;
+  }
 }

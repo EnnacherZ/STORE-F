@@ -1,69 +1,244 @@
-.footerX{
-    background-color: black;
-    color:white;
-    width:100%;
-    
-}
-.iconStoreWDiv{
-    width: 100px;
-    aspect-ratio: 1;
-    margin: auto;
-}
-.iconStoreWDiv img{
-    width: 100%;
-    height: 100%;
+/* ============================================================
+   footer.css — Firdaous Store (Enhanced — dark theme)
+   Drop this into: src/styles/footer.css
+   ============================================================ */
+
+/* ── Outer shell ──────────────────────────────────────────── */
+.footerX {
+  background: #111827 !important;
+  color: #e5e7eb !important;
+  width: 100%;
+  max-width: 100%;          /* prevent footer from being wider than viewport */
+  overflow: hidden;         /* clip any child that bleeds past the edge */
+  padding: 48px 0 0 !important;
+  margin: 0 !important;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
-.socialLinks{
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-    transition: 0.2s ease;
-}
-.privacy-policy:hover{
-    color: #0e92e4;
+/* ── Inner container (max-width centering) ──────────────────── */
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  align-items: start;
 }
 
-.footer-sm{
-    width: 120px;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: box-shadow 0.3s ease;
+/* ── Brand column ───────────────────────────────────────────── */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.footer-sm.fb{
-    background-color: #3b5998;
+
+.iconStoreWDiv {
+  width: 72px !important;
+  aspect-ratio: 1;
+  margin: 0 !important; /* override Bootstrap m-auto */
+  margin-bottom: 4px !important;
+}
+
+.iconStoreWDiv img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(1.1);
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.iconStoreWDiv img:hover {
+  filter: drop-shadow(0 0 10px rgba(14, 146, 228, 0.7));
+  transform: scale(1.04);
+}
+
+.footer-brand-desc {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  line-height: 1.65;
+  max-width: 260px;
+  margin: 0;
+}
+
+/* Social icons row */
+.footer-socials {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.footer-sm {
+  width: 110px !important;
+  height: 34px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 7px;
+  transition: box-shadow 0.3s ease, transform 0.2s ease !important;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+.footer-sm a {
+  color: #fff !important;
+  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-sm.fb {
+  background: #3b5998 !important;
 }
 
 .footer-sm.fb:hover {
-  box-shadow: 0 0 5px 3px transparent;
-  box-shadow: 
-            0 0 2px 1px #3b5998, 
-            0 0 3px 2px #415e9b, 
-            0 0 4px 3px #475e90;
-  transition: box-shadow 0.3s ease;
+  box-shadow:
+    0 0 2px 1px #3b5998,
+    0 0 6px 3px #415e9b,
+    0 0 10px 5px rgba(59, 89, 152, 0.4) !important;
+  transform: translateY(-2px);
 }
 
-.footer-sm.ig{
-    background:linear-gradient(
-    to right,
-    #833ab4,#fd1d1d,#fcb045
-  );
+.footer-sm.ig {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045) !important;
 }
+
 .footer-sm.ig:hover {
-  box-shadow: 0 0 5px 3px transparent;
-  box-shadow: 
-            0 0 2px 1px #833ab4, 
-            0 0 3px 2px #fd1d1d, 
-            0 0 4px 3px #fcb045;
-  transition: box-shadow 0.3s ease;
+  box-shadow:
+    0 0 2px 1px #833ab4,
+    0 0 6px 3px #fd1d1d,
+    0 0 10px 5px rgba(252, 176, 69, 0.35) !important;
+  transform: translateY(-2px);
 }
 
+/* ── Link columns (Policies, Contact) ───────────────────────── */
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-@media(max-width:650px){
+.footer-col-title {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: #6b7280 !important;
+  margin: 0 0 4px !important;
+  padding: 0 !important;
+  text-align: left !important;  /* override Bootstrap text-center */
+}
 
-    .iconStoreWDiv{
-        width: 80px;
-    }
+/* Override text-center on col titles for the inner columns */
+.footer-inner .fw-bold.text-center.fs-4 {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: #6b7280 !important;
+  text-align: left !important;
+  margin-bottom: 8px !important;
+}
+
+/* Links */
+.socialLinks,
+.footer-link {
+  display: block;
+  color: #9ca3af !important;
+  font-size: 0.84rem !important;
+  font-weight: 400 !important;
+  text-decoration: none !important;
+  transition: color 0.18s ease, padding-left 0.18s ease !important;
+  line-height: 1.4;
+}
+
+.socialLinks:hover,
+.footer-link:hover,
+.privacy-policy:hover {
+  color: #0e92e4 !important;
+  padding-left: 4px !important;
+}
+
+/* li items inside footer */
+.footerX ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footerX ul li {
+  margin: 0 !important;
+}
+
+/* Contact info paragraphs */
+.footerX .text-center p {
+  margin: 0 0 8px;
+  font-size: 0.82rem !important;
+  color: #9ca3af;
+  text-align: left !important;
+  line-height: 1.5;
+}
+
+/* ── Divider ────────────────────────────────────────────────── */
+.footer-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #1f2937, transparent);
+  margin: 36px 28px 0;
+}
+
+/* ── Copyright bar ──────────────────────────────────────────── */
+.copyrightTitle {
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  color: #6b7280 !important;
+  padding: 18px 28px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 5px !important;
+  letter-spacing: 0.04em;
+}
+
+.copyrightTitle svg {
+  color: #4b5563;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    padding: 0 20px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1; /* spans full width on tablet */
+  }
+
+  .footer-inner .fw-bold.text-center.fs-4 {
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .footer-socials {
+    flex-wrap: wrap;
+  }
+
+  .footerX {
+    padding: 32px 0 0 !important;
+  }
 }

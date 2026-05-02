@@ -1,77 +1,376 @@
-.productCarousel{
-    width: 100%;
-    height: auto;
-    background-color: #fcf7f7;
-    padding-bottom: 30px;
-    margin: auto;
-}
-.productCarouselCard{
-    width:225px;
-    height: 400px;;
-    margin: auto;
-    background-color: #FFF;
-    display: flex;
-    justify-content: space-between;
-    transition: 0.2s ease-in;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-
+ 0 8px;      /* 8px on each side = 16px gap between cards */
+  box-sizing: border-box;
 }
 
-.productCarouselCard:hover{
-    background-color: #e9e9e9;
-    cursor: pointer;
-    box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.175);
-
-}
-.productCImgCont{
-    width:100%;
-    height: 180px;
-}
-.productCImgCont img{
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-}
-.productCInfos1{
-    text-transform: capitalize;
-    font-size: 0.9rem;
-}
-.productCInfos2{
-    text-transform: capitalize;
-    font-size: 0.9rem;
-}
-.productCPriceP{
-    color:green;
-    font-weight: bold;
-    font-size: 1em;
-}
-.productCPriceD{
-    color: black;
-    text-decoration: line-through;
-    text-decoration-color: red;
-    font-size: 0.9em;
-}
-.productCDiscount{
-    color:red;
-    font-weight: bold;
-    font-size: 1em;
-}
-.productCView{
-    height:50px;
-    outline: none;
-    border: none;
-    background-color: #ffc107;
-    transition: 0.2s ease-in-out
-}
-.productCView:hover{
-    color:#ffc107;
-    background-color: #000;
+/*
+  The card is wrapped in <motion.div> which has no width of its own.
+  Without width:100%, the motion wrapper doesn't fill the carousel item slot,
+  leaving a visible right-side gap on mobile.
+*/
+.react-multi-carousel-item > div {
+  width: 100%;
 }
 
+.react-multi-carousel-list {
+  padding-bottom: 52px; /* room for dot indicators */
+  overflow: hidden !important; /* MUST be hidden — visible lets neighbouring page elements bleed through */
+}
 
-@media(max-width:464px){
-    .productCarouselCard{
-        width:225px;
-        margin:auto;
-    }
+/*
+  overflow:hidden on the Carousel root div (.productCarousel) clips anything
+  that bleeds past the track boundary. This is the final guard against the
+  right-side horizontal-scroll artifact visible on mobile RTL pages.
+*/
+.productCarousel {
+  overflow: hidden;
+}
+
+.productCarousel .react-multi-carousel-track {
+  will-change: transform;
+}
+
+/* ── Dot indicators ─────────────────────────────────────────────────────────── */
+.react-multi-carousel-dot button {
+  width: 8px;
+  height: 8px;
+  border: none !important;
+  background: #d1d5db !important;
+  border-radius: 4px;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.react-multi-carousel-dot--active button {
+  width: 22px !important;
+  background: #0d6efd !important;
+}
+
+/* ── Arrow buttons ──────────────────────────────────────────────────────────── */
+.react-multiple-carousel__arrow {
+  background: transparent !important;
+  border: 1.5px solid #0d6efd !important;
+  border-radius: 50% !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  transition: background 0.2s ease !important;
+  z-index: 10;
+}
+.react-multiple-carousel__arrow::before {
+  color: #0d6efd !important;
+  font-size: 13px !important;
+}
+.react-multiple-carousel__arrow:hover {
+  background: rgba(13, 110, 253, 0.08) !important;
+}
+.react-multiple-carousel__arrow--left  { left: 0 !important; }
+.react-multiple-carousel__arrow--right { right: 0 !important; }
+
+/* ── Product card ────────────────────────────────────────────────────────────── */
+.productCarouselCard {
+  /* width is controlled by the carousel slide — DO NOT set width or margin here */
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s ease;
+  cursor: pointer;
+}
+
+.productCarouselCard:hover {
+  transform: translateY(-6px);
+  border-color: #0d6efd;
+  box-shadow: 0 16px 40px rgba(13, 110, 253, 0.14);
+}
+
+/* ── Image container ─────────────────────────────────────────────────────────── */
+.productCImgCont {
+  width: 100%;
+  padding-top: 72%;      /* ~4:3 aspect ratio on desktop */
+  position: relative !important;  /* !important prevents Bootstrap from overriding */
+  overflow: hidden;
+  background: #f3f4f6;
+  border-radius: 0;
+}
+
+.productCImgCont img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.productCarouselCard:hover .productCImgCont img {
+  transform: scale(1.06);
+}
+
+/* Subtle bottom gradient on image */
+.productCImgCont::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.22) 0%, transparent 55%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.productCarouselCard:hover .productCImgCont::after {
+  opacity: 0.5;
+}
+
+/* ── Promo badge ─────────────────────────────────────────────────────────────── */
+.productCPromo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.45);
+  z-index: 2;
+  line-height: 1.5;
+}
+
+/* ── Quick-view pill (hover reveal) ─────────────────────────────────────────── */
+.productCQuickView {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  opacity: 0;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111827;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+.productCarouselCard:hover .productCQuickView {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Meta line (category · ref) ─────────────────────────────────────────────── */
+.productCMeta {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin: 0 0 3px;
+  padding: 14px 14px 0;
+}
+
+/* ── Name lines ──────────────────────────────────────────────────────────────── */
+.productCInfos1 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: capitalize;
+  padding: 0 14px;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.productCInfos2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: capitalize;
+  padding: 2px 14px 0;
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Price block ─────────────────────────────────────────────────────────────── */
+.productCPrice {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 14px 0;
+}
+
+.productCPriceP {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #16a34a;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.productCPriceD {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  text-decoration-color: #ef4444;
+  margin: 0;
+}
+
+.productCDiscount {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ef4444;
+  margin: 0;
+}
+
+/* ── CTA button ──────────────────────────────────────────────────────────────── */
+.productCView {
+  width: 100%;
+  padding: 10px 0;
+  margin: 12px 0 0;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background 0.2s ease;
+  outline: none;
+  margin-top: auto;
+}
+.productCView:hover,
+.productCarouselCard:hover .productCView {
+  background: #0d6efd;
+  color: #ffffff;
+}
+
+/* ── "See all" browse button ─────────────────────────────────────────────────── */
+.carsl-see-all {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+/* Targets any Bootstrap btn variant — works with .btn, .btn-outline-secondary, etc. */
+.carsl-see-all .btn,
+.carsl-see-all button {
+  padding: 11px 36px !important;
+  border: 1.5px solid #0d6efd !important;
+  color: #0d6efd !important;
+  border-radius: 40px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background 0.22s ease, color 0.22s ease !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.carsl-see-all .btn:hover,
+.carsl-see-all button:hover {
+  background: #0d6efd !important;
+  color: #ffffff !important;
+}
+
+/* ── Section title bar ───────────────────────────────────────────────────────── */
+.ProductsPromoAnnouncement {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  background: #ffffff !important;   /* white — matches site */
+  border-left: 4px solid #0d6efd;
+  padding: 12px 20px !important;
+  margin-bottom: 4px !important;
+  letter-spacing: -0.01em;
+}
+
+/* Bounce vertically — safe for both LTR and RTL, no overlap with adjacent text */
+.HomeTitleIconL {
+  color: #0d6efd;
+  display: inline-block;
+  animation: iconBounceL 1.6s ease-in-out infinite;
+}
+.HomeTitleIconR {
+  color: #0d6efd;
+  display: inline-block;
+  animation: iconBounceR 1.6s ease-in-out infinite;
+}
+
+@keyframes iconBounceL {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  50%       { transform: translateY(-6px) rotate(-12deg); }
+}
+@keyframes iconBounceR {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  50%       { transform: translateY(-6px) rotate(12deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+
+/*
+  On tablet / wide-phone the percentage trick (padding-top:72%) creates images
+  that are 400–500 px tall because the card fills a large width.
+  Switch to an explicit height so the image is always a fixed, predictable size.
+*/
+@media (max-width: 900px) {
+  .productCImgCont {
+    padding-top: 0 !important;   /* disable the percentage trick */
+    height: 220px;               /* fixed explicit height */
+  }
+}
+
+@media (max-width: 768px) {
+  /* Reduce carousel item padding on mobile — prevents right-side overflow gap */
+  .react-multi-carousel-item {
+    padding: 0 4px;
+  }
+
+  .productCImgCont {
+    padding-top: 0 !important;
+    height: 200px;
+  }
+
+  .productCMeta    { padding: 12px 12px 0; font-size: 0.58rem; }
+  .productCInfos1,
+  .productCInfos2  { padding: 0 12px; font-size: 0.78rem; }
+  .productCPrice   { padding: 4px 12px 0; }
+  .productCPriceP  { font-size: 0.95rem; }
+}
+
+@media (max-width: 500px) {
+  .productCImgCont {
+    padding-top: 0 !important;
+    height: 180px;               /* compact on small phones */
+  }
 }

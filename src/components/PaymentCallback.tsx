@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePayment } from '../contexts/PaymentContext';
 import { useCart } from '../contexts/CartContext';
 import { connecter } from '../server/connecter';
-import { goTo, sendEmail, selectedLang } from './constants';
+import { goTo, sendEmail, selectedLang, showToast } from './constants';
 import { useLangContext } from '../contexts/LanguageContext';
 import createInvoice from '../contexts/CreateInvoice';
 import Header from './Header';
@@ -16,10 +17,10 @@ type CallbackStatus =
   | 'processing'
   | 'emailing'
   | 'done'
-  | 'retry'       // payment failed — offer retry or cancel
-  | 'retrying'    // fetching a new payment URL
-  | 'cancelling'  // releasing reservation
-  | 'error';      // unexpected server crash
+  | 'retry'
+  | 'retrying'
+  | 'cancelling'
+  | 'error';
 
 interface VerifyResponse {
   verified: boolean;
@@ -30,18 +31,12 @@ interface VerifyResponse {
 // ─── Polling config ───────────────────────────────────────────────────────────
 
 const MAX_ATTEMPTS = 6;
-const RETRY_DELAYS = [2000, 3000, 4000, 6000, 8000]; // ms after each pending
+const RETRY_DELAYS = [2000, 3000, 4000, 6000, 8000];
 const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 
 // ─── Step config ──────────────────────────────────────────────────────────────
 
-const STEPS = [
-  { key: 'verifying',  label: 'Verifying',  icon: '🔒' },
-  { key: 'processing', label: 'Processing', icon: '📦' },
-  { key: 'emailing',   label: 'Invoice',    icon: '✉'  },
-  { key: 'done',       label: 'Done',       icon: '✓'  },
-] as const;
-
+const STEP_KEYS = ['verifying', 'processing', 'emailing', 'done'] as const;
 const STATUS_ORDER: CallbackStatus[] = ['loading', 'verifying', 'processing', 'emailing', 'done'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -60,24 +55,38 @@ const PaymentProgress: React.FC<{
   pollAttempt: number;
   isWaiting:   boolean;
 }> = ({ status, pollAttempt, isWaiting }) => {
+  const { t } = useTranslation();
   const currentIndex = STATUS_ORDER.indexOf(status);
-  const current      = STEPS.find(s => s.key === status) ?? STEPS[0];
   const showRetry    = status === 'verifying' && pollAttempt > 0;
 
+  const icon = (() => {
+    if (status === 'verifying')  return '🔒';
+    if (status === 'processing') return '📦';
+    if (status === 'emailing')   return '✉';
+    if (status === 'done')       return '✓';
+    return '⏳';
+  })();
+
   const mainLabel = (() => {
-    if (status === 'verifying')  return 'Verifying Payment';
-    if (status === 'processing') return 'Processing Order';
-    if (status === 'emailing')   return 'Sending Invoice';
-    if (status === 'done')       return 'All Done!';
-    return 'Please wait…';
+    if (status === 'verifying')  return t('transaction.verifying');
+    if (status === 'processing') return t('transaction.processing');
+    if (status === 'emailing')   return t('transaction.emailing');
+    if (status === 'done')       return t('transaction.done');
+    return t('transaction.pleaseWait');
   })();
 
   const subLabel = (() => {
-    if (status === 'done') return 'Redirecting you now…';
-    if (!showRetry)        return 'Confirming with payment gateway…';
-    if (isWaiting)         return `Waiting before retry ${pollAttempt + 1} of ${MAX_ATTEMPTS}…`;
-    return `Attempt ${pollAttempt + 1} of ${MAX_ATTEMPTS}`;
+    if (status === 'done')  return t('transaction.doneSub');
+    if (!showRetry)         return t('transaction.verifyingSub');
+    if (isWaiting)          return t('transaction.waitingBeforeRetry', { current: pollAttempt + 1, max: MAX_ATTEMPTS });
+    return t('transaction.attemptOf', { current: pollAttempt + 1, max: MAX_ATTEMPTS });
   })();
+
+  const stepLabels: Record<string, string> = {
+    verifying:  t('transaction.verifying'),
+    processing: t('transaction.processing'),
+    emailing:   t('transaction.emailing'),
+  };
 
   return (
     <>
@@ -114,10 +123,11 @@ const PaymentProgress: React.FC<{
         <div className="pcb-card">
           <div className="pcb-ring-wrap">
             <div className="pcb-ring" />
-            <div className="pcb-icon" key={status}>{current.icon}</div>
+            <div className="pcb-icon" key={status}>{icon}</div>
           </div>
           <div className="pcb-title">{mainLabel}</div>
           <div className="pcb-sub" key={`${status}-${pollAttempt}-${isWaiting}`}>{subLabel}</div>
+
           {showRetry && (
             <div className="pcb-dots">
               {Array.from({ length: MAX_ATTEMPTS }).map((_, i) => {
@@ -126,30 +136,33 @@ const PaymentProgress: React.FC<{
               })}
             </div>
           )}
+
           <div className="pcb-track">
-            {STEPS.slice(0, -1).map((step, i) => {
-              const idx  = STATUS_ORDER.indexOf(step.key as CallbackStatus);
+            {STEP_KEYS.slice(0, -1).map((key, i) => {
+              const idx  = STATUS_ORDER.indexOf(key as CallbackStatus);
               const dn   = idx < currentIndex;
               const ac   = idx === currentIndex;
-              const last = i === STEPS.length - 2;
+              const last = i === STEP_KEYS.length - 2;
               return (
-                <React.Fragment key={step.key}>
+                <React.Fragment key={key}>
                   <div className={`pcb-node ${dn ? 'dn' : ac ? 'ac' : ''}`}>{dn ? '✓' : i + 1}</div>
                   {!last && <div className={`pcb-edge ${dn ? 'dn' : ''}`} />}
                 </React.Fragment>
               );
             })}
           </div>
+
           <div className="pcb-lbls">
-            {STEPS.slice(0, -1).map((step) => {
-              const idx = STATUS_ORDER.indexOf(step.key as CallbackStatus);
+            {STEP_KEYS.slice(0, -1).map((key) => {
+              const idx = STATUS_ORDER.indexOf(key as CallbackStatus);
               return (
-                <span key={step.key} className={`pcb-lbl ${idx < currentIndex ? 'dn' : idx === currentIndex ? 'ac' : ''}`}>
-                  {step.label}
+                <span key={key} className={`pcb-lbl ${idx < currentIndex ? 'dn' : idx === currentIndex ? 'ac' : ''}`}>
+                  {stepLabels[key]}
                 </span>
               );
             })}
           </div>
+
           <div className="pcb-bar" />
         </div>
       </div>
@@ -160,94 +173,89 @@ const PaymentProgress: React.FC<{
 // ─── Retry Screen ─────────────────────────────────────────────────────────────
 
 const RetryScreen: React.FC<{
-  reason:       string;
+  reason:        string;
   transactionId: string;
-  orderId:      string;
-  isBusy:       boolean;
-  onRetry:      () => void;
-  onCancel:     () => void;
-}> = ({ reason, transactionId, orderId, isBusy, onRetry, onCancel }) => (
-  <>
-    <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap');
-      .rty-wrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:2rem;font-family:'DM Sans',sans-serif}
-      .rty-card{background:#fff;border-radius:20px;box-shadow:0 4px 40px rgba(0,0,0,.09);padding:3rem 2.5rem;max-width:460px;width:100%;text-align:center}
-      .rty-icon{font-size:2.8rem;margin-bottom:1rem}
-      .rty-title{font-size:1.25rem;font-weight:600;color:#b71c1c;margin-bottom:.4rem}
-      .rty-reason{font-size:.9rem;color:#555;line-height:1.6;margin-bottom:1.25rem}
-      .rty-ids{font-family:'DM Mono',monospace;font-size:.72rem;color:#888;background:#f7f7f7;border-radius:10px;padding:.6rem .9rem;display:inline-block;margin-bottom:1.5rem;line-height:1.8;text-align:left;width:100%;box-sizing:border-box}
-      .rty-actions{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
-      .rty-btn{padding:.7rem 1.75rem;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;border:none;transition:opacity .2s,transform .1s;font-family:'DM Sans',sans-serif}
-      .rty-btn:active{transform:scale(.97)}
-      .rty-btn:disabled{opacity:.5;cursor:not-allowed}
-      .rty-btn-retry{background:#2e7d32;color:#fff}
-      .rty-btn-retry:hover:not(:disabled){background:#1b5e20}
-      .rty-btn-cancel{background:#f5f5f5;color:#333;border:1px solid #ddd}
-      .rty-btn-cancel:hover:not(:disabled){background:#eeeeee}
-      .rty-note{font-size:.75rem;color:#9e9e9e;margin-top:1.25rem;line-height:1.5}
-      .rty-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
-      @keyframes spin{to{transform:rotate(360deg)}}
-    `}</style>
-    <div className="rty-wrap">
-      <div className="rty-card">
-        <div className="rty-icon">⚠️</div>
-        <div className="rty-title">Payment could not be confirmed</div>
-        <div className="rty-reason">{reason}</div>
-        <div className="rty-ids">
-          {transactionId && <div>Transaction: {transactionId}</div>}
-          <div>Order: {orderId}</div>
-        </div>
-        <div className="rty-actions">
-          <button
-            className="rty-btn rty-btn-retry"
-            onClick={onRetry}
-            disabled={isBusy}
-          >
-            {isBusy
-              ? <><span className="rty-spinner" />Please wait…</>
-              : '↩ Try Again'}
-          </button>
-          <button
-            className="rty-btn rty-btn-cancel"
-            onClick={onCancel}
-            disabled={isBusy}
-          >
-            Cancel order
-          </button>
-        </div>
-        <div className="rty-note">
-          Your reserved items are still held. Retrying will take you back to the
-          payment page without creating a new order.
+  orderId:       string;
+  isBusy:        boolean;
+  onRetry:       () => void;
+  onCancel:      () => void;
+}> = ({ reason, transactionId, orderId, isBusy, onRetry, onCancel }) => {
+  const { t } = useTranslation();
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap');
+        .rty-wrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:2rem;font-family:'DM Sans',sans-serif}
+        .rty-card{background:#fff;border-radius:20px;box-shadow:0 4px 40px rgba(0,0,0,.09);padding:3rem 2.5rem;max-width:460px;width:100%;text-align:center}
+        .rty-icon{font-size:2.8rem;margin-bottom:1rem}
+        .rty-title{font-size:1.25rem;font-weight:600;color:#b71c1c;margin-bottom:.4rem}
+        .rty-reason{font-size:.9rem;color:#555;line-height:1.6;margin-bottom:1.25rem}
+        .rty-ids{font-family:'DM Mono',monospace;font-size:.8rem;color:#888;background:#f7f7f7;border-radius:10px;padding:.6rem .9rem;margin-bottom:1.5rem;line-height:1.8;text-align:left;width:100%;box-sizing:border-box}
+        .rty-actions{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+        .rty-btn{padding:.7rem 1.75rem;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;border:none;transition:opacity .2s,transform .1s;font-family:'DM Sans',sans-serif}
+        .rty-btn:active{transform:scale(.97)}
+        .rty-btn:disabled{opacity:.5;cursor:not-allowed}
+        .rty-btn-retry{background:#2e7d32;color:#fff}
+        .rty-btn-retry:hover:not(:disabled){background:#1b5e20}
+        .rty-btn-cancel{background:#f5f5f5;color:#333;border:1px solid #ddd}
+        .rty-btn-cancel:hover:not(:disabled){background:#eeeeee}
+        .rty-note{font-size:.75rem;color:#9e9e9e;margin-top:1.25rem;line-height:1.5}
+        .rty-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+      `}</style>
+      <div className="rty-wrap ">
+        <div className="rty-card">
+          <div className="rty-icon">⚠️</div>
+          <div className="rty-title">{t('transaction.retryTitle')}</div>
+          <div className="rty-reason">{reason || t('transaction.retryDefaultReason')}</div>
+          <div className="rty-ids ">
+            {transactionId && <><p>{t('transaction.retryLabel')}: {transactionId}</p></>}
+            <div>{t('transaction.retryOrder')}: {orderId}</div>
+          </div>
+          <div className="rty-actions">
+            <button className="rty-btn rty-btn-retry" onClick={onRetry} disabled={isBusy}>
+              {isBusy
+                ? <><span className="rty-spinner" />{t('transaction.retryBusy')}</>
+                : `↩ ${t('transaction.retryBtn')}`}
+            </button>
+            <button className="rty-btn rty-btn-cancel" onClick={onCancel} disabled={isBusy}>
+              {t('transaction.cancelBtn')}
+            </button>
+          </div>
+          <div className="rty-note">{t('transaction.retryNote')}</div>
         </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
-// ─── Error UI (unrecoverable) ─────────────────────────────────────────────────
+// ─── Error UI ─────────────────────────────────────────────────────────────────
 
-const ErrorUI: React.FC<{ message: string; transactionId: string }> = ({ message, transactionId }) => (
-  <>
-    <style>{`
-      .err-wrap{min-height:60vh;display:flex;align-items:center;justify-content:center;padding:2rem;font-family:'DM Sans',sans-serif}
-      .err-card{background:#fff;border-radius:20px;box-shadow:0 4px 40px rgba(0,0,0,.09);padding:3rem 2.5rem;max-width:480px;width:100%;text-align:center}
-      .err-icon{font-size:3rem;margin-bottom:1rem}
-      .err-title{font-size:1.3rem;font-weight:700;color:#b71c1c;margin-bottom:.5rem}
-      .err-msg{color:#555;margin-bottom:1.25rem;line-height:1.6}
-      .err-tid{font-family:'DM Mono',monospace;font-size:.78rem;color:#888;background:#f5f5f5;border-radius:8px;padding:.5rem .75rem;display:inline-block;margin-bottom:1.25rem}
-      .err-note{font-size:.8rem;color:#9e9e9e}
-    `}</style>
-    <div className="err-wrap">
-      <div className="err-card">
-        <div className="err-icon">🚨</div>
-        <div className="err-title">Something went wrong</div>
-        <div className="err-msg">{message}</div>
-        {transactionId && <div className="err-tid">Transaction ID: {transactionId}</div>}
-        <div className="err-note">Please contact our support team with the details above.</div>
+const ErrorUI: React.FC<{ message: string; transactionId: string }> = ({ message, transactionId }) => {
+  const { t } = useTranslation();
+  return (
+    <>
+      <style>{`
+        .err-wrap{min-height:60vh;display:flex;align-items:center;justify-content:center;padding:2rem;font-family:'DM Sans',sans-serif}
+        .err-card{background:#fff;border-radius:20px;box-shadow:0 4px 40px rgba(0,0,0,.09);padding:3rem 2.5rem;max-width:480px;width:100%;text-align:center}
+        .err-icon{font-size:3rem;margin-bottom:1rem}
+        .err-title{font-size:1.3rem;font-weight:700;color:#b71c1c;margin-bottom:.5rem}
+        .err-msg{color:#555;margin-bottom:1.25rem;line-height:1.6}
+        .err-tid{font-family:'DM Mono',monospace;font-size:.78rem;color:#888;background:#f5f5f5;border-radius:8px;padding:.5rem .75rem;display:inline-block;margin-bottom:1.25rem}
+        .err-note{font-size:.8rem;color:#9e9e9e}
+      `}</style>
+      <div className="err-wrap">
+        <div className="err-card">
+          <div className="err-icon">🚨</div>
+          <div className="err-title">{t('transaction.errorTitle')}</div>
+          <div className="err-msg">{message}</div>
+          {transactionId && <div className="err-tid">{transactionId}</div>}
+          <div className="err-note">{t('transaction.errorNote')}</div>
+        </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -255,19 +263,19 @@ const PaymentCallback: React.FC = () => {
   const { clientForm, setPaymentResponse } = usePayment();
   const { allItems, clearCart, setSuccessTransItems } = useCart();
   const { currentLang } = useLangContext();
+  const { t } = useTranslation();
 
-  const [status,       setStatus      ] = useState<CallbackStatus>('loading');
-  const [pollAttempt,  setPollAttempt ] = useState(0);
-  const [isWaiting,    setIsWaiting   ] = useState(false);
-  const [isBusy,       setIsBusy      ] = useState(false);   // retry/cancel in-flight
-  const [errorMsg,     setErrorMsg    ] = useState('');
-  const [failReason,   setFailReason  ] = useState('');
-  const [txId,         setTxId        ] = useState('');
-  const [orderId,      setOrderId     ] = useState('');
+  const [status,      setStatus     ] = useState<CallbackStatus>('loading');
+  const [pollAttempt, setPollAttempt] = useState(0);
+  const [isWaiting,   setIsWaiting  ] = useState(false);
+  const [isBusy,      setIsBusy     ] = useState(false);
+  const [errorMsg,    setErrorMsg   ] = useState('');
+  const [failReason,  setFailReason ] = useState('');
+  const [txId,        setTxId       ] = useState('');
+  const [orderId,     setOrderId    ] = useState('');
 
   const hasRun = useRef(false);
 
-  // ── Core flow (runs once on mount) ──────────────────────────────────────────
   useEffect(() => {
     const run = async () => {
       if (hasRun.current) return;
@@ -278,13 +286,12 @@ const PaymentCallback: React.FC = () => {
       const isSuccess   = params['is_success'] === '1' || params['success'] === '1';
       const oid         = params['order_id']    ?? '';
       const code        = params['code']         ?? '';
-      const failMsg     = params['message']      ?? 'Payment failed.';
+      const failMsg     = params['message']      ?? t('transaction.retryDefaultReason');
       const date        = new Date().toUTCString();
 
       setTxId(transaction);
       setOrderId(oid);
 
-      // ── YCPay already flagged failure in the redirect URL ──────────────────
       if (!isSuccess) {
         setPaymentResponse({
           transaction_id: transaction, order_id: oid, code,
@@ -297,7 +304,6 @@ const PaymentCallback: React.FC = () => {
         return;
       }
 
-      // ── Poll verify until confirmed, hard-failed, or timed out ────────────
       try {
         setStatus('verifying');
         let verified    = false;
@@ -320,16 +326,13 @@ const PaymentCallback: React.FC = () => {
             await sleep(delayMs);
             continue;
           }
-          // 'failed' or 'error' — hard stop
           hardFailure = true;
-          failureMsg  = data.reason ?? 'Payment could not be verified.';
+          failureMsg  = data.reason ?? t('transaction.retryDefaultReason');
           break;
         }
 
         if (!verified) {
-          const msg = hardFailure
-            ? failureMsg
-            : 'We could not confirm your payment in time. You can try again or contact support.';
+          const msg = hardFailure ? failureMsg : t('transaction.retryDefaultReason');
           setPaymentResponse({
             transaction_id: transaction, order_id: oid, code,
             success: false, message: msg,
@@ -337,11 +340,10 @@ const PaymentCallback: React.FC = () => {
             date, isOnlinePayment: true,
           });
           setFailReason(msg);
-          setStatus('retry');   // ← offer retry instead of redirect to /failed
+          setStatus('retry');
           return;
         }
 
-        // ── Confirmed: process order ──────────────────────────────────────────
         setIsWaiting(false);
         setStatus('processing');
         const response = await connecter.post('api/payment/handle/', {
@@ -377,19 +379,17 @@ const PaymentCallback: React.FC = () => {
       } catch (err) {
         console.error('[PaymentCallback] error:', err);
         setStatus('error');
-        setErrorMsg('Payment was received but we could not confirm your order. Please contact support.');
+        setErrorMsg(t('transaction.errorTitle'));
       }
     };
 
     run();
   }, []);
 
-  // ── Retry handler ────────────────────────────────────────────────────────
   const handleRetry = async () => {
     if (isBusy) return;
     setIsBusy(true);
     setStatus('retrying');
-
     try {
       const response = await connecter.post('api/payment/url/retry/', {
         order_id: orderId,
@@ -399,35 +399,37 @@ const PaymentCallback: React.FC = () => {
           lang       : selectedLang(currentLang),
         },
       });
-
-      // Redirect — hasRun guard will allow the new PaymentCallback to run
       hasRun.current = false;
-      window.location.href = response.data.payment_url;
+      window.location.href = response.data.payment_url;        
 
-    } catch (err) {
-      console.error('[retry] failed:', err);
+
+    } catch (err:any) {
+      if(err.response.status==423){
+        window.location.href='/Home'
+      }
       setIsBusy(false);
       setStatus('retry');
     }
   };
 
-  // ── Cancel handler ───────────────────────────────────────────────────────
   const handleCancel = async () => {
     if (isBusy) return;
     setIsBusy(true);
     setStatus('cancelling');
-
     try {
-      await connecter.post('api/payment/cancel/', { order_id: orderId });
-    } catch (err) {
-      console.error('[cancel] failed:', err);
-      // Even if the request fails, navigate the user away
-    } finally {
-      goTo('/transaction/failed');
+      const response = await connecter.post('api/payment/cancel/', { order_id: orderId });
+      if(response.status==200){
+        showToast('Order cancelled', 'success');
+        goTo('/transaction/failed');
+      }
+    } catch (err:any) {
+      if(err.response.status = 423){
+        window.location.href='/Home';
+      }else{goTo('/transaction/failed');}
+      
     }
   };
 
-  // ── Render ───────────────────────────────────────────────────────────────
   const renderContent = () => {
     if (status === 'error') {
       return <ErrorUI message={errorMsg} transactionId={txId} />;
@@ -444,15 +446,8 @@ const PaymentCallback: React.FC = () => {
         />
       );
     }
-    // retrying / cancelling → reuse progress spinner with a simple message
     if (status === 'retrying' || status === 'cancelling') {
-      return (
-        <PaymentProgress
-          status="verifying"
-          pollAttempt={0}
-          isWaiting={false}
-        />
-      );
+      return <PaymentProgress status="verifying" pollAttempt={0} isWaiting={false} />;
     }
     return <PaymentProgress status={status} pollAttempt={pollAttempt} isWaiting={isWaiting} />;
   };
@@ -460,7 +455,9 @@ const PaymentCallback: React.FC = () => {
   return (
     <>
       <Header />
+      <div className={`${selectedLang(currentLang)=='ar'?'rtl':'ltr'}`}>
       {renderContent()}
+      </div>
       <Footer />
     </>
   );

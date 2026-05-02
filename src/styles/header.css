@@ -1,8 +1,9 @@
 /* ============================================================
-   header.css — Firdaous Store
+   header.css — Firdaous Store (Enhanced)
+   Drop this into: src/styles/header.css
    ============================================================ */
 
-/* ── CSS custom properties ────────────────────────────────── */
+/* ── CSS custom properties ─────────────────────────────────── */
 :root {
   --color-brand:        #0e92e4;
   --color-brand-dark:   #0a6eb0;
@@ -13,9 +14,8 @@
   --color-black:        #000000;
   --color-backdrop:     rgba(0, 0, 0, 0.55);
 
-  /* Heights — used in both TSX logic and CSS */
-  --header-h-desktop:   80px;
-  --header-h-mobile:    64px;
+  --header-h-desktop:   68px;
+  --header-h-mobile:    60px;
 
   --sidebar-width:      270px;
   --transition-slide:   340ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -27,34 +27,36 @@
    ══════════════════════════════════════════════════════════ */
 .promo-banner {
   width: 100%;
-  height: 36px;
-  background-color: var(--color-promo);
+  height: 34px;
+  background: linear-gradient(90deg, #0096c7, #0e92e4);
   display: flex;
   align-items: center;
-  position: sticky;           /* sticks together with header */
+  position: sticky;
   top: 0;
   z-index: 100002;
+  border-bottom: 1px solid rgba(255,255,255,.15);
 }
 
 .promo-banner__text {
   color: var(--color-white);
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding-right: 80px;        /* gap between marquee loops */
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  padding-right: 80px;
   white-space: nowrap;
 }
 
 /* ══════════════════════════════════════════════════════════
-   SITE HEADER  (shell)
+   SITE HEADER
    ══════════════════════════════════════════════════════════ */
 .site-header {
   width: 100%;
-  background-color: var(--color-brand);
-  border-bottom: 3px solid var(--color-brand-light);
+  background: var(--color-brand);
+  border-bottom: 3px solid rgba(255,255,255,.18);
+  box-shadow: 0 2px 20px rgba(14, 146, 228, 0.35);
   position: sticky;
-  top: 36px;                  /* sits right below promo banner */
+  top: 34px;
   z-index: 100001;
-  /* height is set per layout below */
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -65,8 +67,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 28px;
   gap: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 /* ── Logo ─────────────────────────────────────────────────── */
@@ -81,22 +86,23 @@
 }
 
 .site-logo {
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
   will-change: filter;
-  transition: filter 0.8s ease;
+  transition: filter 0.5s ease, transform 0.3s ease;
 }
 
 .site-logo:hover {
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.85));
+  transform: scale(1.05);
 }
 
-/* ── Desktop nav (centered flex group) ───────────────────── */
+/* ── Desktop nav ──────────────────────────────────────────── */
 .desktop-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
   justify-content: center;
 }
@@ -105,36 +111,37 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   background: none;
   border: none;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   white-space: nowrap;
   transition: background var(--transition-fast), color var(--transition-fast);
+  letter-spacing: 0.01em;
 }
 
-/* Underline slide-in on hover */
 .desktop-nav__btn::after {
   content: "";
   position: absolute;
-  bottom: 4px;
-  left: 14px;
-  right: 14px;
+  bottom: 5px;
+  left: 16px;
+  right: 16px;
   height: 2px;
-  background-color: var(--color-white);
+  background: var(--color-white);
+  border-radius: 2px;
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.35s ease;
+  transition: transform 0.3s ease;
 }
 
 .desktop-nav__btn:hover {
   color: var(--color-white);
-  background-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .desktop-nav__btn:hover::after {
@@ -142,9 +149,10 @@
 }
 
 .desktop-nav__btn[data-active="true"] {
-  background-color: var(--color-white);
-  color: var(--color-brand);
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--color-white);
   font-weight: 700;
+  border: 1.5px solid rgba(255,255,255,.45);
 }
 
 .desktop-nav__btn[data-active="true"]::after {
@@ -154,41 +162,44 @@
 .desktop-nav__btn-icon {
   display: flex;
   align-items: center;
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
-/* ── Desktop right-side actions (cart + lang) ─────────────── */
+/* ── Desktop right-side actions ───────────────────────────── */
 .desktop-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
+/* Cart button — black pill */
 .desktop-cart-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
-  background-color: var(--color-black);
+  padding: 8px 20px;
+  background: rgba(0,0,0,.75);
   color: var(--color-white);
-  border: 2px solid transparent;
+  border: 1.5px solid transparent;
   border-radius: 999px;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  font-size: 0.88rem;
+  font-weight: 700;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
 .desktop-cart-btn:hover {
-  background-color: var(--color-white);
+  background: var(--color-white);
   color: var(--color-black);
-  border-color: var(--color-black);
+  border-color: rgba(0,0,0,.15);
+  box-shadow: 0 4px 14px rgba(0,0,0,.2);
 }
 
 .desktop-cart-btn__badge {
-  background-color: var(--color-brand);
+  background: var(--color-brand);
   color: var(--color-white);
   border-radius: 999px;
   min-width: 22px;
@@ -196,14 +207,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   padding: 0 5px;
   transition: background var(--transition-fast);
+  border: 2px solid rgba(255,255,255,.2);
 }
 
 .desktop-cart-btn:hover .desktop-cart-btn__badge {
-  background-color: var(--color-black);
+  background: var(--color-black);
+  border-color: rgba(0,0,0,.15);
 }
 
 /* ── Language selector ────────────────────────────────────── */
@@ -212,6 +225,16 @@
   align-items: center;
   gap: 5px;
   color: var(--color-white);
+  background: rgba(255,255,255,.12);
+  border: 1.5px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.lang-selector:hover {
+  background: rgba(255,255,255,.2);
 }
 
 .lang-selector select {
@@ -219,13 +242,13 @@
   border: none;
   color: var(--color-white);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
   outline: none;
 }
 
 .lang-selector select option {
-  background-color: var(--color-brand-dark);
+  background: var(--color-brand-dark);
   color: var(--color-white);
 }
 
@@ -234,22 +257,19 @@
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 800px) {
 
-  /* ── Site header height on mobile ───────────────────────── */
   .site-header {
-    top: 36px; /* below promo banner — unchanged */
+    top: 34px;
   }
 
-  /* ── The single sticky row ───────────────────────────────── */
   .mobile-bar {
     height: var(--header-h-mobile);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 8px;
-    position: relative;           /* anchor for absolute logo */
+    position: relative;
   }
 
-  /* Logo centered absolutely inside mobile-bar */
   .mobile-bar .logo-btn {
     position: absolute;
     left: 50%;
@@ -258,8 +278,8 @@
   }
 
   .mobile-bar .site-logo {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
   }
 
   /* ── Hamburger ───────────────────────────────────────────── */
@@ -276,21 +296,21 @@
     padding: 8px;
     width: 52px;
     min-height: var(--header-h-mobile);
-    z-index: 1;                   /* above the absolute logo */
+    z-index: 1;
   }
 
   .hamburger__line {
     display: block;
-    width: 26px;
+    width: 24px;
     height: 2.5px;
-    background-color: var(--color-white);
+    background: var(--color-white);
     border-radius: 2px;
-    transition: transform 0.35s ease, opacity 0.25s ease, background-color 0.25s ease;
+    transition: transform 0.3s ease, opacity 0.25s ease;
   }
 
   .hamburger__line.is-top-open {
     transform: translateY(6.5px) rotate(45deg);
-    background-color: #ff4d4d;
+    background: #ff4d4d;
   }
   .hamburger__line.is-mid-open {
     opacity: 0;
@@ -298,17 +318,17 @@
   }
   .hamburger__line.is-bot-open {
     transform: translateY(-6.5px) rotate(-45deg);
-    background-color: #ff4d4d;
+    background: #ff4d4d;
   }
 
   .hamburger__label {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     margin-top: 2px;
   }
 
-  /* ── Cart button (mobile) ────────────────────────────────── */
+  /* ── Mobile cart button ──────────────────────────────────── */
   .mobile-cart-btn {
     display: flex;
     flex-direction: column;
@@ -326,51 +346,44 @@
   }
 
   .mobile-cart-btn__icon {
-    width: 24px;
-    height: 24px;
+    width: 23px;
+    height: 23px;
   }
 
   .mobile-cart-btn__badge {
     position: absolute;
-    top: 10px;
+    top: 9px;
     right: 6px;
-    background-color: #ff4d4d;
+    background: #ef4444;
     color: var(--color-white);
     border-radius: 999px;
     min-width: 18px;
     height: 18px;
-    font-size: 0.65rem;
-    font-weight: 700;
+    font-size: 0.62rem;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 3px;
+    border: 2px solid var(--color-brand);
   }
 
   .mobile-cart-btn__label {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
   }
 
-  /* ══════════════════════════════════════════════════════════
-     SIDEBAR  — slides in BELOW the header, never overlaps it
-     ══════════════════════════════════════════════════════════ */
-
-  /*
-     Key: position:fixed, top = promo height + mobile bar height.
-     This means the overlay starts exactly where the header ends,
-     so the header bar is always fully visible.
-  */
+  /* ── Sidebar overlay ────────────────────────────────────── */
   .sidebar-overlay {
     position: fixed;
-    top: calc(36px + var(--header-h-mobile));  /* promo + mobile bar */
+    top: calc(34px + var(--header-h-mobile));
     left: 0;
     width: 100%;
-    height: calc(100vh - 36px - var(--header-h-mobile));
+    height: calc(100vh - 34px - var(--header-h-mobile));
     display: flex;
     z-index: 100000;
-    pointer-events: none;       /* inactive when closed */
+    pointer-events: none;
     visibility: hidden;
     transition: visibility 0s var(--transition-slide);
   }
@@ -381,11 +394,11 @@
     transition: visibility 0s 0s;
   }
 
-  /* ── Sidebar panel ───────────────────────────────────────── */
+  /* ── Sidebar panel ──────────────────────────────────────── */
   .sidebar {
     width: var(--sidebar-width);
     height: 100%;
-    background-color: var(--color-white);
+    background: var(--color-white);
     border-right: 3px solid var(--color-brand);
     overflow-y: auto;
     scrollbar-width: thin;
@@ -396,14 +409,14 @@
     flex-shrink: 0;
   }
 
-  .sidebar::-webkit-scrollbar          { width: 5px; }
-  .sidebar::-webkit-scrollbar-thumb    { background: var(--color-brand-light); border-radius: 3px; }
+  .sidebar::-webkit-scrollbar       { width: 5px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--color-brand-light); border-radius: 3px; }
 
   .sidebar--open {
     transform: translateX(0);
   }
 
-  /* ── Sidebar list ────────────────────────────────────────── */
+  /* ── Sidebar list ───────────────────────────────────────── */
   .sidebar__list {
     list-style: none;
     width: 100%;
@@ -415,18 +428,21 @@
     border-bottom: 1px solid #eef2f5;
   }
 
-  /* Language item */
   .sidebar__item--lang {
     padding: 14px 16px;
+    background: #f8fafc;
   }
 
   .sidebar__item--lang .lang-selector {
     color: var(--color-brand);
+    background: transparent;
+    border: none;
+    padding: 0;
   }
 
   .sidebar__item--lang .lang-selector select {
     color: var(--color-brand-dark);
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   /* Nav links */
@@ -435,32 +451,33 @@
     align-items: center;
     gap: 12px;
     padding: 0 16px;
-    height: 58px;
+    height: 56px;
+    color: #1f2937;
     text-decoration: none;
-    color: var(--color-brand);
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 0.92rem;
+    font-weight: 600;
     transition: background var(--transition-fast), color var(--transition-fast);
   }
 
-  .sidebar__link:hover,
-  .sidebar__link[data-active="false"]:hover {
-    background-color: rgba(14, 146, 228, 0.08);
-    color: var(--color-brand-dark);
+  .sidebar__link:hover {
+    background: #f0f7fd;
+    color: var(--color-brand);
   }
 
   .sidebar__link[data-active="true"] {
-    background: linear-gradient(90deg, var(--color-brand) 0%, var(--color-brand-deep) 100%);
-    color: var(--color-white);
+    background: #e8f4fd;
+    color: var(--color-brand);
+    border-right: 3px solid var(--color-brand);
     font-weight: 700;
   }
 
   .sidebar__link-icon {
+    font-size: 1.1rem;
+    color: var(--color-brand);
     display: flex;
     align-items: center;
-    font-size: 1.15rem;
+    width: 24px;
     flex-shrink: 0;
-    width: 22px;
   }
 
   .sidebar__link-label {
@@ -469,39 +486,21 @@
 
   .sidebar__link-count {
     font-style: normal;
-    opacity: 0.7;
-    font-size: 0.9em;
+    color: var(--color-brand);
+    font-weight: 700;
   }
 
   .sidebar__link-arrow {
-    opacity: 0.35;
+    color: #9ca3af;
     font-size: 0.85rem;
     flex-shrink: 0;
   }
 
-  /* ── Click-away backdrop ─────────────────────────────────── */
+  /* Backdrop */
   .sidebar-backdrop {
     flex: 1;
-    height: 100%;
-    background: var(--color-backdrop);
-    opacity: 0;
-    transition: opacity var(--transition-slide);
-    cursor: pointer;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
   }
-
-  .sidebar-overlay--open .sidebar-backdrop {
-    opacity: 1;
-  }
-
-  /* ── Hide desktop-only elements on mobile ────────────────── */
-  .desktop-bar,
-  .desktop-nav,
-  .desktop-actions {
-    display: none;
-  }
-}
-
-/* ── If promo banner is NOT rendered, adjust sticky tops ──── */
-.site-header:first-child {
-  top: 0;
 }

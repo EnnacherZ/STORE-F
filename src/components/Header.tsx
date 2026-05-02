@@ -127,7 +127,7 @@ const Header: React.FC = () => {
               {/* ── Cart — far right ─────────────────────────────── */}
               <button
                 className="mobile-cart-btn"
-                onClick={() => goTo("/YourCart")}
+                onClick={() => goTo("/Cart")}
                 aria-label={`${t("cart.title")}, ${itemCount} items`}
               >
                 <FaShoppingCart className="mobile-cart-btn__icon" aria-hidden />

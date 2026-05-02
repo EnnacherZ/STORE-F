@@ -1,141 +1,374 @@
-/* ─── Page header / logo ──────────────────────────────────────────────────────── */
-.success-page__logo-wrapper {
-  /* inherits Bootstrap d-flex justify-content-center */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+/* ─── Root container ──────────────────────────────────────────────────────────── */
+.suc-root {
+  font-family: 'DM Sans', sans-serif;
+  min-height: 80vh;
+  background: #f4f7f6;
+  padding-bottom: 3rem;
 }
 
-.success-page__logo {
-  width: 80px;
-  aspect-ratio: 1;
+/* ─── Hero ────────────────────────────────────────────────────────────────────── */
+.suc-hero {
+  background: linear-gradient(160deg, #e8f5e9 0%, #f0fdf4 60%, #ffffff 100%);
+  border-bottom: 1px solid #d1e8d4;
+  text-align: center;
+  padding: 2.5rem 1.5rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+}
+
+/* ─── Logo ────────────────────────────────────────────────────────────────────── */
+.suc-logo-link {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.suc-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .10);
+  border: 2px solid #fff;
 }
 
-.success-page__logo img {
+.suc-logo img {
   width: 100%;
   height: 100%;
   object-fit: fill;
 }
 
-/* ─── Success message ─────────────────────────────────────────────────────────── */
-.success-page__message {
-  margin: auto;
-  font-size: 25px;
-  font-weight: bold;
-  text-align: center;
-  color: #0e92e4;
-}
-
-/* ─── Animated check icon ─────────────────────────────────────────────────────── */
-.success-page__check-icon {
-  border: 10px solid greenyellow;
+/* ─── Check icon ──────────────────────────────────────────────────────────────── */
+.suc-check-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  margin: auto;
+  background: #fff;
+  box-shadow: 0 0 0 6px #c8e6c9, 0 4px 24px rgba(46, 125, 50, .18);
+  margin: .25rem 0;
 }
 
-/* ─── Invoice download button ─────────────────────────────────────────────────── */
-.invoice-download-btn {
-  /* inherits Bootstrap btn btn-warning fw-bold */
+.suc-check-icon {
+  color: #2e7d32;
+  font-size: 2.2rem !important;
 }
 
-/* ─── Body: two-column layout ─────────────────────────────────────────────────── */
-.success-page__body {
+/* ─── Hero text ───────────────────────────────────────────────────────────────── */
+.suc-hero-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1b2a1e;
+  margin: 0;
+  letter-spacing: -.01em;
+}
+
+.suc-hero-sub {
+  font-size: .95rem;
+  color: #5a7a5e;
+  margin: 0;
+}
+
+/* ─── Hero download button ────────────────────────────────────────────────────── */
+.suc-hero-download {
+  margin-top: .5rem;
+}
+
+/* ─── Download button ─────────────────────────────────────────────────────────── */
+.suc-download-link {
+  text-decoration: none;
+}
+
+.suc-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: #f59e0b;
+  color: #1c1917;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  padding: .65rem 1.4rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .35);
+  transition: background .18s, transform .12s, box-shadow .18s;
+}
+
+.suc-download-btn:hover {
+  background: #d97706;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, .4);
+}
+
+.suc-download-btn:active {
+  transform: scale(.97);
+}
+
+/* ─── Body: two-panel layout ──────────────────────────────────────────────────── */
+.suc-body {
   display: flex;
   flex-direction: row;
+  gap: 1.25rem;
+  max-width: 1100px;
+  margin: 1.75rem auto 0;
+  padding: 0 1.25rem;
 }
 
-/* ─── Transaction details panel ───────────────────────────────────────────────── */
-.transaction-details {
-  width: 550px;
-  margin: 0 10px;
-  height: 430px;
+/* ─── Shared panel ────────────────────────────────────────────────────────────── */
+.suc-panel {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .06), 0 6px 28px rgba(0, 0, 0, .05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Panel header ────────────────────────────────────────────────────────────── */
+.suc-panel-header {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1b2a1e;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border-bottom: 1px solid #e8f5e9;
+}
+
+/* ─── Panel footer ────────────────────────────────────────────────────────────── */
+.suc-panel-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #f0f4f1;
+  display: flex;
+  justify-content: center;
+}
+
+/* ─── Details panel ───────────────────────────────────────────────────────────── */
+.suc-panel--details {
+  width: 340px;
+  flex-shrink: 0;
   position: sticky;
-  top: 5px;
+  top: 8px;
+  align-self: flex-start;
 }
 
-.transaction-details__title {
-  /* inherits Bootstrap fw-bold text-center fs-3 my-1 */
-}
-
-.transaction-details__list {
-  padding: 0 4px;
-}
-
-.transaction-details__list-item {
-  height: 40px;
-  margin: 0 2px;
+/* ─── Detail list ─────────────────────────────────────────────────────────────── */
+.suc-detail-list {
   list-style: none;
+  margin: 0;
+  padding: .5rem 1.25rem;
+  flex: 1;
 }
 
-.transaction-details__list-value {
-  color: #0e92e4;
+.suc-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .65rem 0;
+  border-bottom: 1px solid #f0f4f1;
+  gap: .75rem;
 }
 
-/* ─── Order review panel ──────────────────────────────────────────────────────── */
-.order-review {
-  width: calc(100% - 520px);
-  background-color: #efefef;
+.suc-detail-item:last-child {
+  border-bottom: none;
 }
 
-.order-review__title {
-  background-color: white;
-  height: 56px;
+.suc-detail-label {
+  font-size: .85rem;
+  color: #8a9e8d;
+  font-weight: 500;
+  flex-shrink: 0;
 }
 
-/* ─── Order review item row ───────────────────────────────────────────────────── */
-.order-review-item {
-  height: 100px;
+.suc-detail-value {
+  font-size: .88rem;
+  font-weight: 700;
+  color: #1a8a3c;
+  font-family: 'DM Mono', monospace;
+  text-align: right;
+  word-break: break-all;
 }
 
-.order-review-item__image {
-  width: 90px;
-  aspect-ratio: 1;
+/* ─── Order panel ─────────────────────────────────────────────────────────────── */
+.suc-panel--order {
+  flex: 1;
+  min-width: 0;
 }
 
-.order-review-item__image img {
+/* ─── Items list ──────────────────────────────────────────────────────────────── */
+.suc-items {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .75rem 1rem;
+  flex: 1;
+}
+
+/* ─── Single item row ─────────────────────────────────────────────────────────── */
+.suc-item {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  background: #f8faf8;
+  border: 1px solid #edf2ed;
+  border-radius: 14px;
+  padding: .6rem .75rem;
+  transition: box-shadow .18s;
+}
+
+.suc-item:hover {
+  box-shadow: 0 2px 12px rgba(46, 125, 50, .08);
+}
+
+/* ─── Item image ──────────────────────────────────────────────────────────────── */
+.suc-item-img {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e0ece1;
+}
+
+.suc-item-img img {
   width: 100%;
   height: 100%;
   object-fit: fill;
 }
 
-.order-review-item__name {
-  /* inherits Bootstrap flex-column d-flex align-items-center justify-content-around */
+/* ─── Item info ───────────────────────────────────────────────────────────────── */
+.suc-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
 }
 
-.order-review-item__price {
-  /* inherits Bootstrap d-flex flex-column justify-content-around align-items-center mx-1 */
+.suc-item-ref {
+  font-size: .72rem;
+  color: #9aad9b;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.suc-item-name {
+  font-size: .9rem;
+  font-weight: 600;
+  color: #1b2a1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suc-item-size {
+  font-size: .78rem;
+  color: #7a8f7b;
+}
+
+/* ─── Item pricing ────────────────────────────────────────────────────────────── */
+.suc-item-pricing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .15rem;
+  flex-shrink: 0;
+}
+
+.suc-item-total {
+  font-size: .92rem;
+  font-weight: 700;
+  color: #2e7d32;
+  font-family: 'DM Mono', monospace;
+}
+
+.suc-item-qty {
+  font-size: .75rem;
+  color: #9aad9b;
+}
+
+/* ─── Expand / collapse ───────────────────────────────────────────────────────── */
+.suc-expand {
+  padding: .75rem 1rem;
+  border-top: 1px solid #f0f4f1;
+  display: flex;
+  justify-content: center;
+}
+
+.suc-expand-btn {
+  background: transparent;
+  border: 1.5px solid #2e7d32;
+  color: #2e7d32;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .85rem;
+  padding: .5rem 1.5rem;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background .18s, color .18s;
+}
+
+.suc-expand-btn:hover {
+  background: #2e7d32;
+  color: #fff;
+}
+
+/* ─── RTL support ─────────────────────────────────────────────────────────────── */
+.suc-root.rtl,
+.suc-panel.rtl {
+  direction: rtl;
+  text-align: right;
 }
 
 /* ─── Responsive: tablet ──────────────────────────────────────────────────────── */
-@media (max-width: 1000px) {
-  .success-page__body {
+@media (max-width: 900px) {
+  .suc-body {
     flex-direction: column;
+    padding: 0 1rem;
   }
 
-  .transaction-details {
-    margin: auto;
+  .suc-panel--details {
+    width: 100%;
     position: static;
-  }
-
-  .order-review {
-    width: 94%;
-    margin: auto;
+    align-self: auto;
   }
 }
 
 /* ─── Responsive: mobile ──────────────────────────────────────────────────────── */
 @media (max-width: 520px) {
-  .transaction-details {
-    width: 94%;
-    margin: auto;
-    height: 102vw;
+  .suc-hero {
+    padding: 2rem 1rem 1.75rem;
   }
 
-  .transaction-details__list-item {
-    font-size: 3.3vw;
-    height: 10vw;
+  .suc-hero-title {
+    font-size: 1.3rem;
   }
 
-  .order-review-item__name,
-  .order-review-item__price {
-    font-size: 3.1vw;
+  .suc-body {
+    margin-top: 1.25rem;
+    padding: 0 .75rem;
+  }
+
+  .suc-item-img {
+    width: 58px;
+    height: 58px;
+  }
+
+  .suc-item-name {
+    font-size: .82rem;
+  }
+
+  .suc-item-total {
+    font-size: .84rem;
   }
 }

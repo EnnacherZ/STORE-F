@@ -1,50 +1,201 @@
-.HomeTitle{
-    width: 100%;
-    height: 60px;
-    font-size: 1.5em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 10px 0;
-}
-.HomeTitleIcon{
-    margin:0 15px;
-    position: relative;
-}
-.HomeTitleIconL{
-    margin:0 15px;
-    position: relative;
-    animation: setL 3s infinite;
-}
-.HomeTitleIconR{
-    margin:0 15px;
-    position: relative;
-    animation: setR 3s infinite;
-}
-.carsl-item-title{
-    background-color: black;
-    color: white;
+/* ─────────────────────────────────────────────────────────────────────────────
+   HomePage — Enhanced Styles
+   Drop this into:  src/styles/HomePage.css
+   (replaces the old HomePage.css entirely)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Category filter bar (below banner) ─────────────────────────────────────── */
+.home-category-bar {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px 0;
+  position: sticky;
+  top: 0;         /* sticks below the main header */
+  z-index: 50;
 }
 
-@keyframes setR{
-    0%{
-        left: 0%;
-    }
-    50%{
-        left: 50px;
-    }
-    100%{
-        left:0%
-    }
+.home-category-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-@keyframes setL{
-    0%{
-        left: 0%;
-    }
-    50%{
-        left: -50px;
-    }
-    100%{
-        left:0%
-    }
+.home-category-inner::-webkit-scrollbar { display: none; }
+
+.home-cat-pill {
+  padding: 8px 20px;
+  border-radius: 40px;
+  border: 1.5px solid #e5e7eb;
+  background: transparent;
+  color: #374151;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  outline: none;
+}
+.home-cat-pill:hover {
+  border-color: #0d6efd;
+  color: #0d6efd;
+}
+.home-cat-pill.active {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #ffffff;
+}
+
+/* ── Outer sections wrapper ──────────────────────────────────────────────────── */
+.home-sections-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 44px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.home-loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+}
+
+/* ── Individual product-type section ────────────────────────────────────────── */
+.home-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Section header row ──────────────────────────────────────────────────────── */
+.home-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.home-section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Left vertical accent bar */
+.home-section-accent-bar {
+  width: 4px;
+  height: 44px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #0d6efd, #0a58ca);
+  flex-shrink: 0;
+}
+
+/* "New Arrivals" / "Featured" badge */
+.home-section-badge {
+  margin: 0 0 3px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #0d6efd;
+}
+
+/* Main section heading with animated shoe icons */
+.home-section-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: capitalize;
+}
+
+/* Animated shoe icons — bounce vertically, RTL-safe, no overlap */
+.HomeTitleIconL {
+  color: #0d6efd;
+  font-size: 1.3rem;
+  display: inline-block;
+  flex-shrink: 0;
+  animation: iconBounceL 1.6s ease-in-out infinite;
+}
+.HomeTitleIconR {
+  color: #0d6efd;
+  font-size: 1.3rem;
+  display: inline-block;
+  flex-shrink: 0;
+  animation: iconBounceR 1.6s ease-in-out infinite;
+}
+
+@keyframes iconBounceL {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  50%       { transform: translateY(-6px) rotate(-12deg); }
+}
+@keyframes iconBounceR {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  50%       { transform: translateY(-6px) rotate(12deg); }
+}
+
+/* "See All" pill button */
+.home-section-see-all {
+  padding: 9px 22px;
+  background: transparent;
+  border: 1.5px solid #0d6efd;
+  color: #0d6efd;
+  border-radius: 40px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+  outline: none;
+}
+.home-section-see-all:hover {
+  background: #0d6efd;
+  color: #ffffff;
+}
+
+/* ── Remove old section-title styles (kept for safety) ──────────────────────── */
+.ProductsPromoAnnouncement { display: none !important; }
+.carsl-item-title          { display: none !important; }
+.HomeTitle                 { display: none !important; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .home-sections-wrap {
+    padding: 28px 16px 48px;
+    gap: 44px;
+  }
+  .home-section-title {
+    font-size: 1.25rem;
+  }
+  .home-section-accent-bar {
+    height: 36px;
+  }
+  .home-section-see-all {
+    padding: 8px 16px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .home-cat-pill {
+    font-size: 0.72rem;
+    padding: 7px 16px;
+  }
 }

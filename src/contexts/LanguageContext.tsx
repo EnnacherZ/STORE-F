@@ -3,8 +3,6 @@ import { initReactI18next } from 'react-i18next';
 import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useState } from 'react';
 import { selectedLang } from '../components/constants';
 
-
-
 i18n
   .use(initReactI18next)
   .init({
@@ -124,6 +122,60 @@ i18n
             success: 'Your transaction is successfully completed',
             downloadTicket: 'Download e-command ticket',
             thank: 'Thank you for your confidence',
+
+            // ── PaymentCallback progress labels ────────────────────────────
+            verifying:            'Verifying Payment',
+            verifyingSub:         'Confirming with payment gateway…',
+            processing:           'Processing Order',
+            processingSub:        'Recording your order…',
+            emailing:             'Sending Invoice',
+            emailingSub:          'Emailing your receipt…',
+            done:                 'All Done!',
+            doneSub:              'Redirecting you now…',
+            pleaseWait:           'Please wait…',
+            attemptOf:            'Attempt {{current}} of {{max}}',
+            waitingBeforeRetry:   'Waiting before retry {{current}} of {{max}}…',
+
+            // ── PaymentCallback retry screen ───────────────────────────────
+            retryTitle:           'Payment could not be confirmed',
+            retryDefaultReason:   'Your payment could not be verified. Please try again.',
+            retryLabel:           'Transaction',
+            retryOrder:           'Order',
+            retryBtn:             'Try Again',
+            cancelBtn:            'Cancel order',
+            retryNote:            'Your reserved items are still held. Retrying will take you back to the payment page without creating a new order.',
+            retryBusy:            'Please wait…',
+
+            // ── PaymentCallback error screen ───────────────────────────────
+            errorTitle:           'Something went wrong',
+            errorNote:            'Please contact our support team with the details above.',
+
+            // ── TransactionFailed — base ───────────────────────────────────
+            failedTitle:          'Payment Failed',
+            failedDefaultMsg:     'Something went wrong with your payment.',
+            failedOrderId:        'Order ID',
+            failedTransactionId:  'Transaction ID',
+            failedErrorCode:      'Error Code',
+            failedSupportNote:    'Please keep your transaction ID and contact support if you were charged.',
+            failedGoHome:         'Go Home',
+            failedTryAgain:       'Try Again',
+
+            // ── TransactionFailed — category badges ────────────────────────
+            failedCategory_cancelled:          'Payment Cancelled',
+            failedCategory_insufficient_funds: 'Insufficient Funds',
+            failedCategory_card_declined:      'Card Declined',
+            failedCategory_card_expired:       'Card Expired',
+            failedCategory_auth_failed:        '3-D Secure Failed',
+            failedCategory_timeout:            'Session Timed Out',
+            failedCategory_generic:            'Payment Failed',
+
+            // ── TransactionFailed — contextual hints ───────────────────────
+            failedHintCancelled:         'You cancelled the payment. Your reserved items are still held — click "Try Again" to return to the payment page.',
+            failedHintFunds:             'Your card was declined due to insufficient funds. Please use a different card or top up your account and try again.',
+            failedHintDeclined:          'Your card was declined by the bank. Please check your card details or contact your bank before trying again.',
+            failedHintExpired:           'Your card appears to be expired. Please update your card information and try with a valid card.',
+            failedHintAuth:              '3-D Secure authentication failed. Please try again and follow the verification steps sent by your bank.',
+            failedHintTimeout:           'The payment session timed out. This can happen if the page was left open too long. Please try again.',
           },
 
           form: {
@@ -140,10 +192,6 @@ i18n
               label: 'E-mail',
               required: 'Your e-mail is required',
             },
-            phone: {
-              label: 'Phone number',
-              required: 'Your phone number is required',
-            },
             address: {
               label: 'Address',
               required: 'Your address is required',
@@ -158,6 +206,12 @@ i18n
             submit: 'Submit',
             clientInfo: 'Client informations',
             selectCity: 'Select your city',
+            phone: {
+              label: 'Phone number',
+              required: 'Your phone number is required',
+              minLength: 'Minimum 10 characters',
+              invalidFormat: 'Enter a valid phone number: 06.., 07.. or +212..',
+            },
           },
 
           review: {
@@ -307,6 +361,9 @@ i18n
         },
       },
 
+      // ══════════════════════════════════════════════════════════════════════
+      // FRENCH
+      // ══════════════════════════════════════════════════════════════════════
       fr: {
         translation: {
           nav: {
@@ -422,6 +479,60 @@ i18n
             success: 'Votre transaction est effectuée avec succès',
             downloadTicket: 'Télécharger le ticket de l\'e-commande',
             thank: 'Merci pour votre confiance !',
+
+            // ── PaymentCallback progress labels ────────────────────────────
+            verifying:            'Vérification du paiement',
+            verifyingSub:         'Confirmation avec la passerelle de paiement…',
+            processing:           'Traitement de la commande',
+            processingSub:        'Enregistrement de votre commande…',
+            emailing:             'Envoi de la facture',
+            emailingSub:          'Votre reçu est en cours d\'envoi…',
+            done:                 'Tout est fait !',
+            doneSub:              'Redirection en cours…',
+            pleaseWait:           'Veuillez patienter…',
+            attemptOf:            'Tentative {{current}} sur {{max}}',
+            waitingBeforeRetry:   'Attente avant la tentative {{current}} sur {{max}}…',
+
+            // ── PaymentCallback retry screen ───────────────────────────────
+            retryTitle:           'Le paiement n\'a pas pu être confirmé',
+            retryDefaultReason:   'Votre paiement n\'a pas pu être vérifié. Veuillez réessayer.',
+            retryLabel:           'Transaction',
+            retryOrder:           'Commande',
+            retryBtn:             'Réessayer',
+            cancelBtn:            'Annuler la commande',
+            retryNote:            'Vos articles sont toujours réservés. Réessayer vous ramènera à la page de paiement sans créer une nouvelle commande.',
+            retryBusy:            'Veuillez patienter…',
+
+            // ── PaymentCallback error screen ───────────────────────────────
+            errorTitle:           'Une erreur s\'est produite',
+            errorNote:            'Veuillez contacter notre service d\'assistance avec les détails ci-dessus.',
+
+            // ── TransactionFailed — base ───────────────────────────────────
+            failedTitle:          'Paiement échoué',
+            failedDefaultMsg:     'Une erreur s\'est produite lors de votre paiement.',
+            failedOrderId:        'ID commande',
+            failedTransactionId:  'ID transaction',
+            failedErrorCode:      'Code d\'erreur',
+            failedSupportNote:    'Veuillez conserver votre ID de transaction et contacter le support si vous avez été débité.',
+            failedGoHome:         'Accueil',
+            failedTryAgain:       'Réessayer',
+
+            // ── TransactionFailed — category badges ────────────────────────
+            failedCategory_cancelled:          'Paiement annulé',
+            failedCategory_insufficient_funds: 'Fonds insuffisants',
+            failedCategory_card_declined:      'Carte refusée',
+            failedCategory_card_expired:       'Carte expirée',
+            failedCategory_auth_failed:        'Échec 3-D Secure',
+            failedCategory_timeout:            'Session expirée',
+            failedCategory_generic:            'Paiement échoué',
+
+            // ── TransactionFailed — contextual hints ───────────────────────
+            failedHintCancelled:         'Vous avez annulé le paiement. Vos articles sont toujours réservés — cliquez sur « Réessayer » pour revenir à la page de paiement.',
+            failedHintFunds:             'Votre carte a été refusée en raison de fonds insuffisants. Veuillez utiliser une autre carte ou recharger votre compte et réessayer.',
+            failedHintDeclined:          'Votre carte a été refusée par la banque. Vérifiez vos coordonnées ou contactez votre banque avant de réessayer.',
+            failedHintExpired:           'Votre carte semble expirée. Veuillez mettre à jour vos informations bancaires et réessayer avec une carte valide.',
+            failedHintAuth:              'L\'authentification 3-D Secure a échoué. Veuillez réessayer et suivre les étapes de vérification envoyées par votre banque.',
+            failedHintTimeout:           'La session de paiement a expiré. Cela peut arriver si la page est restée ouverte trop longtemps. Veuillez réessayer.',
           },
 
           form: {
@@ -441,6 +552,8 @@ i18n
             phone: {
               label: 'N° de téléphone',
               required: 'Votre N° téléphone est obligatoire',
+              minLength: 'Minimum 10 caractères',
+              invalidFormat: 'Entrez un numéro valide : 06.., 07.. ou +212..',
             },
             address: {
               label: 'Adresse',
@@ -605,6 +718,9 @@ i18n
         },
       },
 
+      // ══════════════════════════════════════════════════════════════════════
+      // ARABIC
+      // ══════════════════════════════════════════════════════════════════════
       ar: {
         translation: {
           nav: {
@@ -720,6 +836,60 @@ i18n
             success: 'اكتملت معاملتك بنجاح',
             downloadTicket: 'تنزيل تذكرة الطلبية',
             thank: 'شكرا على ثقتكم !',
+
+            // ── PaymentCallback progress labels ────────────────────────────
+            verifying:            'التحقق من الدفع',
+            verifyingSub:         'جاري التأكيد مع بوابة الدفع…',
+            processing:           'معالجة الطلبية',
+            processingSub:        'جاري تسجيل طلبيتكم…',
+            emailing:             'إرسال الفاتورة',
+            emailingSub:          'جاري إرسال الإيصال إلى بريدكم…',
+            done:                 'تم بنجاح !',
+            doneSub:              'جاري إعادة التوجيه…',
+            pleaseWait:           'يرجى الانتظار…',
+            attemptOf:            'المحاولة {{current}} من {{max}}',
+            waitingBeforeRetry:   'انتظار قبل المحاولة {{current}} من {{max}}…',
+
+            // ── PaymentCallback retry screen ───────────────────────────────
+            retryTitle:           'تعذّر تأكيد الدفع',
+            retryDefaultReason:   'تعذّر التحقق من دفعتكم. يرجى المحاولة مجدداً.',
+            retryLabel:           'التحويل',
+            retryOrder:           'الطلبية',
+            retryBtn:             'إعادة المحاولة',
+            cancelBtn:            'إلغاء الطلبية',
+            retryNote:            'لا تزال عناصرك محجوزة. ستعيدك المحاولة إلى صفحة الدفع دون إنشاء طلبية جديدة.',
+            retryBusy:            'يرجى الانتظار…',
+
+            // ── PaymentCallback error screen ───────────────────────────────
+            errorTitle:           'حدث خطأ ما',
+            errorNote:            'يرجى التواصل مع فريق الدعم مع التفاصيل أعلاه.',
+
+            // ── TransactionFailed — base ───────────────────────────────────
+            failedTitle:          'فشل الدفع',
+            failedDefaultMsg:     'حدث خطأ أثناء معالجة دفعتكم.',
+            failedOrderId:        'معرف الطلبية',
+            failedTransactionId:  'معرف التحويل',
+            failedErrorCode:      'رمز الخطأ',
+            failedSupportNote:    'يرجى الاحتفاظ بمعرف التحويل والتواصل مع الدعم إذا تم خصم المبلغ.',
+            failedGoHome:         'الرئيسية',
+            failedTryAgain:       'إعادة المحاولة',
+
+            // ── TransactionFailed — category badges ────────────────────────
+            failedCategory_cancelled:          'تم إلغاء الدفع',
+            failedCategory_insufficient_funds: 'رصيد غير كافٍ',
+            failedCategory_card_declined:      'تم رفض البطاقة',
+            failedCategory_card_expired:       'البطاقة منتهية الصلاحية',
+            failedCategory_auth_failed:        'فشل التحقق 3-D Secure',
+            failedCategory_timeout:            'انتهت مهلة الجلسة',
+            failedCategory_generic:            'فشل الدفع',
+
+            // ── TransactionFailed — contextual hints ───────────────────────
+            failedHintCancelled:         'لقد ألغيت عملية الدفع. لا تزال عناصرك محجوزة — انقر على "إعادة المحاولة" للعودة إلى صفحة الدفع.',
+            failedHintFunds:             'تم رفض بطاقتك بسبب عدم كفاية الرصيد. يرجى استخدام بطاقة أخرى أو شحن حسابك والمحاولة مجدداً.',
+            failedHintDeclined:          'تم رفض بطاقتك من قِبل البنك. يرجى التحقق من بياناتك أو التواصل مع بنكك قبل المحاولة مجدداً.',
+            failedHintExpired:           'يبدو أن بطاقتك منتهية الصلاحية. يرجى تحديث معلوماتك البنكية والمحاولة ببطاقة سارية.',
+            failedHintAuth:              'فشل التحقق عبر 3-D Secure. يرجى المحاولة مجدداً واتباع خطوات التحقق التي أرسلها بنكك.',
+            failedHintTimeout:           'انتهت مهلة جلسة الدفع. قد يحدث ذلك إذا تُركت الصفحة مفتوحة طويلاً. يرجى المحاولة مجدداً.',
           },
 
           form: {
@@ -739,6 +909,8 @@ i18n
             phone: {
               label: 'رقم الهاتف',
               required: 'رقم هاتفكم مطلوب',
+              minLength: '10 أحرف على الأقل',
+              invalidFormat: 'أدخل رقمًا صالحًا: 06.. أو 07.. أو +212..',
             },
             address: {
               label: 'العنوان',

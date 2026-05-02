@@ -5,7 +5,6 @@ import { CartProvider } from "./contexts/CartContext";
 import { Navigate, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { PaymentProvider } from "./contexts/PaymentContext";
 import { ProductsContextProvider } from "./contexts/ProductsContext";
-import { LangContextProvider } from "./contexts/LanguageContext";
 import { ParametersContextProvider } from "./dashboard/contexts/ParametersContext";
 import { AuthProvider } from "./dashboard/contexts/Authentication";
 import { motion } from "framer-motion";
@@ -35,6 +34,7 @@ import NotFoundPage from "./components/NotFoundPage";
 import SendEmail from "./sendMail";
 import PaymentCallback from "./components/PaymentCallback";
 import FailedTransaction from "./components/FailedTransaction";
+
 
 
 // Routes clients
@@ -80,9 +80,9 @@ const router = isAdminInterface
   : createBrowserRouter(routes, { future: { v7_relativeSplatPath: true } });
 
 const App: React.FC = () => {
-  // const {t} = useTranslation();
     return (
-    <LangContextProvider>
+
+      
       <CartProvider>
         <PaymentProvider>
           <ProductsContextProvider>
@@ -109,7 +109,6 @@ const App: React.FC = () => {
           </ProductsContextProvider>
         </PaymentProvider>
       </CartProvider>
-    </LangContextProvider>
   );
 };
 
