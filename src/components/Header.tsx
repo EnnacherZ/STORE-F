@@ -145,7 +145,7 @@ const Header: React.FC = () => {
                 id="sidebar-nav"
                 className={`sidebar ${sidebarOpen ? "sidebar--open" : ""}`}
                 aria-label="Mobile navigation"
-                inert={!sidebarOpen}
+                //inert={!sidebarOpen}
               >
                 <ul className="sidebar__list">
                   {/* Language */}

@@ -53,7 +53,7 @@ const OrderTracker :React.FC = () => {
             if(attempt<=2){
                 setIsLoading(true);
                 try{
-                    const response = await connecter.get(`api/checkOrder?orderID=${orderID}`);
+                    const response = await connecter.get(`api/orders/check?orderID=${orderID}`);
                     const data = await response.data
                     if(data.error){
                         setError(true)

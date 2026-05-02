@@ -6,12 +6,16 @@ import react from '@vitejs/plugin-react-swc'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // server: {
+  server: {
+        allowedHosts: [
+      "6634-196-117-37-154.ngrok-free.app"
+    ],
   //   https: {
   //     key: fs.readFileSync('./key.pem'), // Path to your key
   //     cert: fs.readFileSync('./cert.pem'), // Path to your certificate
   //   },
   //   host: 'localhost', // Ensure it listens on localhost
   //   port: 5173, // Or your preferred port
-  // },
+   },
+
 });

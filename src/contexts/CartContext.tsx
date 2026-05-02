@@ -146,11 +146,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const cartChecker = useMemo(() => itemCount > 0, [itemCount]);
 
   const cartTotalAmount = useMemo(() => {
-    return allItems.reduce(
+    const total = allItems.reduce(
       (sum, item) =>
-        sum + item.price * (1 - item.promo) * item.quantity,
+        sum + item.price * (1 - item.promo*0.01) * item.quantity,
       0
     );
+    return Math.round(total*100)/100
   }, [allItems]);
 
   return (

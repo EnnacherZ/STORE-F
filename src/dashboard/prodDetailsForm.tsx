@@ -22,13 +22,16 @@ const ProdStockForm : React.FC = () => {
         e.preventDefault();
         if(selectedOption && size != '' && quantity != 0){
             try{
-                const response = await connecter.post('db/product/stock/update', {
+                const response = await connecter.post('db/product/stock/update/', {
                     productId: selectedOption.value,
                     size: size,
                     quantity: quantity
                 });
-                if(response.status == 201){ window.location.reload(); }
-            } catch {}
+                
+                if(response.status == 200){ window.location.reload(); }
+            } catch {
+                
+            }
         } else {
             toast.error(`Check the fields of : ${!selectedOption ? 'product' : ''} ${size == '' ? 'size' : ''} ${quantity == 0 ? 'quantity' : ''}`, {
                 position: "top-center",
@@ -68,7 +71,7 @@ const ProdStockForm : React.FC = () => {
                         type="number"
                         className="form-control"
                         id="quantity"
-                        value={quantity == 0 ? undefined : quantity}
+                        value={quantity==0?'':quantity}
                         onChange={(e) => setQuantity(Number(e.target.value))}
                         required
                         min={1}

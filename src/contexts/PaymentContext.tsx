@@ -40,7 +40,7 @@ export interface paymentContextProps {
     currentCurrency : string;
     setCurrentCurrency : Dispatch<React.SetStateAction<string>>;
     // currencyRate : number;
-    currencyIsAvailable: boolean
+    currencyIsAvailable: boolean;
 }
 
 const paymentContext = createContext<paymentContextProps|undefined>(undefined)
@@ -105,7 +105,7 @@ export const PaymentProvider : React.FC<{children:ReactNode}> =({children}) => {
         // setCurrencyRate(ratesList[currentCurrency])
     },[currentCurrency])
 
-   
+
 
 
     return(
@@ -116,7 +116,7 @@ export const PaymentProvider : React.FC<{children:ReactNode}> =({children}) => {
                                         // currencyRate,
                                         currentCurrency,
                                         setCurrentCurrency,
-                                        currencyIsAvailable
+                                        currencyIsAvailable,
                                         }}>
             {children}
         </paymentContext.Provider>

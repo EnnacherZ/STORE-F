@@ -33,6 +33,8 @@ import ProductPage from "./components/ProductPage";
 import NotFoundPage from "./components/NotFoundPage";
 //import LoginClient from "./client";
 import SendEmail from "./sendMail";
+import PaymentCallback from "./components/PaymentCallback";
+import FailedTransaction from "./components/FailedTransaction";
 
 
 // Routes clients
@@ -43,13 +45,16 @@ const routes = [
   { path: "/ProductPage/:productType", element: <ProductPage /> },
   { path: "/Cart", element: <Cart /> },
   { path: "/Checkout", element: <Checkout /> },
-  { path: "/TransactionSuccess", element: <SuccessTransaction /> },
+  { path: "/Transaction/Success", element: <SuccessTransaction /> },
+  { path: "/Transaction/Failed", element: <FailedTransaction /> },
   { path: "/testy", element: <AddProductTypeForm /> },
   { path: "/MyOrder/:orderID", element: <OrderTracker /> },
   { path: "/Policies/:option", element: <Policies /> },
   //{ path: "/client", element: <LoginClient /> },
   { path: "*", element: <NotFoundPage /> },
   { path: "/send_mail", element: <SendEmail /> },
+  { path: "/payment/success", element: <PaymentCallback />},
+  { path: "/payment/error",   element: <PaymentCallback />},
 ];
 
 // Routes admin
