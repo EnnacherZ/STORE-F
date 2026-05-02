@@ -452,23 +452,44 @@
   }
 }
 
-/* ── Mobile: single card fills the full phone width ─────────────────────────── */
+/* ── Mobile: fixed card width — no more "fat man" ───────────────────────────── */
 @media (max-width: 500px) {
   /*
-    On mobile react-multi-carousel shows 1 item.
-    Remove all side padding on the slide so the card is edge-to-edge
-    within the viewport — no half-card gaps.
+    The carousel item takes 100% of the track width (1 item per slide).
+    We add generous horizontal padding so the card itself is locked to
+    ~260 px — a clean, proportional size on any phone screen.
+    The card is then centered inside the padded slot via margin: 0 auto.
   */
   .react-multi-carousel-item {
-    padding: 0 6px !important;
+    padding: 0 !important;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+            justify-content: center;
+    box-sizing: border-box;
   }
 
+  /* Motion wrapper — fixed width, centered */
+  .react-multi-carousel-item > div {
+    width: 260px !important;
+    max-width: 260px !important;
+    -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+  }
+
+  /* Card itself — ensure it never overflows its wrapper */
+  .productCarouselCard {
+    width: 100%;
+  }
+
+  /* Image: proper portrait ratio for a 260 px wide card */
   .productCImgCont {
     padding-top: 0 !important;
     height: 200px;
   }
 
-  /* Ensure the whole carousel sits within the viewport without any margin bleed */
   .productCarousel {
     padding-left: 0;
     padding-right: 0;
@@ -476,7 +497,7 @@
 
   .productCView { font-size: 0.62rem; padding: 10px 0; }
 
-  /* Hide arrows on mobile — swipe is enough */
+  /* Arrows hidden on mobile — swipe only */
   .react-multiple-carousel__arrow {
     display: none !important;
   }
