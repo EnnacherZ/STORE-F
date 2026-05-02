@@ -1,0 +1,131 @@
+/* ── HomeBanner — Safari-compatible ──────────────────────────────────────── */
+.bnr-root {
+  width: 100%;
+  height: clamp(220px, 46vw, 540px);
+  overflow: hidden;
+  position: relative;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 8px 32px rgba(14, 146, 228, 0.12);
+  /* Safari: force compositing so overflow+radius clips correctly */
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+/* Safari: use explicit positions — inset shorthand not supported < Safari 14.1 */
+.bnr-inner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bnr-item {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bnr-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  /* Prevent iOS Safari image shrink inside flex/absolute */
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+}
+
+/* Bottom gradient overlay */
+.bnr-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: -webkit-linear-gradient(
+    top,
+    transparent 0%,
+    rgba(15, 28, 53, 0.10) 60%,
+    rgba(15, 28, 53, 0.45) 100%
+  );
+  background: linear-gradient(
+    to top,
+    rgba(15, 28, 53, 0.45) 0%,
+    rgba(15, 28, 53, 0.10) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Indicators ── */
+.bnr-indicators {
+  bottom: 16px !important;
+  gap: 6px;
+  margin: 0 !important;
+}
+
+.bnr-indicators [data-bs-target] {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 4px !important;
+  background: rgba(255, 255, 255, 0.45) !important;
+  border: none !important;
+  -webkit-transition: width 0.25s ease, background 0.25s ease !important;
+          transition: width 0.25s ease, background 0.25s ease !important;
+  opacity: 1 !important;
+}
+
+.bnr-indicators .active {
+  width: 24px !important;
+  background: #0e92e4 !important;
+}
+
+/* ── Prev / Next controls ── */
+.bnr-ctrl {
+  width: 44px !important;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s ease;
+          transition: opacity 0.2s ease;
+}
+
+/* Show controls on touch/hover — on mobile always visible */
+.bnr-root:hover .bnr-ctrl {
+  opacity: 1;
+}
+
+.bnr-ctrl .carousel-control-prev-icon,
+.bnr-ctrl .carousel-control-next-icon {
+  background-color: rgba(14, 146, 228, 0.85) !important;
+  border-radius: 50%;
+  width: 36px !important;
+  height: 36px !important;
+  background-size: 50% !important;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .bnr-root {
+    border-radius: 0 0 14px 14px;
+    /* Always show controls on touch devices */
+  }
+
+  /* Always visible on mobile — no hover state on touch screens */
+  .bnr-ctrl {
+    opacity: 0.75;
+  }
+}
+
+@media (max-width: 400px) {
+  .bnr-root {
+    height: 200px;
+  }
+}

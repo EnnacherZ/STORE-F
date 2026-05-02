@@ -1,16 +1,16 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   HomePage — Enhanced Styles
-   Drop this into:  src/styles/HomePage.css
-   (replaces the old HomePage.css entirely)
+   HomePage — Al-Firdaous Store  (Safari-compatible)
+   Drop into: src/styles/HomePage.css
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* ── Category filter bar (below banner) ─────────────────────────────────────── */
+/* ── Category filter bar ─────────────────────────────────────────────────────── */
 .home-category-bar {
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e2e8f0;
   padding: 14px 0;
+  position: -webkit-sticky;
   position: sticky;
-  top: 0;         /* sticks below the main header */
+  top: 0;
   z-index: 50;
 }
 
@@ -18,155 +18,218 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;   /* smooth inertial scroll on iOS Safari */
   scrollbar-width: none;
 }
 .home-category-inner::-webkit-scrollbar { display: none; }
 
 .home-cat-pill {
-  padding: 8px 20px;
-  border-radius: 40px;
-  border: 1.5px solid #e5e7eb;
+  padding: 8px 22px;
+  border-radius: 100px;
+  border: 1.5px solid #e2e8f0;
   background: transparent;
-  color: #374151;
+  color: #4a5568;
   font-size: 0.78rem;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.18s ease;
+  -webkit-transition: all 0.18s ease;
+          transition: all 0.18s ease;
   outline: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent iOS button default styling */
+  -webkit-appearance: none;
+  appearance: none;
 }
 .home-cat-pill:hover {
-  border-color: #0d6efd;
-  color: #0d6efd;
+  border-color: #0e92e4;
+  color: #0e92e4;
+  background: rgba(14, 146, 228, 0.05);
 }
 .home-cat-pill.active {
-  background: #0d6efd;
-  border-color: #0d6efd;
+  background: #0e92e4;
+  border-color: #0e92e4;
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(14, 146, 228, 0.28);
 }
 
-/* ── Outer sections wrapper ──────────────────────────────────────────────────── */
+/* ── Sections wrapper ────────────────────────────────────────────────────────── */
 .home-sections-wrap {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 44px 24px 60px;
+  padding: 48px 24px 72px;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  flex-direction: column;
-  gap: 60px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  gap: 64px;
 }
 
 .home-loading {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  justify-content: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
   padding: 80px 0;
 }
 
-/* ── Individual product-type section ────────────────────────────────────────── */
+/* ── Individual section ──────────────────────────────────────────────────────── */
 .home-section {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
 }
 
 /* ── Section header row ──────────────────────────────────────────────────────── */
 .home-section-header {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  margin-bottom: 28px;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
   gap: 12px;
 }
 
 .home-section-title-group {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  align-items: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
   gap: 14px;
 }
 
-/* Left vertical accent bar */
+/* Vertical accent bar */
 .home-section-accent-bar {
   width: 4px;
-  height: 44px;
+  height: 48px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #0d6efd, #0a58ca);
-  flex-shrink: 0;
+  background: -webkit-linear-gradient(top, #0e92e4, #0b7abf);
+  background: linear-gradient(180deg, #0e92e4, #0b7abf);
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
 }
 
-/* "New Arrivals" / "Featured" badge */
+/* Badge label */
 .home-section-badge {
-  margin: 0 0 3px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  margin: 0 0 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #0d6efd;
+  color: #0e92e4;
 }
 
-/* Main section heading with animated shoe icons */
+/* Section heading */
 .home-section-title {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   font-weight: 800;
-  color: #111827;
-  letter-spacing: -0.02em;
+  color: #0f1c35;
+  letter-spacing: -0.025em;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  align-items: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
   gap: 10px;
   text-transform: capitalize;
+  line-height: 1.2;
 }
 
-/* Animated shoe icons — bounce vertically, RTL-safe, no overlap */
-.HomeTitleIconL {
-  color: #0d6efd;
-  font-size: 1.3rem;
+/* Shoe icons */
+.HomeTitleIconL,
+.HomeTitleIconR {
+  color: #0e92e4;
+  font-size: 1.25rem;
   display: inline-block;
-  flex-shrink: 0;
-  animation: iconBounceL 1.6s ease-in-out infinite;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+}
+.HomeTitleIconL {
+  -webkit-animation: iconBounceL 1.6s ease-in-out infinite;
+          animation: iconBounceL 1.6s ease-in-out infinite;
 }
 .HomeTitleIconR {
-  color: #0d6efd;
-  font-size: 1.3rem;
-  display: inline-block;
-  flex-shrink: 0;
-  animation: iconBounceR 1.6s ease-in-out infinite;
+  -webkit-animation: iconBounceR 1.6s ease-in-out infinite;
+          animation: iconBounceR 1.6s ease-in-out infinite;
 }
 
+@-webkit-keyframes iconBounceL {
+  0%, 100% { -webkit-transform: translateY(0) rotate(0deg); }
+  50%       { -webkit-transform: translateY(-6px) rotate(-12deg); }
+}
 @keyframes iconBounceL {
-  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
   50%       { transform: translateY(-6px) rotate(-12deg); }
 }
+@-webkit-keyframes iconBounceR {
+  0%, 100% { -webkit-transform: translateY(0) rotate(0deg); }
+  50%       { -webkit-transform: translateY(-6px) rotate(12deg); }
+}
 @keyframes iconBounceR {
-  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
   50%       { transform: translateY(-6px) rotate(12deg); }
 }
 
-/* "See All" pill button */
+/* "See All" button */
 .home-section-see-all {
   padding: 9px 22px;
   background: transparent;
-  border: 1.5px solid #0d6efd;
-  color: #0d6efd;
-  border-radius: 40px;
+  border: 1.5px solid #0e92e4;
+  color: #0e92e4;
+  border-radius: 100px;
   font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  display: flex;
-  align-items: center;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
   gap: 6px;
-  transition: background 0.2s ease, color 0.2s ease;
+  -webkit-transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .home-section-see-all:hover {
-  background: #0d6efd;
+  background: #0e92e4;
   color: #ffffff;
+  box-shadow: 0 4px 14px rgba(14, 146, 228, 0.3);
 }
 
-/* ── Remove old section-title styles (kept for safety) ──────────────────────── */
+/* ── Cleanup legacy selectors ────────────────────────────────────────────────── */
 .ProductsPromoAnnouncement { display: none !important; }
 .carsl-item-title          { display: none !important; }
 .HomeTitle                 { display: none !important; }
@@ -174,28 +237,16 @@
 /* ── Responsive ──────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .home-sections-wrap {
-    padding: 28px 16px 48px;
-    gap: 44px;
+    padding: 28px 12px 56px;
+    gap: 48px;
   }
-  .home-section-title {
-    font-size: 1.25rem;
-  }
-  .home-section-accent-bar {
-    height: 36px;
-  }
-  .home-section-see-all {
-    padding: 8px 16px;
-    font-size: 0.7rem;
-  }
+  .home-section-title     { font-size: 1.25rem; }
+  .home-section-accent-bar { height: 38px; }
+  .home-section-see-all   { padding: 8px 16px; font-size: 0.7rem; }
 }
 
 @media (max-width: 480px) {
-  .home-section-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .home-cat-pill {
-    font-size: 0.72rem;
-    padding: 7px 16px;
-  }
+  .home-section-header    { -webkit-flex-direction: column; flex-direction: column; -webkit-box-align: start; -webkit-align-items: flex-start; align-items: flex-start; }
+  .home-cat-pill          { font-size: 0.72rem; padding: 7px 16px; }
+  .home-sections-wrap     { padding: 20px 10px 48px; }
 }
