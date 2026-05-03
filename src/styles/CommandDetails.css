@@ -1,35 +1,139 @@
-.command-time{
-    border-radius: 15px;
-    list-style: none;
-    height: 270px;
+/* ============================================================
+   CommandDetails.css — Al-Firdaous Store
+   Premium delivery/info block
+   ============================================================ */
+
+.command-time {
+  position: relative;
+  border-radius: 20px;
+  list-style: none;
+  min-height: 270px;
+  padding: 18px 18px 16px;
+  background:
+    radial-gradient(circle at top right, rgba(14,146,228,0.10), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 14px 34px rgba(15,28,53,0.08);
+  overflow: hidden;
 }
 
-.command-details-title{
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding:0 20px;
+.command-time::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0e92e4 0%, #0f1c35 100%);
 }
 
-.list-command-details li{
-    margin: 30px 0;
+.command-details-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 6px 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0 6px 10px;
+  color: #0f1c35;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.Delai-command-title{
-    width:160px
+.list-command-details {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.delai-command-details{
-    padding: 0 10px;
-    line-height: 25px;
+.list-command-details li {
+  margin: 0;
+  padding: 14px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 6px 18px rgba(15,28,53,0.04);
 }
 
-.delai-command-details div img{
-    width: 100%;
-    height: 32px;
-    max-width: 40px;
-    object-fit: contain;
+.Delai-command-title {
+  width: 160px;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0f1c35;
+  margin: 0;
+  text-transform: capitalize;
+}
 
+.delai-command-details {
+  padding: 0 10px;
+  line-height: 1.7;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.delai-command-details div img {
+  width: 100%;
+  height: 34px;
+  max-width: 52px;
+  object-fit: contain;
+  -webkit-filter: saturate(1.02) contrast(1.02);
+          filter: saturate(1.02) contrast(1.02);
+}
+
+.command-time .rtl {
+  direction: rtl;
+}
+
+@media (max-width: 768px) {
+  .command-time {
+    min-height: auto;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .command-details-title {
+    font-size: 0.98rem;
+    letter-spacing: 0.08em;
+    padding: 0 4px 8px;
+  }
+
+  .list-command-details li {
+    padding: 12px;
+  }
+
+  .Delai-command-title {
+    width: 132px;
+    min-width: 132px;
+    font-size: 0.84rem;
+  }
+
+  .delai-command-details {
+    padding: 0 8px;
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-command-details li {
+    padding: 10px;
+  }
+
+  .Delai-command-title {
+    width: 110px;
+    min-width: 110px;
+    font-size: 0.8rem;
+  }
+
+  .delai-command-details div img {
+    max-width: 44px;
+    height: 30px;
+  }
 }

@@ -121,8 +121,6 @@ const Cart: React.FC = () => {
   const getDiscountedPrice = (price: number, promo: number) =>
     (price * (1 - promo * 0.01)).toFixed(2);
 
-  const getLineTotal = (price: number, promo: number, quantity: number) =>
-    (price * (1 - 0.01 * promo) * quantity).toFixed(2);
 
   // ── Sub-renders ──────────────────────────────────────────────────────────────
 
@@ -153,7 +151,6 @@ const Cart: React.FC = () => {
     that was never set by the component).
   */
   const renderCartRow = (item: CartItem, index: number) => {
-    const lineTotal = getLineTotal(item.price, item.promo, item.quantity);
 
     return (
       <div key={index} className="cart-row">
@@ -220,17 +217,6 @@ const Cart: React.FC = () => {
           </button>
         </div>
 
-        {/* ── Col 3 (desktop): line total ── */}
-        <div className="cart-row__total">
-          <span className="price--current cart-row__total-price">
-            {lineTotal} {t('product.currency')}
-          </span>
-          {item.promo > 0 && (
-            <span className="price--original">
-              {(item.price * item.quantity).toFixed(2)} {t('product.currency')}
-            </span>
-          )}
-        </div>
       </div>
     );
   };

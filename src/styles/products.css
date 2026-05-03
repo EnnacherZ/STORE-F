@@ -1,227 +1,299 @@
-/* ─── CSS custom properties ───────────────────────────────────────────────────── */
+/* ============================================================
+   products.css — Al-Firdaous Store
+   Drop into: src/styles/products.css
+   World-class product grid · sticky filter · premium pagination
+   ============================================================ */
+
+/* ── CSS tokens ─────────────────────────────────────────────────────────────── */
 :root {
   --pc-white:        #ffffff;
-  --pc-black:        #0e0e0e;
-  --pc-ink:          #1a1a1a;
-  --pc-muted:        #888888;
-  --pc-border:       #e8e8e8;
-  --pc-surface:      #f6f6f6;
+  --pc-ink:          #0f1c35;
+  --pc-body:         #4a5568;
+  --pc-muted:        #94a3b8;
+  --pc-border:       #e2e8f0;
+  --pc-surface:      #f7f8fb;
   --pc-brand:        #0e92e4;
-  --pc-green:        #1a6b3c;
-  --pc-red:          #d0021b;
-  --pc-radius:       8px;
-  --pc-radius-lg:    12px;
-  --pc-transition:   0.2s cubic-bezier(0.22, 1, 0.36, 1);
-  --pc-shadow-sm:    0 1px 4px rgba(0,0,0,0.06);
-  --pc-shadow-hover: 0 6px 20px rgba(0,0,0,0.10);
+  --pc-brand-dark:   #0b7abf;
+  --pc-brand-glow:   rgba(14,146,228,0.18);
+  --pc-green:        #16a34a;
+  --pc-red:          #ef4444;
+  --pc-radius:       10px;
+  --pc-radius-lg:    14px;
+  --pc-ease:         cubic-bezier(0.22, 1, 0.36, 1);
+  --pc-transition:   0.22s var(--pc-ease);
+  --pc-shadow-card:
+    rgba(15,28,53,0.06) 0px 2px 8px,
+    rgba(15,28,53,0.03) 0px 1px 3px;
+  --pc-shadow-hover:
+    rgba(14,146,228,0.16) 0px 16px 40px,
+    rgba(15,28,53,0.06) 0px 4px 12px;
 }
 
-/* ─── RTL ─────────────────────────────────────────────────────────────────────── */
+/* ── RTL ─────────────────────────────────────────────────────────────────────── */
 .rtl { direction: rtl; letter-spacing: 0; }
 
-/* ─── Page layout ─────────────────────────────────────────────────────────────── */
+/* ── Page wrapper (filter sidebar + grid) ───────────────────────────────────── */
 .products-layout {
-  display:        flex;
-  align-items:    flex-start;
-  width:          100%;
-  min-height:     60vh;
-  margin-bottom:  40px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+          align-items: flex-start;
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 24px 28px 0;
+  gap: 24px;
+  box-sizing: border-box;
+  min-height: 60vh;
+  position: relative;
 }
 
-/* ─── Grid ────────────────────────────────────────────────────────────────────── */
-/*
-  FIX: replaced minmax(220px, 280px) + max-width: 280px on the card.
-  That combination is the root cause of deformation: when the grid column
-  is, say, 260px, the card is capped at 280px — fine — but at 221px the
-  card's max-width and the column width disagree and the card collapses
-  awkwardly.
+.products-layout > .filter-section {
+  position: -webkit-sticky;
+  position: sticky;
+  top: calc(var(--header-h-desktop, 80px) + 12px);
+  -webkit-align-self: flex-start;
+          align-self: flex-start;
+}
 
-  Solution: use `repeat(auto-fill, minmax(200px, 1fr))` so each column
-  always stretches to fill the available width evenly. Then cap the whole
-  grid container instead of individual cards — cleaner and deform-proof.
-  Removing max-width from .product-card allows the card to be exactly
-  as wide as its column — no mismatch possible.
-*/
+.products-layout > .products-grid {
+  min-width: 0;
+}
+
+/* ── Product grid ────────────────────────────────────────────────────────────── */
 .products-grid {
-  flex:                    1;
-  display:                 grid;
-  grid-template-columns:   repeat(auto-fill, minmax(200px, 1fr));
-  gap:                     16px 12px;
-  padding:                 14px 12px 0;
-  min-width:               0;
-  /* Prevent runaway card widths when there are only 1-2 products */
-  max-width:               900px;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+          flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px 16px;
+  min-width: 0;
+  padding-bottom: 8px;
 }
 
-/* ─── Product card shell ──────────────────────────────────────────────────────── */
+/* ── Product card shell ──────────────────────────────────────────────────────── */
 .product-card {
-  display:           flex;
-  flex-direction:    column;
-  width:             100%;
-  /* No max-width here — let the grid column dictate card width */
-  background:        var(--pc-white);
-  border-radius:     var(--pc-radius-lg);
-  overflow:          hidden;
-  border:            1px solid var(--pc-border);
-  box-shadow:        var(--pc-shadow-sm);
-  cursor:            pointer;
-  transition:
-    box-shadow   var(--pc-transition),
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  width: 100%;
+  background: var(--pc-white);
+  border-radius: var(--pc-radius-lg);
+  overflow: hidden;
+  border: 1.5px solid var(--pc-border);
+  box-shadow: var(--pc-shadow-card);
+  cursor: pointer;
+  -webkit-transition:
+    -webkit-transform var(--pc-transition),
+    box-shadow var(--pc-transition),
     border-color var(--pc-transition);
+  transition:
+    transform var(--pc-transition),
+    box-shadow var(--pc-transition),
+    border-color var(--pc-transition);
+  /* Safari: force GPU so overflow clips to border-radius */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+          mask-image: radial-gradient(white, black);
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
 }
 
 .product-card:hover {
-  box-shadow:   var(--pc-shadow-hover);
-  border-color: #d0d0d0;
+  -webkit-transform: translateY(-5px);
+          transform: translateY(-5px);
+  box-shadow: var(--pc-shadow-hover);
+  border-color: var(--pc-brand);
 }
 
-/* ─── Image wrap ──────────────────────────────────────────────────────────────── */
-/*
-  padding-top: 75% = 4:3 ratio. Because the card is now always 100% of its
-  column, this ratio holds perfectly at every viewport width — no
-  max-height fighting the aspect ratio.
-*/
+/* ── Image wrap ──────────────────────────────────────────────────────────────── */
 .product-card__image-wrap {
-  position:   relative;
-  width:      100%;
-  padding-top: 75%;
-  overflow:   hidden;
+  position: relative;
+  width: 100%;
+  padding-top: 78%;                /* ~4:3 — feels luxe for shoes/apparel */
+  overflow: hidden;
   background: var(--pc-surface);
-  flex-shrink: 0;
-  cursor:     pointer;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  cursor: pointer;
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
 }
 
 .product-card__img {
-  position:    absolute;
-  inset:       0;
-  width:       100%;
-  height:      100%;
-  object-fit:  cover;
-  display:     block;
-  transition:  transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  -webkit-transition: -webkit-transform 0.55s var(--pc-ease);
+          transition: transform 0.55s var(--pc-ease);
 }
-
 .product-card:hover .product-card__img {
-  transform: scale(1.05);
+  -webkit-transform: scale(1.07);
+          transform: scale(1.07);
 }
 
-/* ─── Promo badge ─────────────────────────────────────────────────────────────── */
+/* Subtle bottom scrim */
+.product-card__image-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: -webkit-linear-gradient(top, transparent 55%, rgba(15,28,53,0.18) 100%);
+  background: linear-gradient(to bottom, transparent 55%, rgba(15,28,53,0.18) 100%);
+  pointer-events: none;
+  opacity: 0;
+  -webkit-transition: opacity 0.3s ease;
+          transition: opacity 0.3s ease;
+}
+.product-card:hover .product-card__image-wrap::after {
+  opacity: 1;
+}
+
+/* ── Promo badge ─────────────────────────────────────────────────────────────── */
 .product-card__promo-badge {
-  position:        absolute;
-  top:             8px;
-  right:           8px;
-  background:      var(--pc-red);
-  color:           var(--pc-white);
-  font-size:       0.62rem;
-  font-weight:     800;
-  letter-spacing:  0.06em;
-  text-transform:  uppercase;
-  padding:         2px 7px;
-  border-radius:   3px;
-  pointer-events:  none;
-  z-index:         2;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--pc-red);
+  color: var(--pc-white);
+  font-size: 0.60rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(239,68,68,0.35);
+  line-height: 1.5;
 }
 
 [dir="rtl"] .product-card__promo-badge {
-  right: auto;
-  left:  8px;
+  left: auto;
+  right: 10px;
 }
 
-/* ─── Body ────────────────────────────────────────────────────────────────────── */
+/* ── Body (click → detail) ───────────────────────────────────────────────────── */
 .product-card__body {
-  padding: 10px 12px 4px;
-  cursor:  pointer;
-  flex:    1;
+  padding: 12px 14px 6px;
+  cursor: pointer;
 }
 
 .product-card__meta {
-  font-size:      0.6rem;
-  font-weight:    600;
-  letter-spacing: 0.1em;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color:          var(--pc-muted);
-  margin:         0 0 3px;
-  white-space:    nowrap;
-  overflow:       hidden;
-  text-overflow:  ellipsis;
+  color: var(--pc-muted);
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+     text-overflow: ellipsis;
 }
 
 .product-card__name {
-  font-size:              0.82rem;
-  font-weight:            700;
-  color:                  var(--pc-ink);
-  margin:                 0 0 6px;
-  line-height:            1.3;
-  display:                -webkit-box;
-  line-clamp:             2;
-  -webkit-line-clamp:     2;
-  -webkit-box-orient:     vertical;
-  overflow:               hidden;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--pc-ink);
+  margin: 0 0 8px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+/* ── Price ───────────────────────────────────────────────────────────────────── */
 .product-card__price-row {
-  display:         flex;
-  align-items:     baseline;
-  gap:             6px;
-  flex-wrap:       wrap;
-  margin-bottom:   2px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: baseline;
+  -webkit-align-items: baseline;
+          align-items: baseline;
+  gap: 7px;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  margin-bottom: 4px;
 }
 
 .product-card__price--final {
-  font-size:      0.9rem;
-  font-weight:    800;
-  color:          var(--pc-ink);
-  letter-spacing: -0.01em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--pc-ink);
+  letter-spacing: -0.02em;
 }
 
 .product-card__price--original {
-  font-size:            0.7rem;
-  color:                var(--pc-muted);
-  text-decoration:      line-through;
-  text-decoration-color: var(--pc-red);
-  font-weight:          400;
+  font-size: 0.72rem;
+  color: var(--pc-muted);
+  -webkit-text-decoration: line-through;
+          text-decoration: line-through;
+  -webkit-text-decoration-color: var(--pc-red);
+          text-decoration-color: var(--pc-red);
+  font-weight: 400;
 }
 
-/* ─── Sizes section ───────────────────────────────────────────────────────────── */
+/* ── Sizes section ───────────────────────────────────────────────────────────── */
 .product-card__sizes-section {
-  padding: 4px 12px 10px;
+  padding: 4px 14px 12px;
 }
 
 .product-card__sizes-label {
-  display:         block;
-  font-size:       0.58rem;
-  font-weight:     700;
-  letter-spacing:  0.1em;
-  text-transform:  uppercase;
-  color:           var(--pc-muted);
-  margin-bottom:   5px;
+  display: block;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pc-muted);
+  margin-bottom: 6px;
 }
 
 .product-card__size-grid {
-  display:   flex;
-  flex-wrap: wrap;
-  gap:       4px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  gap: 5px;
 }
 
-/* ─── Size chip ───────────────────────────────────────────────────────────────── */
+/* ── Size chip ───────────────────────────────────────────────────────────────── */
 .size-chip {
-  min-width:      28px;
-  height:         26px;
-  padding:        0 6px;
-  font-size:      0.65rem;
-  font-weight:    700;
-  border:         1.5px solid var(--pc-border);
-  border-radius:  4px;
-  background:     var(--pc-white);
-  color:          var(--pc-ink);
-  cursor:         pointer;
-  line-height:    1;
+  min-width: 30px;
+  height: 28px;
+  padding: 0 7px;
+  font-size: 0.64rem;
+  font-weight: 700;
   letter-spacing: 0.02em;
-  transition:
-    background   var(--pc-transition),
-    color        var(--pc-transition),
+  border: 1.5px solid var(--pc-border);
+  border-radius: 6px;
+  background: var(--pc-white);
+  color: var(--pc-ink);
+  cursor: pointer;
+  line-height: 1;
+  -webkit-transition:
+    background var(--pc-transition),
+    color      var(--pc-transition),
     border-color var(--pc-transition),
-    box-shadow   var(--pc-transition);
+    box-shadow var(--pc-transition);
+  transition:
+    background var(--pc-transition),
+    color      var(--pc-transition),
+    border-color var(--pc-transition),
+    box-shadow var(--pc-transition);
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .size-chip:hover:not(:disabled) {
@@ -231,191 +303,259 @@
 }
 
 .size-chip--selected {
-  background:   var(--pc-ink);
+  background:   var(--pc-brand);
   color:        var(--pc-white);
-  border-color: var(--pc-ink);
-  box-shadow:   0 0 0 2px var(--pc-white), 0 0 0 3.5px var(--pc-ink);
+  border-color: var(--pc-brand);
+  box-shadow:   0 0 0 2px var(--pc-white), 0 0 0 3.5px var(--pc-brand);
 }
 
 .size-chip--out-of-stock {
-  color:           #ccc;
-  border-color:    #ebebeb;
-  background:      #fafafa;
-  text-decoration: line-through;
+  color:           var(--pc-border);
+  border-color:    var(--pc-border);
+  background:      var(--pc-surface);
+  -webkit-text-decoration: line-through;
+          text-decoration: line-through;
   cursor:          not-allowed;
-  opacity:         0.6;
+  opacity:         0.55;
 }
 
-/* ─── CTA button ──────────────────────────────────────────────────────────────── */
+/* ── CTA button ──────────────────────────────────────────────────────────────── */
 .product-card__cta-btn {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  gap:             6px;
-  width:           100%;
-  padding:         11px 8px;
-  border:          none;
-  background:      var(--pc-ink);
-  color:           var(--pc-white);
-  font-size:       0.7rem;
-  font-weight:     700;
-  letter-spacing:  0.07em;
-  text-transform:  uppercase;
-  cursor:          pointer;
-  margin-top:      auto;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 12px 8px;
+  border: none;
+  border-top: 1px solid var(--pc-border);
+  background: var(--pc-ink);
+  color: var(--pc-white);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: auto;
+  -webkit-transition:
+    background var(--pc-transition),
+    color      var(--pc-transition),
+    box-shadow var(--pc-transition);
   transition:
-    background  var(--pc-transition),
-    color       var(--pc-transition),
-    box-shadow  var(--pc-transition);
+    background var(--pc-transition),
+    color      var(--pc-transition),
+    box-shadow var(--pc-transition);
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .product-card__cta-btn:hover:not(:disabled) {
   background: var(--pc-brand);
-  box-shadow: 0 3px 10px rgba(14, 146, 228, 0.28);
+  border-top-color: var(--pc-brand);
+  box-shadow: 0 -1px 0 0 var(--pc-brand);
+}
+.product-card:hover .product-card__cta-btn {
+  background: var(--pc-brand);
+  border-top-color: var(--pc-brand);
 }
 
 .product-card__cta-btn--sold-out {
-  background: #e8e8e8;
-  color:      #aaa;
+  background: var(--pc-surface);
+  color:      var(--pc-muted);
+  border-top-color: var(--pc-border);
   cursor:     not-allowed;
 }
-
 .product-card__cta-btn:disabled {
   cursor: not-allowed;
 }
 
-/* ─── Pagination ──────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAGINATION — react-paginate
+   containerClassName="pagination"
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Pagination list — react-paginate renders <ul class="pagination"> directly */
 .pagination {
   list-style:      none;
-  display:         flex;
-  flex-wrap:       wrap;
-  justify-content: center;
-  align-items:     center;
-  gap:             6px;
-  padding:         24px 0 32px;
-  margin:          0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  gap: 6px;
+  /* centered block with breathing room above and below */
+  padding: 36px 16px 48px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* Every page item */
 .pagination li a,
 .pagination li span {
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
-  min-width:       36px;
-  height:          36px;
-  padding:         0 10px;
-  font-size:       0.82rem;
-  font-weight:     600;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
   text-decoration: none;
-  border:          1.5px solid var(--pc-border);
-  color:           var(--pc-ink);
-  background:      var(--pc-white);
-  border-radius:   6px;
+  background: var(--pc-white);
+  color: var(--pc-ink);
+  border: 1.5px solid var(--pc-border);
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-transition:
+    background   0.15s ease,
+    border-color 0.15s ease,
+    color        0.15s ease,
+    box-shadow   0.15s ease;
   transition:
     background   0.15s ease,
-    border-color 0.15s ease;
-  cursor: pointer;
+    border-color 0.15s ease,
+    color        0.15s ease,
+    box-shadow   0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .pagination li a:hover {
-  background:   #f0f0f0;
-  border-color: #bbb;
+  background:   var(--pc-surface);
+  border-color: #c4cdd9;
+  color:        var(--pc-brand);
 }
 
+/* Prev / Next — slightly wider */
 .pagination__prev a,
 .pagination__next a {
-  padding: 0 14px;
+  padding: 0 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
+/* Active page */
 .pagination__page--active a {
-  background:   var(--pc-ink);
+  background:   var(--pc-brand);
   color:        var(--pc-white);
-  border-color: var(--pc-ink);
+  border-color: var(--pc-brand);
+  box-shadow:   0 4px 14px var(--pc-brand-glow);
+  font-weight:  800;
 }
 
-.pagination__item--disabled a {
-  opacity:        0.4;
+/* Disabled prev/next */
+.pagination__item--disabled a,
+.pagination__item--disabled span {
+  opacity:        0.35;
   cursor:         not-allowed;
   pointer-events: none;
 }
 
-/* ─── Responsive: tablet landscape ───────────────────────────────────────────── */
+/* Break ("...") */
+.pagination__break a {
+  border-color: transparent;
+  background: transparent;
+  letter-spacing: 0.05em;
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Tablet landscape */
 @media (max-width: 1100px) {
+  .products-layout {
+    padding: 20px 20px 0;
+    gap: 18px;
+  }
   .products-grid {
-    gap: 12px 10px;
+    gap: 16px 12px;
   }
 }
 
-/* ─── Responsive: tablet portrait — filter stacks above, full width ───────────── */
+/* Tablet portrait — filter becomes top strip, grid goes full-width */
 @media (max-width: 800px) {
   .products-layout {
-    flex-direction: column;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+            flex-direction: column;
+    padding: 0 0 0;
+    gap: 0;
   }
-
+  .products-layout > .filter-section {
+    top: var(--header-h-mobile, 64px);
+    width: 100%;
+  }
   .products-grid {
-    width:                   100%;
-    max-width:               100%;
-    grid-template-columns:   repeat(auto-fill, minmax(160px, 1fr));
-    gap:                     12px 10px;
-    padding:                 10px 8px 0;
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px 10px;
+    padding: 16px 16px 0;
+  }
+  .pagination-wrap {
+    padding: 28px 16px 40px;
   }
 }
 
-/* ─── Responsive: large phone ─────────────────────────────────────────────────── */
-/*
-  FIX: Previously used minmax(180px, 260px) here, which reverts to the
-  same column/card-width mismatch bug at ~560-800px. Now using 1fr columns
-  so cards are always exactly the column width — no deformation.
-  2 columns are forced at this breakpoint for readability.
-*/
+/* Large phone — 2-col forced */
 @media (max-width: 560px) {
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap:                   10px 8px;
-    padding:               8px 6px 0;
+    gap: 12px 8px;
+    padding: 12px 10px 0;
   }
 
-  /* Scale down body text slightly to keep cards tidy at 2-col */
-  .product-card__name {
-    font-size: 0.78rem;
+  .product-card__image-wrap {
+    padding-top: 82%;
   }
 
-  .product-card__price--final {
-    font-size: 0.82rem;
-  }
+  .product-card__name        { font-size: 0.75rem; }
+  .product-card__price--final { font-size: 0.88rem; }
 
   .product-card__cta-btn {
-    padding:   10px 6px;
-    font-size: 0.62rem;
-    gap:       4px;
+    padding:    10px 6px;
+    font-size:  0.60rem;
+    gap:        5px;
+    letter-spacing: 0.07em;
+  }
+
+  .size-chip {
+    min-width: 26px;
+    height:    24px;
+    padding:   0 5px;
+    font-size: 0.58rem;
   }
 }
 
-/* ─── Responsive: small phone ─────────────────────────────────────────────────── */
-@media (max-width: 380px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap:                   8px 6px;
-    padding:               6px 4px 0;
-  }
-
-  .product-card__body           { padding: 8px 8px 3px; }
-  .product-card__sizes-section  { padding: 3px 8px 8px; }
-  .product-card__name           { font-size: 0.72rem; }
-  .product-card__price--final   { font-size: 0.76rem; }
-  .product-card__cta-btn        { padding: 9px 4px; font-size: 0.58rem; gap: 3px; }
-  .size-chip                    { min-width: 24px; height: 22px; font-size: 0.58rem; }
-}
-
-/* ─── Very small phone (320px) ────────────────────────────────────────────────── */
-/*
-  At 320px wide, 2 columns each become ~146px. Switch to 1 column
-  so the card doesn't become illegible.
-*/
+/* Small phone — 1-col so product images fill screen properly */
 @media (max-width: 360px) {
   .products-grid {
     grid-template-columns: 1fr;
-    gap:                   10px 0;
-    padding:               6px 8px 0;
+  }
+  .product-card__image-wrap {
+    padding-top: 65%;
   }
 }

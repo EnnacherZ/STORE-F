@@ -11,10 +11,7 @@ import { selectedLang } from './constants';
 import { CartItem } from '../contexts/CartContext';
 import ModalBackdrop from './modalBackdrop';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ConfirmModalProps {
-  /** Which modal panel to show: 'remove' | 'clear-all' | 'reviews' */
   action: 'remove' | 'clear-all' | 'reviews' | string;
   item: CartItem | undefined;
   rev_productType: string | undefined;
@@ -24,19 +21,16 @@ interface ConfirmModalProps {
   onClearAll: (() => void) | undefined;
 }
 
-// ─── Animation variants ───────────────────────────────────────────────────────
-
 const slideInVariants = {
-  hidden: { y: '-100vh', opacity: 0 },
+  hidden: { y: 28, opacity: 0, scale: 0.985 },
   visible: {
     y: 0,
     opacity: 1,
-    transition: { type: 'tween', duration: 0.8, ease: 'easeInOut' },
+    scale: 1,
+    transition: { type: 'spring', stiffness: 280, damping: 26 },
   },
-  exit: { y: '100vh', opacity: 0 },
+  exit: { y: 16, opacity: 0, scale: 0.99 },
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 const Modal: React.FC<ConfirmModalProps> = ({
   item,
@@ -64,13 +58,9 @@ const Modal: React.FC<ConfirmModalProps> = ({
     return () => window.removeEventListener('resize', checkBreakpoint);
   }, []);
 
-  // ── Star rating toggle ───────────────────────────────────────────────────────
-
   const handleStarClick = (selectedStar: number) => {
     setStarRating((prev) => (prev === selectedStar ? selectedStar - 1 : selectedStar));
   };
-
-  // ── Review submission ────────────────────────────────────────────────────────
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,44 +91,30 @@ const Modal: React.FC<ConfirmModalProps> = ({
         throw new Error(`HTTP error — status: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.info('Review submitted:', data.message);
+      await response.json();
       onBack();
-    } catch (err) {
-      console.error('Review submission failed:', err);
+    } catch {
       onBack();
     }
   };
 
-  // ── Price helpers ────────────────────────────────────────────────────────────
-
   const getDiscountedPrice = (price = 0, promo = 0) =>
     (price * (1 - promo * 0.01)).toFixed(2);
-
-  // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
     <ModalBackdrop onClose={onBack} onOpen>
       <motion.div
+        className="modal-content-wrap"
         onClick={(e) => e.stopPropagation()}
         variants={slideInVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
       >
-        {/* ── Review panel ── */}
         {action === 'reviews' && (
-          <form
-            className="review-form card shadow mt-4 p-2"
-            onSubmit={handleReviewSubmit}
-          >
-            <h3 className="my-2"><MdReviews /> {t('review.add')}</h3>
-            <button
-              type="button"
-              className="review-form__close fw-bold"
-              onClick={onBack}
-              aria-label="Close review form"
-            >
+          <form className="review-form" onSubmit={handleReviewSubmit}>
+            <h3><MdReviews /> {t('review.add')}</h3>
+            <button type="button" className="review-form__close" onClick={onBack} aria-label="Close review form">
               <IoClose />
             </button>
             <hr />
@@ -146,37 +122,19 @@ const Modal: React.FC<ConfirmModalProps> = ({
             <label className="my-2 fw-bold">{t('review.username')}:</label>
             <div className="input-group mb-3">
               <span className="input-group-text"><FaUser /></span>
-              <input
-                onChange={(e) => setReviewerName(e.target.value)}
-                type="text"
-                className="form-control"
-                placeholder={t('review.username')}
-                aria-label="Username"
-              />
+              <input onChange={(e) => setReviewerName(e.target.value)} type="text" className="form-control" placeholder={t('review.username')} aria-label="Username" />
             </div>
 
             <label className="my-2 fw-bold">{t('form.email.label')}:</label>
             <div className="input-group mb-3">
               <span className="input-group-text">@</span>
-              <input
-                onChange={(e) => setReviewerEmail(e.target.value)}
-                type="email"
-                className="form-control"
-                placeholder={t('form.email.label')}
-                aria-label="Email"
-              />
+              <input onChange={(e) => setReviewerEmail(e.target.value)} type="email" className="form-control" placeholder={t('form.email.label')} aria-label="Email" />
             </div>
 
             <label className="my-2 fw-bold">{t('review.stars')}:</label>
             <div className="star-rating d-flex">
               {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  className={`star-rating__star mx-3 rounded ${starRating >= n ? 'star-rating__star--active' : ''}`}
-                  onClick={() => handleStarClick(n)}
-                  aria-label={`Rate ${n} star${n > 1 ? 's' : ''}`}
-                >
+                <button key={n} type="button" className={`star-rating__star mx-3 rounded ${starRating >= n ? 'star-rating__star--active' : ''}`} onClick={() => handleStarClick(n)} aria-label={`Rate ${n} star${n > 1 ? 's' : ''}`}>
                   <FaStar />
                 </button>
               ))}
@@ -184,30 +142,20 @@ const Modal: React.FC<ConfirmModalProps> = ({
 
             <label className="my-3 fw-bold">{t('review.yourReview')}:</label>
             <div className="input-group mb-3">
-              <textarea
-                onChange={(e) => setReviewText(e.target.value)}
-                maxLength={300}
-                className="form-control"
-                aria-label="Review text"
-              />
+              <textarea onChange={(e) => setReviewText(e.target.value)} maxLength={300} className="form-control" aria-label="Review text" />
             </div>
 
-            <button type="submit" className="btn btn-success my-2">
-              {t('review.submit')}
-            </button>
+            <button type="submit" className="btn btn-success my-2">{t('review.submit')}</button>
           </form>
         )}
 
-        {/* ── Single item remove confirmation ── */}
         {action === 'remove' && (
           <div className="confirm-modal card">
             <div className={`confirm-modal__title ms-3 fw-bold ${isRtl ? 'rtl me-2' : ''}`}>
               {t('confirm.deleteTitle')}
             </div>
             <hr />
-            <div className={`confirm-modal__subtitle ms-3 mt-1 ${isRtl ? 'rtl me-2' : ''}`}
-              style={isMobileView ? { fontSize: 16 } : { fontSize: 18 }}
-            >
+            <div className={`confirm-modal__subtitle ms-3 mt-1 ${isRtl ? 'rtl me-2' : ''}`} style={isMobileView ? { fontSize: 16 } : { fontSize: 18 }}>
               {t('confirm.removeItem')}
             </div>
 
@@ -218,22 +166,14 @@ const Modal: React.FC<ConfirmModalProps> = ({
 
               <div className={`confirm-modal__item-meta d-flex justify-content-around mt-2 ${isRtl ? 'rtl' : ''}`}>
                 <div className={`confirm-modal__item-meta-left ${isRtl ? '' : 'text-start'}`}>
-                  <div className="confirm-modal__meta-row">
-                    <strong>{t('product.category')}: </strong>{item?.category.toLowerCase()}
-                  </div>
-                  <div className="confirm-modal__meta-row">
-                    <strong>{t('product.ref')}: </strong>{item?.ref}
-                  </div>
-                  <div className="confirm-modal__meta-row">
-                    <strong>{t('product.name')}: </strong>{item?.name.toLowerCase()}
-                  </div>
+                  <div className="confirm-modal__meta-row"><strong>{t('product.category')}: </strong>{item?.category.toLowerCase()}</div>
+                  <div className="confirm-modal__meta-row"><strong>{t('product.ref')}: </strong>{item?.ref}</div>
+                  <div className="confirm-modal__meta-row"><strong>{t('product.name')}: </strong>{item?.name.toLowerCase()}</div>
                 </div>
                 <div className="confirm-modal__item-meta-right">
                   <div className="confirm-modal__meta-row">
                     <strong>{t('product.price')}: </strong>
-                    <b className="price--current">
-                      {getDiscountedPrice(item?.price, item?.promo)} {t('product.currency')}
-                    </b>
+                    <b className="price--current">{getDiscountedPrice(item?.price, item?.promo)} {t('product.currency')}</b>
                   </div>
                   {item?.promo !== 0 && (
                     <div className="confirm-modal__meta-row">
@@ -241,25 +181,18 @@ const Modal: React.FC<ConfirmModalProps> = ({
                       <b className="price--original">{item?.price.toFixed(2)} {t('product.currency')}</b>
                     </div>
                   )}
-                  <div className="confirm-modal__meta-row">
-                    <strong>{t('product.size')}: </strong>{item?.size}
-                  </div>
+                  <div className="confirm-modal__meta-row"><strong>{t('product.size')}: </strong>{item?.size}</div>
                 </div>
               </div>
             </div>
 
             <div className="confirm-modal__actions">
-              <button className="btn btn-secondary mt-2" style={{ fontSize: 14 }} onClick={onBack}>
-                <IoArrowBackOutline size={20} /> {t('confirm.cancelBack')}
-              </button>
-              <button className="btn btn-danger mt-2" style={{ fontSize: 14 }} onClick={onRemove}>
-                <FaRegTrashAlt /> {t('confirm.remove')}
-              </button>
+              <button className="btn btn-secondary mt-2" style={{ fontSize: 14 }} onClick={onBack}><IoArrowBackOutline size={20} /> {t('confirm.cancelBack')}</button>
+              <button className="btn btn-danger mt-2" style={{ fontSize: 14 }} onClick={onRemove}><FaRegTrashAlt /> {t('confirm.remove')}</button>
             </div>
           </div>
         )}
 
-        {/* ── Clear all confirmation ── */}
         {action === 'clear-all' && (
           <div className="confirm-modal confirm-modal--clear-all card">
             <div className={`confirm-modal__title ms-3 fw-bold ${isRtl ? 'rtl me-2' : ''}`}>
@@ -270,20 +203,8 @@ const Modal: React.FC<ConfirmModalProps> = ({
               {t('confirm.removeAll')}
             </div>
             <div className="confirm-modal__actions confirm-modal__actions--clear-all mt-4">
-              <button
-                className="btn btn-secondary"
-                style={isMobileView ? { fontSize: 13 } : {}}
-                onClick={onBack}
-              >
-                <IoArrowBackOutline /> {t('confirm.cancelBack')}
-              </button>
-              <button
-                className="btn btn-danger"
-                style={isMobileView ? { fontSize: 13 } : {}}
-                onClick={onClearAll}
-              >
-                <FaRegTrashAlt /> {t('confirm.clearAllItems')}
-              </button>
+              <button className="btn btn-secondary" style={isMobileView ? { fontSize: 13 } : {}} onClick={onBack}><IoArrowBackOutline /> {t('confirm.cancelBack')}</button>
+              <button className="btn btn-danger" style={isMobileView ? { fontSize: 13 } : {}} onClick={onClearAll}><FaRegTrashAlt /> {t('confirm.clearAllItems')}</button>
             </div>
           </div>
         )}

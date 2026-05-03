@@ -1,238 +1,183 @@
 /* ============================================================
-   FilterSection.css — Firdaous Store
+   FilterSection.css — Al-Firdaous Store
+   Drop into: src/styles/FilterSection.css
+   Sticky on desktop sidebar · Sticky strip on tablet · Dropdown on phone
    ============================================================ */
 
-/* ── Filter panel ─────────────────────────────────────────── */
+/* ── Filter panel shell ────────────────────────────────────────────────────── */
 .filter-section {
-  background-color: #f7f6f6;
-  width: 170px;
-  min-height: 480px;
+  width: 200px;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(15,28,53,0.06);
+  /* Sticky — stays in view while the user scrolls through products */
+  position: -webkit-sticky;
   position: sticky;
-  /* top matches header height + promo banner (see :root in header.css) */
-  top: calc(36px + var(--header-h-desktop, 80px) + 8px);
+  top: calc(var(--header-h-desktop, 80px) + 12px);
+  max-height: calc(100vh - var(--header-h-desktop, 80px) - 24px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+  /* Safari GPU compositing so sticky works inside flex containers */
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
   z-index: 100;
-  border: 1px solid #bcb8b8;
-  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+  align-self: flex-start;  /* flex child: don't stretch to grid height */
 }
+
+.filter-section::-webkit-scrollbar { width: 4px; }
+.filter-section::-webkit-scrollbar-track { background: transparent; }
+.filter-section::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
 
 .filter-section--rounded {
-  border-radius: 4px;
+  border-radius: 12px;
 }
 
-/* ── Filter title ─────────────────────────────────────────── */
+/* ── Panel title ───────────────────────────────────────────────────────────── */
 .filter-section__title {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  border-bottom: 1px solid #e0dede;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  gap: 8px;
+  padding: 14px 14px 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0f1c35;
+  border-bottom: 1px solid #e2e8f0;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 2;
 }
 
-/* ── Inline inputs (> 650px) ──────────────────────────────── */
+.filter-section__title svg {
+  color: #0e92e4;
+}
+
+/* ── Inline inputs (> 650 px) ──────────────────────────────────────────────── */
 .filter-inputs {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 8px 6px 6px;
-  gap: 10px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: stretch;
+  -webkit-align-items: stretch;
+          align-items: stretch;
+  padding: 12px 12px 16px;
+  gap: 12px;
 }
 
 .filter-field {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  gap: 4px;
 }
 
 .filter-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #444;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
 }
 
 .filter-input,
 .filter-select {
   width: 100%;
-  padding: 5px 7px;
-  font-size: 0.82rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #0f1c35;
+  background: #f7f8fb;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
   outline: none;
-  transition: border-color 0.2s ease;
+  -webkit-transition: border-color 0.18s ease, box-shadow 0.18s ease;
+          transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 .filter-input:focus,
 .filter-select:focus {
   border-color: #0e92e4;
+  box-shadow: 0 0 0 3px rgba(14,146,228,0.12);
+  background: #ffffff;
 }
 
 .filter-input--readonly {
-  background-color: #efefef;
+  background: #f0f4f8;
   font-weight: 700;
-  color: #333;
+  color: #0f1c35;
+  cursor: default;
+  border-color: #e2e8f0;
 }
 
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
 .filter-btn {
   width: 100%;
-  padding: 7px 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: 9px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.2s ease, background-color 0.2s ease;
-}
-
-.filter-btn:hover {
-  opacity: 0.88;
+  -webkit-transition: background 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+          transition: background 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .filter-btn--primary {
-  background-color: #0e92e4;
-  color: #fff;
+  background: #0e92e4;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(14,146,228,0.25);
+}
+.filter-btn--primary:hover {
+  background: #0b7abf;
+  box-shadow: 0 4px 14px rgba(14,146,228,0.35);
 }
 
 .filter-btn--secondary {
-  background-color: #6c757d;
-  color: #fff;
+  background: #f0f4f8;
+  color: #4a5568;
+  border: 1.5px solid #e2e8f0;
+}
+.filter-btn--secondary:hover {
+  background: #e2e8f0;
 }
 
-/* ══════════════════════════════════════════════════════════
-   TABLET (≤ 800px) — horizontal strip
-   ══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   TABLET (≤ 800 px) — horizontal sticky strip
+   ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 800px) {
   .filter-section {
-    width: 100%;
-    min-height: unset;
-    height: auto;
-    padding: 6px 8px;
-    margin-bottom: 6px;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 6px;
+    width: 200px;
+    position: -webkit-sticky;
     position: sticky;
-    /* top = promo banner + mobile header */
-    top: calc(36px + var(--header-h-mobile, 64px));
-    background-color: #cac5c5;
-    border-bottom: 3px solid #222;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-    z-index: 100;
-  }
-
-  .filter-section__title {
-    display: none;         /* space too tight on mobile strip */
-  }
-
-  .filter-inputs {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 6px;
-    padding: 0;
-    width: 100%;
-  }
-
-  .filter-field,
-  .filter-inputs > div {
-    flex: 1 1 auto;
-    min-width: 80px;
-  }
-
-  .filter-btn {
-    width: 100%;
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   PHONE (≤ 650px) — collapsed dropdown mode
-   ══════════════════════════════════════════════════════════ */
-@media (max-width: 650px) {
-  .filter-section {
-    flex-direction: column;
-    align-items: center;
-    height: auto;
-    min-height: 64px;
-    background-color: #fefefe;
-    border-bottom-color: #bcb8b8;
-    padding: 8px;
-    transition: height 0.5s ease;
-  }
-
-  .filter-section--expanded {
-    height: auto;
-  }
-
-  /* ── Collapsed "open" button ─────────────────────────── */
-  .filter-drop-toggle {
-    width: 46px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    border: none;
-    background-color: #111;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease;
-  }
-
-  .filter-drop-toggle:hover {
-    background-color: #555;
-  }
-
-  /* ── Expanded body ───────────────────────────────────── */
-  .filter-drop-body {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    transition: max-height 0.5s ease, opacity 0.4s ease;
-  }
-
-  .filter-drop-body--open {
-    max-height: 600px;          /* large enough to fit all fields */
-    opacity: 1;
-  }
-
-  .filter-drop-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    width: 100%;
-    align-items: flex-end;
-  }
-
-  .filter-drop-row > div {
-    flex: 1 1 120px;
-  }
-
-  /* ── Collapse button ─────────────────────────────────── */
-  .filter-drop-close {
-    width: 40px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    border: none;
-    background-color: #111;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    align-self: center;
-    margin-top: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease;
-  }
-
-  .filter-drop-close:hover {
-    background-color: #555;
+    top: calc(var(--header-h-mobile, 64px) + 8px);
+    max-height: calc(100vh - var(--header-h-mobile, 64px) - 16px);
+    overflow-y: auto;
   }
 }

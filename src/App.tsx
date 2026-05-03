@@ -48,7 +48,7 @@ const routes = [
   { path: "/Transaction/Success", element: <SuccessTransaction /> },
   { path: "/Transaction/Failed", element: <FailedTransaction /> },
   { path: "/testy", element: <AddProductTypeForm /> },
-  { path: "/MyOrder/:orderID", element: <OrderTracker /> },
+  { path: "/MyOrder", element: <OrderTracker /> },
   { path: "/Policies/:option", element: <Policies /> },
   //{ path: "/client", element: <LoginClient /> },
   { path: "*", element: <NotFoundPage /> },

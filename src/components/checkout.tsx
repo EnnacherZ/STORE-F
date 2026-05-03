@@ -341,16 +341,6 @@ const Checkout: React.FC = () => {
 
           {/* ── Topbar ────────────────────────────────────────────────────── */}
           <div className="co-topbar">
-            {/* Logo */}
-            <div className="co-topbar__logo">
-              <div className="co-topbar__logo-icon">
-                <FaMoneyBillTransfer size={18} />
-              </div>
-              <div>
-                <div className="co-topbar__logo-name">AL-FIRDAOUS</div>
-                <div className="co-topbar__logo-sub">STORE</div>
-              </div>
-            </div>
 
             {/* Steps */}
             <div className="co-topbar__steps">
