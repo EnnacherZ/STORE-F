@@ -43,7 +43,7 @@ import SignInPage        from "./components/Signinpage";
 import SignUpPage        from "./components/Signuppage";
 import AccountPage       from "./client profile/ClientAccount";
 import ActivateAccount   from "./client profile/ActivateAccount";
-import SendEmail         from "./sendMail";
+// import SendEmail         from "./sendMail";
 import AddProductTypeForm from "./reloader";
 
 
@@ -69,7 +69,7 @@ const storefrontRouter = createBrowserRouter(
     { path: "/signin",                                     element: <Navigate to="/account/signin" replace /> },
     { path: "/signup",                                    element: <Navigate to="/account/signup" replace /> },
     { path: "/account",                                   element: <AccountPage /> },
-    { path: "/send_mail",                                 element: <SendEmail /> },
+    // { path: "/send_mail",                                 element: <SendEmail /> },
     { path: "/testy",                                     element: <AddProductTypeForm /> },
     { path: "*",                                          element: <NotFoundPage /> },
   ],
