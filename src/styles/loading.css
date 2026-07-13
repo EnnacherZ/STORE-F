@@ -1,0 +1,37 @@
+/* ── Loading ──────────────────────────────────────────────────────────────── */
+.ld-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40vh;
+  padding: 48px 24px;
+}
+
+.ld-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 40px 48px;
+  box-shadow:
+    rgba(14, 146, 228, 0.08) 0px 8px 24px,
+    rgba(0, 0, 0, 0.04) 0px 2px 8px;
+}
+
+.ld-spinner-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ld-message {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f1c35;
+  letter-spacing: -0.01em;
+  text-align: center;
+}

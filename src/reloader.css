@@ -1,0 +1,31 @@
+.accordion-item {
+  margin-bottom: 10px;
+}
+
+.accordion-header {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  text-align: left;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.accordion-header:focus {
+  outline: none;
+}
+
+.accordion-body {
+  max-height: 0; /* Initialement caché */
+  overflow: hidden;
+  padding: 0 10px;
+  transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.accordion-body.open {
+  max-height: 1000px; /* Ajoute une hauteur max pour l'animation */
+  padding: 10px;
+  background-color: #f1f1f1;
+}

@@ -1,0 +1,301 @@
+/* ============================================================
+   modals.css — Al-Firdaous Store
+   Premium ecommerce modal system
+   ============================================================ */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background:
+    radial-gradient(circle at top, rgba(14,146,228,0.18), transparent 36%),
+    rgba(15,28,53,0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 110000;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 28px 16px;
+  box-sizing: border-box;
+}
+
+.modal-shell {
+  width: min(860px, 100%);
+  background: #ffffff;
+  border: 1px solid rgba(226,232,240,0.9);
+  border-radius: 24px;
+  box-shadow: 0 32px 80px rgba(15,28,53,0.28);
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0e92e4 0%, #0f1c35 100%);
+}
+
+.confirm-modal,
+.review-form {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #ffffff;
+}
+
+.confirm-modal {
+  padding: 28px;
+}
+
+.confirm-modal__title {
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  font-weight: 800;
+  color: #0f1c35;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.confirm-modal__subtitle {
+  font-size: 0.98rem;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.confirm-modal__item-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  margin-top: 14px;
+  background: linear-gradient(180deg, #f7f8fb 0%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.confirm-modal__item-image {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f7f8fb;
+  max-height: 280px;
+}
+
+.confirm-modal__item-image-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.confirm-modal__item-meta {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+}
+
+.confirm-modal__item-meta-left,
+.confirm-modal__item-meta-right {
+  width: auto;
+  left: auto;
+  top: auto;
+  margin: 0;
+}
+
+.confirm-modal__meta-row {
+  font-size: 0.84rem;
+  color: #0f1c35;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.price--current {
+  color: #0e92e4;
+  font-weight: 800;
+}
+
+.price--original {
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: line-through;
+  text-decoration-color: #ef4444;
+}
+
+.confirm-modal__actions,
+.confirm-modal__actions--clear-all {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 24px 0 0;
+}
+
+.confirm-modal .btn,
+.review-form .btn {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+}
+
+.confirm-modal .btn-secondary,
+.review-form .btn-secondary {
+  background: #f7f8fb;
+  color: #0f1c35;
+  border-color: #e2e8f0;
+}
+
+.confirm-modal .btn-secondary:hover,
+.review-form .btn-secondary:hover {
+  background: #eef4fb;
+}
+
+.confirm-modal .btn-danger,
+.review-form .btn-success {
+  background: linear-gradient(135deg, #0e92e4 0%, #0b7abf 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(14,146,228,0.25);
+}
+
+.confirm-modal .btn-danger:hover,
+.review-form .btn-success:hover {
+  filter: brightness(1.02);
+}
+
+.review-form {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px;
+  border-radius: 24px;
+}
+
+.review-form h3 {
+  margin: 0 0 14px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f1c35;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-form hr,
+.confirm-modal hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  margin: 16px 0 22px;
+}
+
+.review-form .input-group-text,
+.review-form .form-control {
+  border-color: #e2e8f0;
+}
+
+.review-form .input-group-text {
+  background: #f7f8fb;
+  color: #0e92e4;
+}
+
+.review-form .form-control {
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: none;
+}
+
+.review-form textarea.form-control {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.review-form__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f1c35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(15,28,53,0.08);
+}
+
+.star-rating {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.star-rating__star {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f7f8fb;
+  color: #94a3b8;
+}
+
+.star-rating__star--active {
+  background: linear-gradient(135deg, #0e92e4 0%, #0b7abf 100%);
+  color: #ffffff;
+  border-color: #0e92e4;
+}
+
+@media (max-width: 599px) {
+  .modal-backdrop {
+    padding: 14px;
+    align-items: flex-start;
+  }
+
+  .modal-shell,
+  .confirm-modal,
+  .review-form {
+    border-radius: 18px;
+  }
+
+  .confirm-modal,
+  .review-form {
+    padding: 18px;
+  }
+
+  .confirm-modal__item-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .confirm-modal__item-image {
+    max-height: 180px;
+  }
+
+  .confirm-modal__actions,
+  .confirm-modal__actions--clear-all {
+    flex-direction: column;
+  }
+
+  .confirm-modal .btn,
+  .review-form .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" },
+    {
+      "source": "/media/:path*",
+      "destination": "https://res.cloudinary.com/de2wpriie/image/upload/:path*"
+    }
+  ]
+}

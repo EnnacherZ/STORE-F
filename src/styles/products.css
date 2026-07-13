@@ -1,0 +1,479 @@
+/* ============================================================
+   products.css — Al-Firdaous Store
+   Drop into: src/styles/products.css
+   Minimal editorial product grid — sharp corners, no shadows.
+   Two-step size select + confirm add-to-cart (no accidental
+   adds from a single click). Deliberate color system: blue =
+   selection, green = success, coral = promo, pink = wishlist.
+   ============================================================ */
+
+/* ── CSS tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --pc-white:        #ffffff;
+  --pc-ink:          #14161a;
+  --pc-body:         #4a5568;
+  --pc-muted:        #8b8d92;
+  --pc-border:       #e4e4e2;
+  --pc-border-hover: #c9c9c5;
+  --pc-surface:      #f4f3f1;
+
+  /* Deliberate color system — each hue maps to exactly one meaning,
+     pulled from the same ramp family used elsewhere in the app. */
+  --pc-select:        #185fa5;   /* selection — size chosen, hover ring */
+  --pc-select-dark:   #0c447c;   /* confirm button background */
+  --pc-select-bg:     #e6f1fb;   /* light fill for selected chip text-on-bg pairing */
+  --pc-success:       #0f6e56;
+  --pc-success-bg:    #e1f5ee;
+  --pc-success-border:#1d9e75;
+  --pc-promo-text:    #993c1d;
+  --pc-promo-bg:      #f0997b;
+  --pc-wishlist:      #993556;
+  --pc-wishlist-bg:   #fbeaf0;
+
+  --pc-radius:       2px;
+  --pc-ease:         cubic-bezier(0.22, 1, 0.36, 1);
+  --pc-transition:   0.18s var(--pc-ease);
+}
+
+/* ── RTL ─────────────────────────────────────────────────────────────────────── */
+.rtl { direction: rtl; letter-spacing: 0; }
+
+/* ── Page wrapper (filter sidebar + grid) ───────────────────────────────────── */
+.products-layout {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 32px 28px 0;
+  gap: 32px;
+  box-sizing: border-box;
+  min-height: 60vh;
+}
+
+.products-layout > .products-grid {
+  min-width: 0;
+}
+
+/* ── Product grid — desktop: 4 narrower columns ───────────────────────────────── */
+.products-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px 18px;
+  min-width: 0;
+  padding-bottom: 8px;
+}
+
+/* ── Product card shell — flat, no border, no shadow ─────────────────────────── */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ── Image wrap ──────────────────────────────────────────────────────────────── */
+.product-card__image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--pc-surface);
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: var(--pc-radius);
+  /* Hover outline — blue, ties visually to the selection color system */
+  outline: 1.5px solid transparent;
+  outline-offset: -1.5px;
+  transition: outline-color var(--pc-transition);
+}
+
+.product-card:hover .product-card__image-wrap {
+  outline-color: var(--pc-select);
+}
+
+/* Once a size is selected, the ring stays on (not just on hover) so the
+   card visibly communicates "this one has a pending choice". */
+.product-card__image-wrap--selected {
+  outline-color: var(--pc-select);
+}
+
+.product-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s var(--pc-ease);
+}
+
+.product-card:hover .product-card__img {
+  transform: scale(1.035);
+}
+
+/* ── Tag (label / promo badge) — coral for promo, not flat gray ──────────────── */
+.product-card__tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--pc-white);
+  color: var(--pc-muted);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: var(--pc-radius);
+  pointer-events: none;
+  z-index: 2;
+  line-height: 1.4;
+}
+
+.product-card__tag--promo {
+  background: var(--pc-promo-bg);
+  color: var(--pc-promo-text);
+}
+
+[dir="rtl"] .product-card__tag {
+  left: auto;
+  right: 10px;
+}
+
+/* ── Wishlist button — pink fill when active, not just dark ──────────────────── */
+.product-card__wishlist-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--pc-white);
+  color: var(--pc-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  cursor: pointer;
+  z-index: 3;
+  transition: color var(--pc-transition), background var(--pc-transition), transform 0.18s var(--pc-ease);
+}
+
+.product-card__wishlist-btn:hover {
+  color: var(--pc-wishlist);
+}
+
+.product-card__wishlist-btn:active {
+  transform: scale(0.88);
+}
+
+.product-card__wishlist-btn--active {
+  background: var(--pc-wishlist-bg);
+  color: var(--pc-wishlist);
+}
+
+[dir="rtl"] .product-card__wishlist-btn {
+  right: auto;
+  left: 8px;
+}
+
+/* ── Quick view — blue strip instead of a flat white one ──────────────────────── */
+.product-card__quick-view {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--pc-select-dark);
+  color: var(--pc-white);
+  border: none;
+  padding: 9px 8px;
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  z-index: 2;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.22s var(--pc-ease), opacity 0.22s var(--pc-ease);
+}
+
+.product-card:hover .product-card__quick-view {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ── Body (click → detail) ───────────────────────────────────────────────────── */
+.product-card__body {
+  padding: 12px 0 0;
+  cursor: pointer;
+}
+
+.product-card__meta {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pc-muted);
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-card__name {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--pc-ink);
+  margin: 0 0 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Price ───────────────────────────────────────────────────────────────────── */
+.product-card__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.product-card__price--final {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--pc-ink);
+}
+
+.product-card__price--original {
+  font-size: 0.72rem;
+  color: var(--pc-muted);
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
+/* ── Size grid — step 1: select only ──────────────────────────────────────────── */
+.product-card__size-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.size-chip {
+  min-width: 30px;
+  height: 24px;
+  padding: 0 7px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border: 1px solid var(--pc-border);
+  border-radius: var(--pc-radius);
+  background: var(--pc-white);
+  color: var(--pc-ink);
+  cursor: pointer;
+  line-height: 1;
+  transition:
+    background var(--pc-transition),
+    color      var(--pc-transition),
+    border-color var(--pc-transition);
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.size-chip:hover:not(:disabled) {
+  border-color: var(--pc-select);
+}
+
+/* Selected — solid blue fill. This now means "chosen, awaiting
+   confirmation", not "added" — the confirm button below is the actual
+   cart action. */
+.size-chip--selected {
+  background: var(--pc-select);
+  color: var(--pc-white);
+  border-color: var(--pc-select);
+}
+
+.size-chip--out-of-stock {
+  color: var(--pc-border-hover);
+  border-color: var(--pc-border);
+  background: var(--pc-surface);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* ── Step 2: confirm button — appears only once a size is selected ───────────── */
+.product-card__confirm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 8px;
+  border: none;
+  border-radius: var(--pc-radius);
+  background: var(--pc-select-dark);
+  color: var(--pc-white);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background var(--pc-transition), color var(--pc-transition), border-color var(--pc-transition);
+  font-family: inherit;
+}
+
+.product-card__confirm-btn:hover:not(:disabled) {
+  background: var(--pc-ink);
+}
+
+/* Success state — green, brief, then the card resets */
+.product-card__confirm-btn--added {
+  background: var(--pc-success-bg);
+  color: var(--pc-success);
+  border: 1px solid var(--pc-success-border);
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAGINATION — react-paginate
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pagination {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 48px 16px 56px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pagination li a,
+.pagination li span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  font-size: 0.76rem;
+  font-weight: 400;
+  font-family: inherit;
+  text-decoration: none;
+  background: transparent;
+  color: var(--pc-ink);
+  border: 1px solid transparent;
+  border-radius: var(--pc-radius);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color        0.15s ease;
+  user-select: none;
+}
+
+.pagination li a:hover {
+  border-color: var(--pc-select);
+  color: var(--pc-select);
+}
+
+.pagination__prev a,
+.pagination__next a {
+  padding: 0 14px;
+  letter-spacing: 0.02em;
+  color: var(--pc-muted);
+}
+
+.pagination__page--active a {
+  border-color: var(--pc-select);
+  background: var(--pc-select-bg);
+  color: var(--pc-select-dark);
+  font-weight: 500;
+}
+
+.pagination__item--disabled a,
+.pagination__item--disabled span {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pagination__break a {
+  border-color: transparent;
+  background: transparent;
+  color: var(--pc-muted);
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1500px) {
+  .products-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .products-layout { padding: 28px 20px 0; gap: 24px; }
+  .products-grid   {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px 14px;
+  }
+}
+
+@media (max-width: 800px) {
+  .products-layout {
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+  }
+  .products-grid {
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px 14px;
+    padding: 20px 16px 0;
+  }
+
+  .product-card__quick-view {
+    display: none;
+  }
+}
+
+/* Mobile — unchanged 2-col layout (already approved) */
+@media (max-width: 560px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 12px;
+    padding: 16px 14px 0;
+  }
+
+  .product-card__name         { font-size: 0.78rem; }
+  .product-card__price--final { font-size: 0.82rem; }
+
+  .size-chip {
+    min-width: 28px;
+    height: 24px;
+    padding: 0 6px;
+    font-size: 0.6rem;
+  }
+
+  .product-card__confirm-btn {
+    font-size: 0.6rem;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .products-grid { grid-template-columns: 1fr; }
+}
