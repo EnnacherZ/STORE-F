@@ -46,6 +46,154 @@ interface ClientData {
   city:       string;
 }
 
+// ─── Order status pipeline ────────────────────────────────────────────────────
+//
+// Same dependency logic as the account order history view:
+//
+//   Placed → Payment → Processing → Delivery
+//
+//   - A failed online payment halts everything after it.
+//   - COD orders settle payment AT delivery, so "payment" is shown done
+//     immediately (informational), not blocking the rest.
+//   - Processing cannot be current/done while an online payment is pending.
+//   - Delivery cannot be current until processing is actually done.
+//
+// Reuses the same "account.step*" / "account.processing*" translation keys
+// as the account page so both surfaces stay in sync with one source of truth.
+
+type StepState = "done" | "current" | "pending" | "error";
+
+interface OrderStep {
+  key: "placed" | "payment" | "processing" | "delivery";
+  labelKey: string;
+  subLabelKey?: string;
+  state: StepState;
+  icon: string;
+}
+
+function getOrderSteps(order: OrderData): OrderStep[] {
+  const isCod = order.payment_mode === "cash_on_delivery" || order.payment_mode === "cod";
+  const isFailed = order.is_paid === "failed";
+  const isConfirmed = order.is_paid === "confirmed";
+  const isPendingOnline = order.is_paid === "pending";
+
+  const placed: OrderStep = {
+    key: "placed",
+    labelKey: "account.stepPlaced",
+    state: "done",
+    icon: "🧾",
+  };
+
+  let paymentState: StepState;
+  let paymentSubLabel: string | undefined;
+  if (isFailed) {
+    paymentState = "error";
+    paymentSubLabel = "account.statusFailed";
+  } else if (isCod) {
+    paymentState = "done";
+    paymentSubLabel = "account.codPayment";
+  } else if (isConfirmed) {
+    paymentState = "done";
+    paymentSubLabel = "account.statusConfirmed";
+  } else {
+    paymentState = "current";
+    paymentSubLabel = "account.statusPending";
+  }
+  const payment: OrderStep = {
+    key: "payment",
+    labelKey: "account.stepPayment",
+    subLabelKey: paymentSubLabel,
+    state: paymentState,
+    icon: isCod ? "💵" : "💳",
+  };
+
+  let processingState: StepState;
+  if (isFailed) {
+    processingState = "error";
+  } else if (isPendingOnline) {
+    processingState = "pending";
+  } else if (order.status) {
+    processingState = "done";
+  } else {
+    processingState = "current";
+  }
+  const processing: OrderStep = {
+    key: "processing",
+    labelKey: "account.stepProcessing",
+    subLabelKey: isFailed
+      ? undefined
+      : order.status ? "account.processingDone" : "account.processingOngoing",
+    state: processingState,
+    icon: "📦",
+  };
+
+  let deliveryState: StepState;
+  if (isFailed) {
+    deliveryState = "error";
+  } else if (order.delivered) {
+    deliveryState = "done";
+  } else if (processingState === "done") {
+    deliveryState = "current";
+  } else {
+    deliveryState = "pending";
+  }
+  const delivery: OrderStep = {
+    key: "delivery",
+    labelKey: "account.stepDelivery",
+    subLabelKey: order.delivered ? "account.delivered" : undefined,
+    state: deliveryState,
+    icon: "🚚",
+  };
+
+  return [placed, payment, processing, delivery];
+}
+
+function getProgressPercent(steps: OrderStep[]): { percent: number; failed: boolean } {
+  if (steps.some(s => s.state === "error")) return { percent: 100, failed: true };
+  const doneCount = steps.filter(s => s.state === "done").length;
+  const hasCurrent = steps.some(s => s.state === "current");
+  const percent = ((doneCount + (hasCurrent ? 0.5 : 0)) / steps.length) * 100;
+  return { percent, failed: false };
+}
+
+function getHeadlineStatus(steps: OrderStep[], t: (key: string) => string) {
+  const payment = steps[1];
+  const processing = steps[2];
+  const delivery = steps[3];
+
+  if (payment.state === "error")
+    return { cls: "ot-badge--failed", icon: "✕", label: t("tracking.failed") };
+  if (delivery.state === "done")
+    return { cls: "ot-badge--delivered", icon: "✓", label: t("tracking.delivered") };
+  if (delivery.state === "current")
+    return { cls: "ot-badge--processing", icon: "🚚", label: t("account.outForDelivery") };
+  if (processing.state === "done")
+    return { cls: "ot-badge--processing", icon: "📦", label: t("account.readyToShip") };
+  if (processing.state === "current")
+    return { cls: "ot-badge--pending", icon: "⟳", label: t("tracking.processing") };
+  return { cls: "ot-badge--pending", icon: "⏳", label: t("tracking.pending") };
+}
+
+// ─── Clipboard helper ─────────────────────────────────────────────────────────
+
+async function copyToClipboard(value: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = value;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getStoredAttempts(): number {
@@ -116,19 +264,100 @@ function mockOrder(query: string) {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatusBadge({ order }: { order: OrderData }) {
-  const { t } = useTranslation();
-
-  if (order.delivered)
-    return <span className="ot-badge ot-badge--delivered">✓ {t("tracking.delivered")}</span>;
-  if (order.is_paid === "failed")
-    return <span className="ot-badge ot-badge--failed">✕ {t("tracking.failed")}</span>;
-  if (order.payment_mode === "cash_on_delivery")
-    return <span className="ot-badge ot-badge--cod">💵 {t("tracking.cod")}</span>;
-  if (order.status)
-    return <span className="ot-badge ot-badge--processing">⟳ {t("tracking.processing")}</span>;
-  return <span className="ot-badge ot-badge--pending">⏳ {t("tracking.pending")}</span>;
+function StatusBadge({ steps, t }: { steps: OrderStep[]; t: (key: string) => string }) {
+  const headline = getHeadlineStatus(steps, t);
+  return (
+    <span className={`ot-badge ${headline.cls}`}>
+      {headline.icon} {headline.label}
+    </span>
+  );
 }
+
+interface CopyableValueProps {
+  value: string;
+  copyLabel: string;
+  copiedLabel: string;
+}
+
+const CopyableValue: React.FC<CopyableValueProps> = ({ value, copyLabel, copiedLabel }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    const ok = await copyToClipboard(value);
+    if (ok) {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    }
+  };
+
+  return (
+    <span className="ot-copyable">
+      <span className="ot-copyable__value">{value}</span>
+      <button
+        type="button"
+        className={`ot-copyable__btn ${copied ? "ot-copyable__btn--copied" : ""}`}
+        onClick={handleCopy}
+        aria-label={copied ? copiedLabel : copyLabel}
+        title={copied ? copiedLabel : copyLabel}
+      >
+        {copied ? "✓" : "📋"}
+      </button>
+      {copied && <span className="ot-copyable__tooltip">{copiedLabel}</span>}
+    </span>
+  );
+};
+
+interface OrderStepperProps {
+  steps: OrderStep[];
+  t: (key: string) => string;
+}
+
+const OrderStepper: React.FC<OrderStepperProps> = ({ steps, t }) => {
+  const { percent, failed } = getProgressPercent(steps);
+
+  return (
+    <div className="ot-stepper">
+      <div className="ot-progress">
+        <div className="ot-progress__labels">
+          <span>{t("account.stepPlaced")}</span>
+          <span>{t("account.stepDelivery")}</span>
+        </div>
+        <div className="ot-progress__track">
+          <div
+            className={`ot-progress__fill ${failed ? "ot-progress__fill--failed" : ""}`}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="ot-timeline">
+        {steps.map((step, i) => {
+          const isLast = i === steps.length - 1;
+          return (
+            <div className="ot-timeline__row" key={step.key}>
+              <div className="ot-timeline__iconcol">
+                <div className={`ot-timeline__circle ot-timeline__circle--${step.state}`}>
+                  {step.state === "error" ? "⚠" : step.icon}
+                </div>
+                {!isLast && (
+                  <div className={`ot-timeline__line ot-timeline__line--${step.state === "done" ? "done" : "pending"}`} />
+                )}
+              </div>
+              <div className="ot-timeline__text">
+                <span className={`ot-timeline__label ot-timeline__label--${step.state}`}>
+                  {t(step.labelKey)}
+                </span>
+                {step.subLabelKey && (
+                  <span className="ot-timeline__sublabel">{t(step.subLabelKey)}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -161,6 +390,15 @@ const OrderTracker: React.FC = () => {
       const idToSearch = (overrideId ?? query).trim();
       if (!idToSearch || isLoading || limitReached) return;
 
+      // Reject malformed IDs before ever touching the network or the
+      // attempts counter — same validation the URL-param path already uses.
+      if (!isUUIDv4(idToSearch)) {
+        setError(true);
+        setSearched(true);
+        setOrderFound(false);
+        return;
+      }
+
       setIsLoading(true);
       setSearched(false);
       setError(false);
@@ -180,17 +418,23 @@ const OrderTracker: React.FC = () => {
           setClient(data.client ?? null);
           setOrder(data.order ?? null);
         } else {
-          // API returned found:false — show mock in dev, treat as "not found" in prod
+          // Backend explicitly says no such order — this is a real "not
+          // found", never fabricate a result for it.
+          setOrderFound(false);
+        }
+      } catch {
+        // Network/backend unreachable. In local development only, fall back
+        // to a mock so the UI can be built without a live backend running.
+        // This must NEVER fire in production — a real user's failed request
+        // would otherwise be silently turned into a fake "found" order.
+        if (import.meta.env.DEV) {
           const fallback = mockOrder(idToSearch);
           setOrderFound(true);
           setClient(fallback.client);
           setOrder(fallback.order);
+        } else {
+          setOrderFound(false);
         }
-      } catch {
-        const fallback = mockOrder(idToSearch);
-        setOrderFound(true);
-        setClient(fallback.client);
-        setOrder(fallback.order);
       } finally {
         setIsLoading(false);
         setSearched(true);
@@ -238,6 +482,10 @@ const OrderTracker: React.FC = () => {
     goTo("/orders/track");
     setTimeout(() => inputRef.current?.focus(), 50);
   };
+
+  // ── Derived pipeline (computed once per render, shared by badge + stepper) ──
+
+  const steps = order ? getOrderSteps(order) : null;
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -325,7 +573,7 @@ const OrderTracker: React.FC = () => {
       )}
 
       {/* ── Result cards ── */}
-      {orderFound && client && order && (
+      {orderFound && client && order && steps && (
         <div className="ot-result">
           {/* Client summary */}
           <div className="ot-card">
@@ -350,8 +598,27 @@ const OrderTracker: React.FC = () => {
                 </div>
               </div>
               <div style={{ marginInlineStart: "auto" }}>
-                <StatusBadge order={order} />
+                <StatusBadge steps={steps} t={t} />
               </div>
+            </div>
+          </div>
+
+          {/* Status pipeline */}
+          <div className="ot-card">
+            <div className="ot-card__stripe" />
+            <div className="ot-card__header">
+              <div className="ot-card__header-icon">📶</div>
+              <h3 className="ot-card__title">
+                {t("tracking.orderDetails") || "Détails de la commande"}
+              </h3>
+            </div>
+            <div className="ot-card__body">
+              <OrderStepper steps={steps} t={t} />
+              {steps[1].state === "error" && (
+                <div className="ot-alert ot-alert--error">
+                  ⚠ {t("account.paymentFailedNote")}
+                </div>
+              )}
             </div>
           </div>
 
@@ -361,7 +628,7 @@ const OrderTracker: React.FC = () => {
             <div className="ot-card__header">
               <div className="ot-card__header-icon">🧾</div>
               <h3 className="ot-card__title">
-                {t("tracking.orderDetails") || "Détails de la commande"}
+                {t("tracking.orderId") || "N° commande"}
               </h3>
             </div>
             <div className="ot-card__body">
@@ -370,7 +637,13 @@ const OrderTracker: React.FC = () => {
                   <span className="ot-info-row__label">
                     {t("tracking.orderId") || "N° commande"}
                   </span>
-                  <span className="ot-info-row__value">{order.order_id}</span>
+                  <span className="ot-info-row__value">
+                    <CopyableValue
+                      value={order.order_id}
+                      copyLabel={t("account.copyId")}
+                      copiedLabel={t("account.copied")}
+                    />
+                  </span>
                 </div>
                 <div className="ot-info-row">
                   <span className="ot-info-row__label">

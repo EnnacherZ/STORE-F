@@ -47,12 +47,13 @@ interface CopyableIdProps {
   displayValue: string;
   icon?: React.ReactNode;
   variant?: "default" | "muted";
+  wrap?: boolean;
   copyLabel: string;
   copiedLabel: string;
 }
 
 const CopyableId: React.FC<CopyableIdProps> = ({
-  value, displayValue, icon, variant = "default", copyLabel, copiedLabel,
+  value, displayValue, icon, variant = "default", wrap = false, copyLabel, copiedLabel,
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -67,7 +68,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({
   };
 
   return (
-    <span className={`acc-copyable acc-copyable--${variant}`}>
+    <span className={`acc-copyable acc-copyable--${variant} ${wrap ? "acc-copyable--wrap" : ""}`}>
       {icon && <span className="acc-copyable__icon">{icon}</span>}
       <span className="acc-copyable__value">{displayValue}</span>
       <button
@@ -83,6 +84,32 @@ const CopyableId: React.FC<CopyableIdProps> = ({
     </span>
   );
 };
+
+// ── IdRow ─────────────────────────────────────────────────────────────────────
+// A labelled row for the "order details" block in the expanded card body:
+// small uppercase label above/beside a full, copyable ID chip.
+
+interface IdRowProps {
+  label: string;
+  value: string;
+  displayValue: string;
+  copyLabel: string;
+  copiedLabel: string;
+}
+
+const IdRow: React.FC<IdRowProps> = ({ label, value, displayValue, copyLabel, copiedLabel }) => (
+  <div className="acc-order__id-row">
+    <span className="acc-order__id-row-label">{label}</span>
+    <CopyableId
+      value={value}
+      displayValue={displayValue}
+      variant="muted"
+      wrap
+      copyLabel={copyLabel}
+      copiedLabel={copiedLabel}
+    />
+  </div>
+);
 
 // ── Order pipeline model ──────────────────────────────────────────────────────
 //
@@ -325,6 +352,25 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, t }) => {
 
       {open && (
         <div className="acc-order__body">
+          <div className="acc-order__ids">
+            <IdRow
+              label={t("order.orderId")}
+              value={order.order_id}
+              displayValue={order.order_id.toUpperCase()}
+              copyLabel={copyLabel}
+              copiedLabel={copiedLabel}
+            />
+            {order.transaction_id && (
+              <IdRow
+                label={t("transaction.transactionId")}
+                value={order.transaction_id}
+                displayValue={order.transaction_id}
+                copyLabel={copyLabel}
+                copiedLabel={copiedLabel}
+              />
+            )}
+          </div>
+
           <OrderStepper steps={steps} t={t} />
 
           {steps[1].state === "error" && (
@@ -340,15 +386,6 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, t }) => {
                 ? <><FaCreditCard />{t("account.onlinePayment")}</>
                 : <><FaMoneyBillWave />{t("account.codPayment")}</>}
             </span>
-            {order.transaction_id && (
-              <CopyableId
-                value={order.transaction_id}
-                displayValue={`ID: ${order.transaction_id.slice(0, 16)}…`}
-                variant="muted"
-                copyLabel={copyLabel}
-                copiedLabel={copiedLabel}
-              />
-            )}
           </div>
 
           <div className="acc-order__products">

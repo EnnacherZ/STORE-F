@@ -91,6 +91,7 @@
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .ot-search-card__input:focus {
@@ -310,6 +311,211 @@
   color: #0e92e4;
 }
 
+/* ── Copyable value (order ID etc.) ──────────────────────── */
+.ot-copyable {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.ot-copyable__value {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.88rem;
+  word-break: break-all;
+}
+
+.ot-copyable__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 8px;
+  background: #eef2f7;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ot-copyable__btn:hover {
+  background: #e2e8f0;
+  color: #0f1c35;
+}
+
+.ot-copyable__btn--copied {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ot-copyable__tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f1c35;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: ot-tooltip-fade 1.6s ease forwards;
+  z-index: 2;
+}
+
+.ot-copyable__tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #0f1c35;
+}
+
+@keyframes ot-tooltip-fade {
+  0%   { opacity: 0; transform: translate(-50%, 2px); }
+  15%  { opacity: 1; transform: translate(-50%, 0); }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Status pipeline: progress bar + vertical timeline ───── */
+/* Colors deliberately reuse the .ot-badge--* palette above so the
+   compact header badge and the detailed pipeline never disagree. */
+
+.ot-stepper {
+  display: flex;
+  flex-direction: column;
+}
+
+.ot-progress {
+  margin-bottom: 26px;
+}
+
+.ot-progress__labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.ot-progress__track {
+  height: 7px;
+  border-radius: 100px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.ot-progress__fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, #22c55e, #15803d);
+  transition: width 0.35s ease;
+}
+
+.ot-progress__fill--failed {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+}
+
+.ot-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.ot-timeline__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.ot-timeline__iconcol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.ot-timeline__circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.ot-timeline__circle--done    { background: #dcfce7; color: #15803d; }
+.ot-timeline__circle--current { background: #dbeafe; color: #1d4ed8; }
+.ot-timeline__circle--pending { background: #f1f5f9; color: #94a3b8; }
+.ot-timeline__circle--error   { background: #fee2e2; color: #b91c1c; }
+
+.ot-timeline__line {
+  width: 2px;
+  flex-grow: 1;
+  min-height: 24px;
+  margin: 2px 0;
+}
+
+.ot-timeline__line--done    { background: #22c55e; }
+.ot-timeline__line--pending { background: #e2e8f0; }
+
+.ot-timeline__text {
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+  padding-bottom: 22px;
+}
+
+.ot-timeline__label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.ot-timeline__label--done    { color: #15803d; }
+.ot-timeline__label--current { color: #1d4ed8; }
+.ot-timeline__label--pending { color: #94a3b8; }
+.ot-timeline__label--error   { color: #b91c1c; }
+
+.ot-timeline__sublabel {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+/* ── Alert banner (e.g. payment failed) ──────────────────── */
+.ot-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.ot-alert--error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 /* ── Products table ──────────────────────────────────────── */
 .ot-products-table {
   width: 100%;
@@ -494,6 +700,10 @@
   text-align: right;
 }
 
+.ot-page.rtl .ot-copyable__tooltip {
+  left: 50%;
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 600px) {
   .ot-search-card {
@@ -502,6 +712,20 @@
 
   .ot-search-card__input-wrap {
     flex-direction: column;
+  }
+
+  /* .ot-search-card__input has `flex: 1` for the desktop row layout, where
+     flex-basis:0% only governs width (harmless — height stays the explicit
+     48px). Once the wrapper becomes a column on mobile, that same
+     flex-basis:0% governs HEIGHT instead, collapsing the input down to its
+     content's minimum height with nothing to grow it back — hence the tiny
+     input. Neutralize flex growth here and size explicitly instead. */
+  .ot-search-card__input {
+    flex: none;
+    width: 100%;
+    height: 52px;
+    font-size: 16px; /* prevents iOS Safari's auto-zoom on focus */
+    box-sizing: border-box;
   }
 
   .ot-search-card__btn {
