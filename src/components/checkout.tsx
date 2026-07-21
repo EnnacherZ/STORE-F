@@ -37,6 +37,13 @@ import fr from 'react-phone-number-input/locale/fr';
 import ar from 'react-phone-number-input/locale/ar';
 import en from 'react-phone-number-input/locale/en';
 
+// ─── Route constants ──────────────────────────────────────────────────────────
+// ⚠️ UPDATE THESE to match your actual router paths for the success/failure
+// pages. Both online and COD flows now go through the SAME two constants,
+// so success/failure always lands on the same page regardless of payment method.
+const SUCCESS_ROUTE = '/Transaction/Success';
+const FAILURE_ROUTE = '/Transaction/Failed';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type CheckoutFormValues = {
@@ -47,9 +54,6 @@ type CheckoutFormValues = {
 
 type PaymentMethod = 'cod' | 'online' | undefined;
 
-// 'choosing' = initial screen (Account vs Guest)
-// 'account'  = logged-in or chose to log in
-// 'guest'    = explicit guest choice
 type CheckoutMode = 'choosing' | 'account' | 'guest';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -128,7 +132,6 @@ const ModeChooser: React.FC<{
       <p className="co-mode-chooser__sub">{t('auth.checkoutSub')}</p>
 
       <div className="co-mode-chooser__cards">
-        {/* Account option */}
         <button className="co-mode-card co-mode-card--account" onClick={onAccount}>
           <FaUserCheck className="co-mode-card__icon" />
           <div>
@@ -138,7 +141,6 @@ const ModeChooser: React.FC<{
           <IoArrowBackOutline className="co-mode-card__arrow" style={{ transform: 'rotate(180deg)' }} />
         </button>
 
-        {/* Guest option */}
         <button className="co-mode-card co-mode-card--guest" onClick={onGuest}>
           <FaUserSlash className="co-mode-card__icon" />
           <div>
@@ -197,7 +199,10 @@ const Checkout: React.FC = () => {
   const { t } = useTranslation();
   const { currentLang } = useLangContext();
   const { cartTotalAmount, cartChecker, clearCart, allItems, setSuccessTransItems, successTransItems } = useCart();
-  const { setClientForm, clientForm, setPaymentResponse, setCurrentCurrency, currentCurrency, currencyIsAvailable } = usePayment();
+  const {
+    setClientForm, clientForm, setPaymentResponse, clearPaymentResponse,
+    setCurrentCurrency, currentCurrency, currencyIsAvailable,
+  } = usePayment();
   const { client, isAuthenticated, isLoading: authLoading } = useClientAuth();
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -210,21 +215,25 @@ const Checkout: React.FC = () => {
   const [overlayStage,          setOverlayStage]          = useState<OverlayStage | null>(null);
   const [confirmedAmount,       setConfirmedAmount]       = useState<number | null>(null);
 
-  // Checkout mode — wait for auth to resolve before deciding
   const [mode, setMode] = useState<CheckoutMode>('choosing');
 
   const isRtl        = selectedLang(currentLang) === 'ar';
   const displayTotal = confirmedAmount ?? cartTotalAmount;
   const labels = selectedLang(currentLang) == 'fr'?fr: selectedLang(currentLang) == 'ar'?ar:en
 
+  // Clear any leftover payment result from a previous transaction the
+  // moment the user lands back on Checkout — this is the main defense
+  // against stale success/failure data leaking into a new attempt.
+  useEffect(() => {
+    clearPaymentResponse();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Auto-detect mode once auth resolves ───────────────────────────────────
   useEffect(() => {
     if (authLoading) return;
     if (isAuthenticated && client) {
-      // Already logged in — skip the chooser, go straight to account mode
       setMode('account');
     }
-    // else stay on 'choosing' — user picks account or guest
   }, [authLoading, isAuthenticated, client]);
 
   // ── Form setup ─────────────────────────────────────────────────────────────
@@ -243,7 +252,6 @@ const Checkout: React.FC = () => {
     },
   });
 
-  // Pre-fill form when authenticated client is known
   useEffect(() => {
     if (isAuthenticated && client && mode === 'account') {
       reset({
@@ -251,7 +259,7 @@ const Checkout: React.FC = () => {
         lastName:  client.last_name,
         email:     client.email,
         phone:     client.phone     ?? '',
-        city:      clientForm?.City ?? '',   // city not in ClientProfile — keep existing or empty
+        city:      client.city      ?? '',
         address:   client.address   ?? '',
       });
     }
@@ -295,6 +303,9 @@ const Checkout: React.FC = () => {
   };
 
   const handlePayNowClick = async () => {
+    // Defensive: clear any stale result before starting a fresh payment attempt.
+    clearPaymentResponse();
+
     if (selectedPaymentMethod === 'cod') {
       processPayment('COD', orderDate.toUTCString());
       return;
@@ -306,8 +317,8 @@ const Checkout: React.FC = () => {
         const response = await connecter.post('api/payment/url/get', {
           tokenParams: {
             currency:    'MAD',
-            success_url: `${window.location.origin}/payment/success`,
-            error_url:   `${window.location.origin}/payment/error`,
+            success_url: `${window.location.origin}${SUCCESS_ROUTE}`,
+            error_url:   `${window.location.origin}${FAILURE_ROUTE}`,
             lang:        selectedLang(currentLang),
           },
           customer: {
@@ -380,8 +391,11 @@ const Checkout: React.FC = () => {
       );
 
       await sendEmail(clientForm, invoiceFile, 'Invoice', 'Here is your Invoice');
-      goTo('/Transaction/Success');
+
+      // Clear cart BEFORE navigating away, so we don't touch cart state
+      // on an unmounted component after the route change.
       clearCart();
+      goTo(SUCCESS_ROUTE);
     } catch (error) {
       console.error(error);
       showToast('Something went wrong. Please contact support.', 'error');
@@ -433,7 +447,7 @@ const Checkout: React.FC = () => {
         <Header />
         <div className="co-page">
           <ModeChooser
-            onAccount={() => goTo('/signin')}  // redirect to sign in, come back after
+            onAccount={() => goTo('/signin')}
             onGuest={() => setMode('guest')}
           />
         </div>
@@ -526,21 +540,18 @@ const Checkout: React.FC = () => {
                 )}
               </div>
 
-              {/* Auth banner (logged-in mode) */}
               {mode === 'account' && isAuthenticated && client && !isFormLocked && (
                 <AuthBanner
                   firstName={client.first_name}
                   lastName={client.last_name}
                   email={client.email}
-                  onSwitch={() => setMode('guest')}
+                  onSwitch={() => { setClientForm(undefined as any); setMode('guest'); }}
                 />
               )}
 
-              {/* Guest nudge (guest mode only, form not yet locked) */}
               {mode === 'guest' && !isFormLocked && <GuestNudge />}
 
               <div className="co-form-body">
-                {/* ── Name row ── */}
                 <div className={`co-form-row ${isMobileView ? 'flex-column' : ''}`}>
                   <div className="co-field">
                     <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.firstName.label')}</label>
@@ -566,7 +577,6 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* ── Email + Phone row ── */}
                 <div className={`co-form-row ${isMobileView ? 'flex-column' : ''}`}>
                   <div className="co-field">
                     <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.email.label')}</label>
@@ -628,7 +638,6 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* ── City + Address row ── */}
                 <div className={`co-form-row ${isMobileView ? 'flex-column' : ''}`}>
                   <div className="co-field">
                     <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.city.label')}</label>
@@ -656,7 +665,6 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* ── Policies ── */}
                 {!isFormLocked && (
                   <div className={`co-policies ${isRtl ? 'rtl' : ''}`}
                     onClick={() => setArePoliciesAccepted(p => !p)}>
@@ -669,7 +677,6 @@ const Checkout: React.FC = () => {
                   </div>
                 )}
 
-                {/* ── Submit / confirmed ── */}
                 {!isFormLocked && (
                   <button type="submit" disabled={isSubmitting} className="co-save-btn">
                     {isClientDataComplete(clientForm) && !isFormLocked ? t('form.saveChanges') : t('form.save')}
@@ -686,7 +693,6 @@ const Checkout: React.FC = () => {
 
             {/* ── Right column ──────────────────────────────────────────── */}
             <div className="co-right-col">
-              {/* Payment methods */}
               <div className="co-card">
                 <div className="co-card__header">
                   <div>
@@ -734,7 +740,6 @@ const Checkout: React.FC = () => {
                 </div>
               </div>
 
-              {/* Order summary */}
               <div className="co-card co-summary">
                 <div className="co-summary__title">
                   <span className="co-summary__accent" />Order Summary
@@ -754,7 +759,6 @@ const Checkout: React.FC = () => {
                 </div>
               </div>
 
-              {/* Pay now */}
               <button
                 type="button"
                 className={`co-pay-now-btn ${isFormReady && selectedPaymentMethod ? 'co-pay-now-btn--ready' : ''}`}

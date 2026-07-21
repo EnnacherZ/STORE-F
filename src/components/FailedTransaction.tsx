@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { usePayment } from '../contexts/PaymentContext';
+import { connecter } from '../server/connecter';
 import Header from './Header';
 import Footer from './Footer';
+import Loading from './loading';
+
+const SUCCESS_ROUTE = '/Transaction/Success';
+const FAILURE_ROUTE = '/Transaction/Failed'; // must match this component's own route
 
 // ─── Error type classification ────────────────────────────────────────────────
 
@@ -38,65 +43,14 @@ const classifyFailure = (code?: string, message?: string): FailureCategory => {
 };
 
 const ERROR_PROFILES: Record<FailureCategory, ErrorProfile> = {
-  cancelled: {
-    category:    'cancelled',
-    icon:        '🚫',
-    accentColor: '#5c6bc0',
-    bgColor:     '#f3f4ff',
-    badgeColor:  '#e8eaf6',
-    canRetry:    true,
-  },
-  insufficient_funds: {
-    category:    'insufficient_funds',
-    icon:        '💳',
-    accentColor: '#e65100',
-    bgColor:     '#fff8f3',
-    badgeColor:  '#fbe9e7',
-    canRetry:    true,
-  },
-  card_declined: {
-    category:    'card_declined',
-    icon:        '🚫',
-    accentColor: '#c62828',
-    bgColor:     '#fff5f5',
-    badgeColor:  '#ffebee',
-    canRetry:    true,
-  },
-  card_expired: {
-    category:    'card_expired',
-    icon:        '📅',
-    accentColor: '#f57f17',
-    bgColor:     '#fffdf0',
-    badgeColor:  '#fff9c4',
-    canRetry:    false,
-  },
-  auth_failed: {
-    category:    'auth_failed',
-    icon:        '🔐',
-    accentColor: '#6a1b9a',
-    bgColor:     '#fdf4ff',
-    badgeColor:  '#f3e5f5',
-    canRetry:    true,
-  },
-  timeout: {
-    category:    'timeout',
-    icon:        '⏱️',
-    accentColor: '#546e7a',
-    bgColor:     '#f7f9fa',
-    badgeColor:  '#eceff1',
-    canRetry:    true,
-  },
-  generic: {
-    category:    'generic',
-    icon:        '❌',
-    accentColor: '#b71c1c',
-    bgColor:     '#fff5f5',
-    badgeColor:  '#ffebee',
-    canRetry:    true,
-  },
+  cancelled:           { category: 'cancelled',           icon: '🚫',  accentColor: '#5c6bc0', bgColor: '#f3f4ff', badgeColor: '#e8eaf6', canRetry: true  },
+  insufficient_funds:  { category: 'insufficient_funds',  icon: '💳',  accentColor: '#e65100', bgColor: '#fff8f3', badgeColor: '#fbe9e7', canRetry: true  },
+  card_declined:       { category: 'card_declined',       icon: '🚫',  accentColor: '#c62828', bgColor: '#fff5f5', badgeColor: '#ffebee', canRetry: true  },
+  card_expired:        { category: 'card_expired',        icon: '📅',  accentColor: '#f57f17', bgColor: '#fffdf0', badgeColor: '#fff9c4', canRetry: false },
+  auth_failed:         { category: 'auth_failed',         icon: '🔐',  accentColor: '#6a1b9a', bgColor: '#fdf4ff', badgeColor: '#f3e5f5', canRetry: true  },
+  timeout:             { category: 'timeout',             icon: '⏱️', accentColor: '#546e7a', bgColor: '#f7f9fa', badgeColor: '#eceff1', canRetry: true  },
+  generic:             { category: 'generic',             icon: '❌',  accentColor: '#b71c1c', bgColor: '#fff5f5', badgeColor: '#ffebee', canRetry: true  },
 };
-
-// ─── Reason hint per category ─────────────────────────────────────────────────
 
 const CATEGORY_HINT_KEYS: Record<FailureCategory, string> = {
   cancelled:          'transaction.failedHintCancelled',
@@ -108,17 +62,131 @@ const CATEGORY_HINT_KEYS: Record<FailureCategory, string> = {
   generic:            'transaction.failedSupportNote',
 };
 
+interface FailureInfo {
+  code?: string;
+  message?: string;
+  order_id?: string;
+  transaction_id?: string;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const TransactionFailed: React.FC = () => {
-  const { paymentResponse } = usePayment();
+  const { paymentResponse, clearPaymentResponse } = usePayment();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const category = classifyFailure(paymentResponse?.code, paymentResponse?.message);
-  const profile  = ERROR_PROFILES[category];
+  const [failureInfo, setFailureInfo] = useState<FailureInfo | undefined>();
+  const [isChecking, setIsChecking]   = useState(true);
+  const [isBusy, setIsBusy]           = useState(false);
 
-  const displayMessage = paymentResponse?.message ?? t('transaction.failedDefaultMsg');
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlOrderId       = params.get('order_id')       ?? undefined;
+    const urlTransactionId = params.get('transaction_id') ?? undefined;
+    const urlCode          = params.get('code')           ?? undefined;
+    const urlMessage       = params.get('message')        ?? undefined;
+
+    // Context data is only trustworthy if its order_id matches the order_id
+    // this page load is actually about (from the redirect URL). If they
+    // don't match — or context has no order_id at all while the URL does —
+    // treat context as stale leftovers from a previous transaction.
+    const contextMatchesUrl =
+      !!paymentResponse &&
+      !!urlOrderId &&
+      paymentResponse.order_id === urlOrderId;
+
+    if (contextMatchesUrl && paymentResponse!.success) {
+      // The order this page is about actually succeeded — don't show a failure page.
+      navigate(SUCCESS_ROUTE, { replace: true });
+      return;
+    }
+
+    if (contextMatchesUrl && !paymentResponse!.success) {
+      setFailureInfo({
+        code: paymentResponse!.code || urlCode,
+        message: paymentResponse!.message || urlMessage,
+        order_id: paymentResponse!.order_id,
+        transaction_id: paymentResponse!.transaction_id || urlTransactionId,
+      });
+      setIsChecking(false);
+      return;
+    }
+
+    // No matching context — rely purely on what the gateway put in the URL.
+    if (!urlCode && !urlMessage && !urlOrderId) {
+      // Nothing to show a failure for at all.
+      navigate('/', { replace: true });
+      return;
+    }
+
+    setFailureInfo({
+      code: urlCode,
+      message: urlMessage,
+      order_id: urlOrderId,
+      transaction_id: urlTransactionId,
+    });
+    setIsChecking(false);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isChecking) {
+    return <Loading message={t('ui.loading')} />;
+  }
+
+  if (!failureInfo) {
+    return null;
+  }
+
+  const category = classifyFailure(failureInfo.code, failureInfo.message);
+  const profile  = ERROR_PROFILES[category];
+  const displayMessage = failureInfo.message ?? t('transaction.failedDefaultMsg');
+
+  const handleGoHome = async () => {
+    if (!failureInfo.order_id) {
+      clearPaymentResponse();
+      navigate('/');
+      return;
+    }
+    setIsBusy(true);
+    try {
+      await connecter.post('api/payment/cancel/', { order_id: failureInfo.order_id });
+    } catch (err) {
+      console.error('cancel_payment failed:', err);
+    } finally {
+      clearPaymentResponse();
+      setIsBusy(false);
+      navigate('/');
+    }
+  };
+
+  const handleRetry = async () => {
+    if (!failureInfo.order_id) {
+      navigate('/checkout');
+      return;
+    }
+    setIsBusy(true);
+    try {
+      const response = await connecter.post('api/payment/url/retry/', {
+        order_id: failureInfo.order_id,
+        tokenParams: {
+          lang: t('lang.code', { defaultValue: 'en' }),
+          success_url: `${window.location.origin}${SUCCESS_ROUTE}`,
+          error_url: `${window.location.origin}${FAILURE_ROUTE}`,
+        },
+      });
+      const paymentUrl = response.data.payment_url;
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
+        return;
+      }
+      navigate('/checkout');
+    } catch (err) {
+      console.error('retry_payment_url failed:', err);
+      navigate('/checkout');
+    } finally {
+      setIsBusy(false);
+    }
+  };
 
   return (
     <>
@@ -218,34 +286,12 @@ const TransactionFailed: React.FC = () => {
           line-height: 2;
         }
 
-        .trf-meta-row {
-          display: flex;
-          justify-content: space-between;
-          gap: .5rem;
-        }
+        .trf-meta-row { display: flex; justify-content: space-between; gap: .5rem; }
+        .trf-meta-key { color: #94a3b8; }
+        .trf-meta-val { color: #475569; font-weight: 500; text-align: right; word-break: break-all; }
+        .trf-divider { height: 1px; background: #f1f5f9; margin: .35rem 0; }
 
-        .trf-meta-key {
-          color: #94a3b8;
-        }
-
-        .trf-meta-val {
-          color: #475569;
-          font-weight: 500;
-          text-align: right;
-          word-break: break-all;
-        }
-
-        .trf-divider {
-          height: 1px;
-          background: #f1f5f9;
-          margin: .35rem 0;
-        }
-
-        .trf-actions {
-          display: flex;
-          gap: .75rem;
-          flex-wrap: wrap;
-        }
+        .trf-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
 
         .trf-btn {
           flex: 1;
@@ -261,6 +307,7 @@ const TransactionFailed: React.FC = () => {
           white-space: nowrap;
         }
 
+        .trf-btn:disabled { opacity: .6; cursor: not-allowed; }
         .trf-btn:active { transform: scale(.97); }
 
         .trf-btn-primary {
@@ -268,14 +315,9 @@ const TransactionFailed: React.FC = () => {
           color: #fff;
           box-shadow: 0 2px 12px ${profile.accentColor}44;
         }
-
         .trf-btn-primary:hover { opacity: .88; }
 
-        .trf-btn-ghost {
-          background: #f1f5f9;
-          color: #475569;
-        }
-
+        .trf-btn-ghost { background: #f1f5f9; color: #475569; }
         .trf-btn-ghost:hover { background: #e2e8f0; }
 
         .trf-footer-note {
@@ -299,7 +341,6 @@ const TransactionFailed: React.FC = () => {
       <div className="trf-root">
         <div className="trf-card">
 
-          {/* ── Header ── */}
           <div className="trf-header">
             <div className="trf-icon-ring">{profile.icon}</div>
             <div className="trf-category-badge">
@@ -309,58 +350,48 @@ const TransactionFailed: React.FC = () => {
             <div className="trf-message">{displayMessage}</div>
           </div>
 
-          {/* ── Body ── */}
           <div className="trf-body">
 
-            {/* Contextual hint per error type */}
             <div className="trf-hint">
               {t(CATEGORY_HINT_KEYS[category], { defaultValue: t('transaction.failedSupportNote') })}
             </div>
 
-            {/* Transaction metadata */}
-            {paymentResponse && (
+            {(failureInfo.order_id || failureInfo.transaction_id || failureInfo.code) && (
               <div className="trf-meta">
-                {paymentResponse.order_id && (
+                {failureInfo.order_id && (
                   <>
                     <div className="trf-meta-row">
                       <span className="trf-meta-key">{t('transaction.failedOrderId')}</span>
-                      <span className="trf-meta-val">{paymentResponse.order_id}</span>
+                      <span className="trf-meta-val">{failureInfo.order_id}</span>
                     </div>
                     <div className="trf-divider" />
                   </>
                 )}
-                {paymentResponse.transaction_id && (
+                {failureInfo.transaction_id && (
                   <>
                     <div className="trf-meta-row">
                       <span className="trf-meta-key">{t('transaction.failedTransactionId')}</span>
-                      <span className="trf-meta-val">{paymentResponse.transaction_id}</span>
+                      <span className="trf-meta-val">{failureInfo.transaction_id}</span>
                     </div>
                     <div className="trf-divider" />
                   </>
                 )}
-                {paymentResponse.code && (
+                {failureInfo.code && (
                   <div className="trf-meta-row">
                     <span className="trf-meta-key">{t('transaction.failedErrorCode')}</span>
-                    <span className="trf-meta-val">{paymentResponse.code}</span>
+                    <span className="trf-meta-val">{failureInfo.code}</span>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Actions */}
             <div className="trf-actions">
-              <button
-                className="trf-btn trf-btn-ghost"
-                onClick={() => navigate('/')}
-              >
+              <button className="trf-btn trf-btn-ghost" onClick={handleGoHome} disabled={isBusy}>
                 {t('transaction.failedGoHome')}
               </button>
 
               {profile.canRetry && (
-                <button
-                  className="trf-btn trf-btn-primary"
-                  onClick={() => navigate('/checkout')}
-                >
+                <button className="trf-btn trf-btn-primary" onClick={handleRetry} disabled={isBusy}>
                   {t('transaction.failedTryAgain')}
                 </button>
               )}

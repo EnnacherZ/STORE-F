@@ -19,101 +19,104 @@ export interface clientData{
     Address : string;
     Amount : number;
     Currency : string;
-
 }
+
 export interface PaymentResponse {
-    code: string;                        
-    message: string;             
-    order_id: string;             
-    success: boolean;            
-    transaction_id: string;  
+    code: string;
+    message: string;
+    order_id: string;
+    success: boolean;
+    transaction_id: string;
     amount : number | undefined;
     currency : string | undefined;
     date : string | undefined;
     isOnlinePayment : boolean | undefined;
 }
-export interface paymentContextProps { 
+
+export interface paymentContextProps {
     clientForm : clientData | undefined;
     setClientForm : (data:clientData) => void;
     paymentResponse : PaymentResponse | undefined;
     setPaymentResponse : Dispatch<React.SetStateAction<PaymentResponse | undefined>>;
+    clearPaymentResponse : () => void;
     currentCurrency : string;
     setCurrentCurrency : Dispatch<React.SetStateAction<string>>;
-    // currencyRate : number;
     currencyIsAvailable: boolean;
 }
 
 const paymentContext = createContext<paymentContextProps|undefined>(undefined)
 
+const PAYMENT_STORAGE_KEY = 'AlFirdaousStorePaymentResponse';
+const CLIENT_STORAGE_KEY  = 'ClientData';
+
 export const PaymentProvider : React.FC<{children:ReactNode}> =({children}) => {
     const currencyIsAvailable : boolean = import.meta.env.VITE_CURRENCY_AVAILABLITY === "true";
     const [currentCurrency, setCurrentCurrency] = useState<string>('MAD');
-    // const [currencyRate, setCurrencyRate] = useState<number>(1);
-    // const [ratesList, setRatesList] = useState<{[key: string]: number}>({'MAD':1})
-    const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | undefined>(()=>{
-      try{
-        const response  = sessionStorage.getItem('AlFirdaousStorePaymentResponse')
-        if(response){return JSON.parse(response)}else{return {}}
-      }catch(err){
-        return {}
+
+    const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | undefined>(() => {
+      try {
+        const response = sessionStorage.getItem(PAYMENT_STORAGE_KEY);
+        if (response) {
+          const parsed = JSON.parse(response);
+          // Guard against a previously-persisted empty object (`{}`) from
+          // the old buggy default — treat it as "no payment response".
+          if (parsed && typeof parsed === 'object' && 'success' in parsed) {
+            return parsed;
+          }
+        }
+        return undefined;
+      } catch (err) {
+        return undefined;
       }
     });
-    
 
-    useEffect(()=>{
-      try{sessionStorage.setItem('AlFirdaousStorePaymentResponse', JSON.stringify(paymentResponse))}catch(err){}
-    },[paymentResponse]);
+    useEffect(() => {
+      try {
+        if (paymentResponse === undefined) {
+          sessionStorage.removeItem(PAYMENT_STORAGE_KEY);
+        } else {
+          sessionStorage.setItem(PAYMENT_STORAGE_KEY, JSON.stringify(paymentResponse));
+        }
+      } catch (err) {}
+    }, [paymentResponse]);
+
+    // Call before starting any new payment attempt, and after a transaction's
+    // outcome has been fully consumed — prevents a previous transaction's
+    // success/failure data from leaking into the next one.
+    const clearPaymentResponse = () => {
+      setPaymentResponse(undefined);
+    };
 
     const [clientForm, setClientForm] = useState<clientData | undefined>(() => {
         try {
-            const savedClientData = sessionStorage.getItem("ClientData");
-            if (savedClientData === null || savedClientData==undefined) { // Vérifie si c'est null
+            const savedClientData = sessionStorage.getItem(CLIENT_STORAGE_KEY);
+            if (savedClientData === null || savedClientData === undefined) {
                 return undefined;
             }
             return JSON.parse(savedClientData);
-        } catch{
-            return undefined; 
+        } catch {
+            return undefined;
         }
     });
 
-    useEffect(()=>{
-        try{
-            sessionStorage.setItem('ClientData', JSON.stringify(clientForm))
-        }catch(error){
+    useEffect(() => {
+        try {
+            if (clientForm === undefined) {
+              sessionStorage.removeItem(CLIENT_STORAGE_KEY);
+            } else {
+              sessionStorage.setItem(CLIENT_STORAGE_KEY, JSON.stringify(clientForm));
+            }
+        } catch (error) {
             console.error('Error saving clientData to sessionStorage:', error);
         }
-    },[clientForm])
-
-
-
-    useEffect(()=> {
-        const CurrencyConverter = async () => {
-          // const apiKey = import.meta.env.VITE_CURRENCY_API;
-            try {
-              // const response = await axios.get(
-              //   `https://v6.exchangerate-api.com/v6/${apiKey}/latest/MAD`
-              // );
-              // const conversionRate = response.data.conversion_rates;
-              // setRatesList();
-            } catch (error) {
-              // console.error('Erreur lors de la récupération des taux:', error);
-            }
-        };
-        CurrencyConverter();
-      }, [])
-    useEffect(()=>{
-        // setCurrencyRate(ratesList[currentCurrency])
-    },[currentCurrency])
-
-
-
+    }, [clientForm])
 
     return(
         <paymentContext.Provider value={{clientForm,
                                         setClientForm,
                                         paymentResponse,
                                         setPaymentResponse,
-                                        // currencyRate,
+                                        clearPaymentResponse,
                                         currentCurrency,
                                         setCurrentCurrency,
                                         currencyIsAvailable,
@@ -121,7 +124,7 @@ export const PaymentProvider : React.FC<{children:ReactNode}> =({children}) => {
             {children}
         </paymentContext.Provider>
     )
-} 
+}
 export const usePayment = (): paymentContextProps => {
     const context = useContext(paymentContext);
     if (context === undefined) {

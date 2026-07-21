@@ -45,6 +45,7 @@ import AccountPage       from "./client profile/ClientAccount";
 import ActivateAccount   from "./client profile/ActivateAccount";
 // import SendEmail         from "./sendMail";
 import AddProductTypeForm from "./reloader";
+import ProductsPage from "./components/ProductsPage";
 
 
 // ── Storefront routes ─────────────────────────────────────────────────────────
@@ -72,6 +73,7 @@ const storefrontRouter = createBrowserRouter(
     // { path: "/send_mail",                                 element: <SendEmail /> },
     { path: "/testy",                                     element: <AddProductTypeForm /> },
     { path: "*",                                          element: <NotFoundPage /> },
+    { path:"/products",  element:<ProductsPage /> }
   ],
   { future: { v7_relativeSplatPath: true } }
 );

@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import storeLogo from '../assets/FIRDAOUS STORE.png';
 import '../styles/SuccessTransaction.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { GrTransaction } from 'react-icons/gr';
@@ -18,6 +18,10 @@ import { usePayment, PaymentResponse } from '../contexts/PaymentContext';
 import createInvoice from '../contexts/CreateInvoice';
 import { connecter } from '../server/connecter';
 
+const FAILURE_ROUTE = '/Transaction/Failed'; // ⚠️ update to match your actual route
+const MAX_VERIFY_ATTEMPTS = 10;
+const VERIFY_INTERVAL_MS  = 2000;
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const SuccessTransaction: React.FC = () => {
@@ -25,11 +29,19 @@ const SuccessTransaction: React.FC = () => {
   const { paymentResponse, clientForm, setPaymentResponse } = usePayment();
   const { successTransItems, setSuccessTransItems, clearCart } = useCart();
   const { t }                                              = useTranslation();
+  const navigate                                           = useNavigate();
 
   const [invoiceUrl,       setInvoiceUrl]       = useState<string | undefined>();
   const [isOrderExpanded,  setIsOrderExpanded]  = useState<boolean>(false);
   const [isProcessing,     setIsProcessing]     = useState<boolean>(false);
   const [errorMessage,     setErrorMessage]     = useState<string | undefined>();
+
+  // Guards against React StrictMode's mount→unmount→mount double-invoke
+  // (and any other accidental re-entry within the same component instance)
+  // calling handle_payment / pollAndFinalize twice. The real safety net
+  // against a genuine full page refresh is the backend idempotency fix
+  // on handle_payment — this ref just avoids a wasted extra round trip.
+  const hasFinalizedRef = useRef(false);
 
   const isRtl = selectedLang(currentLang) === 'ar';
 
@@ -38,41 +50,94 @@ const SuccessTransaction: React.FC = () => {
     [clientForm]
   );
 
-  // ── On mount: detect online payment callback from YouCanPay URL params ───────
+  // ── On mount: decide COD vs online flow explicitly by URL params ─────────────
   //
-  // YouCanPay redirects to success_url with query params like:
-  //   ?payment_status=success&transaction_id=xxx&order_id=yyy
-  //
-  // If paymentResponse is already set (COD flow), skip this entirely.
-  // If it's not set, we're in the online payment callback — call handle_payment.
+  // We do NOT infer the flow from paymentResponse truthiness — that value can
+  // be stale (leftover from a previous transaction). The presence of
+  // transaction_id + order_id in the URL is what YouCanPay's success_url
+  // actually carries for the online flow; its absence means COD.
 
   useEffect(() => {
-    // COD flow: paymentResponse already set by Checkout → just generate invoice
-    if (paymentResponse) {
+    const params        = new URLSearchParams(window.location.search);
+    const transactionId = params.get('transaction_id');
+    const orderId       = params.get('order_id');
+    const isOnlineReturn = Boolean(transactionId && orderId);
+
+    if (!isOnlineReturn) {
+      // COD flow: paymentResponse was set synchronously by Checkout right
+      // before navigating here. If it's genuinely missing or doesn't
+      // indicate success, this page was reached incorrectly.
+      if (paymentResponse?.success) {
+        generateInvoice(paymentResponse);
+      } else {
+        setErrorMessage('No transaction to display.');
+      }
+      return;
+    }
+
+    // If context already reflects THIS exact order as successful (e.g. user
+    // navigated back/forward within the same completed transaction), skip
+    // re-verifying and re-calling handle_payment entirely.
+    if (paymentResponse?.success && paymentResponse.order_id === orderId) {
       generateInvoice(paymentResponse);
       return;
     }
 
-    // Online flow: page reloaded after YouCanPay redirect — read URL params
-    const params        = new URLSearchParams(window.location.search);
-    const transactionId = params.get('transaction_id');
-    const orderId       = params.get('order_id');
-    const status        = params.get('payment_status'); // YouCanPay sends this
+    if (hasFinalizedRef.current) return;
+    hasFinalizedRef.current = true;
 
-    if (!transactionId || !orderId) {
-      setErrorMessage('Missing payment information. Please contact support.');
-      return;
+    pollAndFinalize(transactionId as string, orderId as string);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Poll handle_verify, then finalize via handle_payment once confirmed ──────
+
+  const pollAndFinalize = async (transactionId: string, orderId: string, attempt = 1) => {
+    setIsProcessing(true);
+    try {
+      const verifyRes = await connecter.post('api/payment/verify/', {
+        transaction_id: transactionId,
+        order_id: orderId,
+      });
+
+      const { status } = verifyRes.data;
+
+      if (status === 'pending') {
+        if (attempt >= MAX_VERIFY_ATTEMPTS) {
+          setIsProcessing(false);
+          setErrorMessage('Payment confirmation is taking longer than expected. Please refresh in a moment.');
+          return;
+        }
+        setTimeout(() => pollAndFinalize(transactionId, orderId, attempt + 1), VERIFY_INTERVAL_MS);
+        return;
+      }
+
+      if (status === 'failed') {
+        setIsProcessing(false);
+        navigate(
+          `${FAILURE_ROUTE}?order_id=${encodeURIComponent(orderId)}&transaction_id=${encodeURIComponent(transactionId)}&code=payment_failed`,
+          { replace: true }
+        );
+        return;
+      }
+
+      if (status === 'error') {
+        setIsProcessing(false);
+        setErrorMessage('Something went wrong verifying your payment. Please contact support.');
+        return;
+      }
+
+      // status === 'confirmed'
+      await handleOnlinePayment(transactionId, orderId);
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+      setIsProcessing(false);
+      setErrorMessage('Something went wrong verifying your payment. Please contact support.');
     }
-
-    if (status && status !== 'success') {
-      setErrorMessage('Payment was not completed successfully.');
-      return;
-    }
-
-    handleOnlinePayment(transactionId, orderId);
-  }, []);
+  };
 
   // ── Call handle_payment for online flow ───────────────────────────────────────
+  // Safe to call more than once for the same order — handle_payment on the
+  // backend is idempotent and always returns the full item list.
 
   const handleOnlinePayment = async (transactionId: string, orderId: string) => {
     setIsProcessing(true);
@@ -89,14 +154,13 @@ const SuccessTransaction: React.FC = () => {
       const serverOrderId  = response.data.paymentResponse.order_id;
       const orderedItems   = response.data.ordered_products ?? [];
 
-      // Populate context with server-confirmed data
       setSuccessTransItems(orderedItems);
 
       const onlinePaymentResponse: PaymentResponse = {
         order_id        : serverOrderId,
         success         : true,
         transaction_id  : transactionId,
-        amount          : serverAmount,   // ← from DB, authoritative
+        amount          : serverAmount,
         currency        : serverCurrency,
         date            : new Date().toUTCString(),
         isOnlinePayment : true,
@@ -106,26 +170,32 @@ const SuccessTransaction: React.FC = () => {
 
       setPaymentResponse(onlinePaymentResponse);
 
-      // Generate and send invoice
       await generateInvoice(onlinePaymentResponse);
 
       if (clientForm) {
-        const invoicePdf  = (await createInvoice(onlinePaymentResponse, clientForm, successTransItems)).doc;
-        const invoiceFile = new File(
-          [invoicePdf.buffer as ArrayBuffer],
-          `${invoiceFileName}.pdf`,
-          { type: 'application/pdf' }
-        );
-        await sendEmail(clientForm, invoiceFile, 'Invoice', 'Here is your Invoice');
+        try {
+          const invoicePdf  = (await createInvoice(onlinePaymentResponse, clientForm, orderedItems)).doc;
+          const invoiceFile = new File(
+            [invoicePdf.buffer as ArrayBuffer],
+            `${invoiceFileName}.pdf`,
+            { type: 'application/pdf' }
+          );
+          await sendEmail(clientForm, invoiceFile, 'Invoice', 'Here is your Invoice');
+        } catch (emailErr) {
+          // Don't fail the whole success page just because the email step
+          // failed — the payment itself succeeded and items are already set.
+          console.error('Invoice email failed:', emailErr);
+        }
       }
 
       clearCart();
+      // Note: paymentResponse is intentionally NOT cleared here — this render
+      // still displays amount/currency/order_id from it. It gets cleared the
+      // next time Checkout mounts.
 
     } catch (error: any) {
       console.error('Online payment handling failed:', error);
 
-      // Order already confirmed by webhook but handle_payment failed —
-      // show a soft error rather than a blank page
       const isOrderNotFound = error?.response?.status === 404;
       setErrorMessage(
         isOrderNotFound
@@ -203,7 +273,6 @@ const SuccessTransaction: React.FC = () => {
     </a>
   );
 
-  // ── Active payment response (may come from context or just been set) ──────────
   const activeResponse = paymentResponse;
 
   // ── Render ────────────────────────────────────────────────────────────────────
@@ -214,7 +283,6 @@ const SuccessTransaction: React.FC = () => {
 
       <div className={`suc-root ${isRtl ? 'rtl' : 'ltr'}`}>
 
-        {/* ── Hero section ── */}
         <div className="suc-hero">
           <Link to="/home" className="suc-logo-link">
             <div className="suc-logo">
@@ -234,10 +302,8 @@ const SuccessTransaction: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Body panels ── */}
         <div className="suc-body">
 
-          {/* ── Transaction details ── */}
           <div className={`suc-panel suc-panel--details ${isRtl ? 'rtl' : ''}`}>
             <div className="suc-panel-header">
               <GrTransaction size={18} />
@@ -252,7 +318,6 @@ const SuccessTransaction: React.FC = () => {
                 },
                 {
                   label: t('transaction.amount'),
-                  // Always a number from the server now — safe to display
                   value: activeResponse?.amount !== undefined
                     ? `${Number(activeResponse.amount).toFixed(2)}`
                     : '—',
@@ -280,7 +345,6 @@ const SuccessTransaction: React.FC = () => {
             </div>
           </div>
 
-          {/* ── Order summary ── */}
           <div className={`suc-panel suc-panel--order ${isRtl ? 'rtl' : ''}`}>
             <div className="suc-panel-header">
               <BsBagCheckFill size={18} />
