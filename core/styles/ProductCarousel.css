@@ -1,0 +1,504 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   ProductCarousel — Al-Firdaous Store
+   Safari-compatible + RTL-safe + mobile width fixed
+   Drop into: src/styles/ProductCarousel.css
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Carousel root ───────────────────────────────────────────────────────────── */
+.productCarousel {
+  width: 100%;
+  background: transparent;
+  padding: 0 0 40px;
+  margin: 0;
+  overflow: hidden;
+  /*
+    RTL FIX — Critical.
+    When the page uses direction:rtl (Arabic), react-multi-carousel calculates
+    slide positions in the wrong direction, leaving a blank half on the left.
+    Forcing ltr here makes the library work correctly; card text still inherits
+    the page direction via direction:inherit on each card.
+  */
+  direction: ltr;
+}
+
+/* Slide padding — correct gap between cards */
+.react-multi-carousel-item {
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+/* Motion wrapper fills the slide slot */
+.react-multi-carousel-item > div {
+  width: 100%;
+}
+
+.react-multi-carousel-list {
+  direction: ltr;       /* redundant safety net for the RTL fix */
+  padding-bottom: 52px;
+  overflow: hidden !important;
+  /* Safari: enable hardware-accelerated compositing so overflow clip works */
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+}
+
+.productCarousel .react-multi-carousel-track {
+  will-change: transform;
+  -webkit-will-change: transform;
+}
+
+/* ── Dot indicators ──────────────────────────────────────────────────────────── */
+.react-multi-carousel-dot button {
+  width: 8px;
+  height: 8px;
+  border: none !important;
+  background: #cbd5e1 !important;
+  border-radius: 4px;
+  -webkit-transition: width 0.25s ease, background 0.25s ease;
+          transition: width 0.25s ease, background 0.25s ease;
+}
+.react-multi-carousel-dot--active button {
+  width: 22px !important;
+  background: #0e92e4 !important;
+}
+
+/* ── Arrow buttons ───────────────────────────────────────────────────────────── */
+.react-multiple-carousel__arrow {
+  background: transparent !important;
+  border: 1.5px solid #0e92e4 !important;
+  border-radius: 50% !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  -webkit-transition: background 0.2s ease, box-shadow 0.2s ease !important;
+          transition: background 0.2s ease, box-shadow 0.2s ease !important;
+  z-index: 10;
+}
+.react-multiple-carousel__arrow::before {
+  color: #0e92e4 !important;
+  font-size: 13px !important;
+}
+.react-multiple-carousel__arrow:hover {
+  background: rgba(14, 146, 228, 0.10) !important;
+  box-shadow: 0 4px 12px rgba(14, 146, 228, 0.20) !important;
+}
+.react-multiple-carousel__arrow--left  { left: 0 !important; }
+.react-multiple-carousel__arrow--right { right: 0 !important; }
+
+/* ── Product card ────────────────────────────────────────────────────────────── */
+.productCarouselCard {
+  /*
+    Restore page text direction so Arabic/FR/EN content flows correctly
+    inside the card even though the carousel wrapper is ltr.
+  */
+  direction: inherit;
+
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid #e2e8f0;
+  box-shadow:
+    rgba(15, 28, 53, 0.06) 0px 2px 8px,
+    rgba(14, 146, 228, 0.04) 0px 1px 3px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  -webkit-transition:
+    -webkit-transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s ease;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s ease;
+  cursor: pointer;
+  /*
+    Safari overflow+border-radius clip fix.
+    Without this, Safari does not clip the image to the card's rounded corners.
+  */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+          mask-image: radial-gradient(white, black);
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+}
+
+.productCarouselCard:hover {
+  -webkit-transform: translateY(-6px);
+          transform: translateY(-6px);
+  border-color: #0e92e4;
+  box-shadow:
+    rgba(14, 146, 228, 0.18) 0px 16px 40px,
+    rgba(15, 28, 53, 0.06) 0px 2px 8px;
+}
+
+/* ── Image container ─────────────────────────────────────────────────────────── */
+.productCImgCont {
+  width: 100%;
+  padding-top: 72%;
+  position: relative !important;
+  overflow: hidden;
+  background: #f7f8fb;
+  /* Safari clip fix on the inner container too */
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+}
+
+.productCImgCont img {
+  position: absolute;
+  /* Safari: explicit top/left/bottom/right instead of inset shorthand */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-transition: -webkit-transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+          transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  display: block;
+}
+
+.productCarouselCard:hover .productCImgCont img {
+  -webkit-transform: scale(1.06);
+          transform: scale(1.06);
+}
+
+/* Bottom gradient */
+.productCImgCont::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: -webkit-linear-gradient(bottom, rgba(15, 28, 53, 0.20) 0%, transparent 55%);
+  background: linear-gradient(to top, rgba(15, 28, 53, 0.20) 0%, transparent 55%);
+  pointer-events: none;
+  -webkit-transition: opacity 0.3s ease;
+          transition: opacity 0.3s ease;
+}
+.productCarouselCard:hover .productCImgCont::after {
+  opacity: 0.6;
+}
+
+/* ── Promo badge ─────────────────────────────────────────────────────────────── */
+.productCPromo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: -webkit-linear-gradient(315deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  font-size: 0.60rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 100px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.40);
+  z-index: 2;
+  line-height: 1.5;
+}
+
+/* ── Quick-view pill ─────────────────────────────────────────────────────────── */
+.productCQuickView {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  -webkit-transform: translateX(-50%) translateY(10px);
+          transform: translateX(-50%) translateY(10px);
+  opacity: 0;
+  background: rgba(255, 255, 255, 0.94);
+  color: #0f1c35;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 100px;
+  box-shadow: 0 2px 10px rgba(15, 28, 53, 0.14);
+  white-space: nowrap;
+  -webkit-transition: opacity 0.22s ease, -webkit-transform 0.22s ease;
+          transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+.productCarouselCard:hover .productCQuickView {
+  opacity: 1;
+  -webkit-transform: translateX(-50%) translateY(0);
+          transform: translateX(-50%) translateY(0);
+}
+
+/* ── Meta line ───────────────────────────────────────────────────────────────── */
+.productCMeta {
+  font-size: 0.60rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin: 0;
+  padding: 14px 14px 0;
+}
+
+/* ── Name lines — Safari-compatible line-clamp ───────────────────────────────── */
+.productCInfos1 {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: #0f1c35;
+  text-transform: capitalize;
+  padding: 4px 14px 0;
+  margin: 0;
+  /* Standard + -webkit- for Safari */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  line-clamp: 1;
+  overflow: hidden;
+}
+
+.productCInfos2 {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #4a5568;
+  text-transform: capitalize;
+  padding: 2px 14px 0;
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  line-clamp: 1;
+  overflow: hidden;
+}
+
+/* ── Price block ─────────────────────────────────────────────────────────────── */
+.productCPrice {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: baseline;
+  -webkit-align-items: baseline;
+          align-items: baseline;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  /* gap fallback for old Safari: use margin on children instead */
+  gap: 6px;
+  padding: 4px 14px 0;
+}
+
+/* gap fallback */
+.productCPriceD,
+.productCDiscount {
+  margin-left: 6px;
+}
+[dir="rtl"] .productCPriceD,
+[dir="rtl"] .productCDiscount {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
+.productCPriceP {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #16a34a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.productCPriceD {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  -webkit-text-decoration: line-through;
+          text-decoration: line-through;
+  -webkit-text-decoration-color: #ef4444;
+          text-decoration-color: #ef4444;
+}
+
+.productCDiscount {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+/* ── CTA button ──────────────────────────────────────────────────────────────── */
+.productCView {
+  width: 100%;
+  padding: 11px 0;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  background: #0f1c35;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  gap: 7px;
+  -webkit-transition: background 0.22s ease;
+          transition: background 0.22s ease;
+  outline: none;
+  margin-top: auto;
+  font-family: inherit;
+  /* Safari tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+.productCView:hover,
+.productCarouselCard:hover .productCView {
+  background: #0e92e4;
+}
+
+/* ── "See all" browse button ─────────────────────────────────────────────────── */
+.carsl-see-all {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.carsl-see-all .btn,
+.carsl-see-all button {
+  padding: 11px 36px !important;
+  border: 1.5px solid #0e92e4 !important;
+  color: #0e92e4 !important;
+  border-radius: 100px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease !important;
+          transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease !important;
+  cursor: pointer !important;
+  display: -webkit-inline-box !important;
+  display: -webkit-inline-flex !important;
+  display: inline-flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+          align-items: center !important;
+  gap: 6px !important;
+  font-family: inherit !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.carsl-see-all .btn:hover,
+.carsl-see-all button:hover {
+  background: #0e92e4 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(14, 146, 228, 0.30) !important;
+}
+
+/* ── Shoe icon animations ────────────────────────────────────────────────────── */
+.HomeTitleIconL {
+  color: #0e92e4;
+  display: inline-block;
+  -webkit-animation: iconBounceL 1.6s ease-in-out infinite;
+          animation: iconBounceL 1.6s ease-in-out infinite;
+}
+.HomeTitleIconR {
+  color: #0e92e4;
+  display: inline-block;
+  -webkit-animation: iconBounceR 1.6s ease-in-out infinite;
+          animation: iconBounceR 1.6s ease-in-out infinite;
+}
+
+@-webkit-keyframes iconBounceL {
+  0%, 100% { -webkit-transform: translateY(0) rotate(0deg); }
+  50%       { -webkit-transform: translateY(-6px) rotate(-12deg); }
+}
+@keyframes iconBounceL {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%       { transform: translateY(-6px) rotate(-12deg); }
+}
+@-webkit-keyframes iconBounceR {
+  0%, 100% { -webkit-transform: translateY(0) rotate(0deg); }
+  50%       { -webkit-transform: translateY(-6px) rotate(12deg); }
+}
+@keyframes iconBounceR {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%       { transform: translateY(-6px) rotate(12deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+
+/* Tablet: switch from % aspect-ratio trick to a fixed height */
+@media (max-width: 900px) {
+  .productCImgCont {
+    padding-top: 0 !important;
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Tighten gap between slides */
+  .react-multi-carousel-item { padding: 0 4px; }
+  .productCImgCont {
+    padding-top: 0 !important;
+    height: 200px;
+  }
+}
+
+/* ── Mobile: fixed card width — no more "fat man" ───────────────────────────── */
+@media (max-width: 500px) {
+  /*
+    The carousel item takes 100% of the track width (1 item per slide).
+    We add generous horizontal padding so the card itself is locked to
+    ~260 px — a clean, proportional size on any phone screen.
+    The card is then centered inside the padded slot via margin: 0 auto.
+  */
+  .react-multi-carousel-item {
+    padding: 0 !important;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+            justify-content: center;
+    box-sizing: border-box;
+  }
+
+  /* Motion wrapper — fixed width, centered */
+  .react-multi-carousel-item > div {
+    width: 260px !important;
+    max-width: 260px !important;
+    -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+  }
+
+  /* Card itself — ensure it never overflows its wrapper */
+  .productCarouselCard {
+    width: 100%;
+  }
+
+  /* Image: proper portrait ratio for a 260 px wide card */
+  .productCImgCont {
+    padding-top: 0 !important;
+    height: 200px;
+  }
+
+  .productCarousel {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .productCView { font-size: 0.62rem; padding: 10px 0; }
+
+  /* Arrows hidden on mobile — swipe only */
+  .react-multiple-carousel__arrow {
+    display: none !important;
+  }
+}

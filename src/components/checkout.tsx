@@ -42,7 +42,6 @@ import en from 'react-phone-number-input/locale/en';
 // pages. Both online and COD flows now go through the SAME two constants,
 // so success/failure always lands on the same page regardless of payment method.
 const SUCCESS_ROUTE = '/Transaction/Success';
-const FAILURE_ROUTE = '/Transaction/Failed';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -198,7 +197,7 @@ const Checkout: React.FC = () => {
   const orderDate = new Date();
   const { t } = useTranslation();
   const { currentLang } = useLangContext();
-  const { cartTotalAmount, cartChecker, clearCart, allItems, setSuccessTransItems, successTransItems } = useCart();
+  const { cartTotalAmount, cartChecker, clearCart, allItems, setSuccessTransItems } = useCart();
   const {
     setClientForm, clientForm, setPaymentResponse, clearPaymentResponse,
     setCurrentCurrency, currentCurrency, currencyIsAvailable,
@@ -317,8 +316,6 @@ const Checkout: React.FC = () => {
         const response = await connecter.post('api/payment/url/get', {
           tokenParams: {
             currency:    'MAD',
-            success_url: `${window.location.origin}${SUCCESS_ROUTE}`,
-            error_url:   `${window.location.origin}${FAILURE_ROUTE}`,
             lang:        selectedLang(currentLang),
           },
           customer: {
@@ -363,7 +360,8 @@ const Checkout: React.FC = () => {
       };
 
       const response = await connecter.post('api/payment/handle/', payload);
-      setSuccessTransItems(response.data.ordered_products ?? []);
+      const orderedItems = response.data.ordered_products ?? [];
+      setSuccessTransItems(orderedItems);
 
       const serverAmount = response.data.paymentResponse.amount;
       setConfirmedAmount(serverAmount);
@@ -382,7 +380,7 @@ const Checkout: React.FC = () => {
 
       setPaymentResponse(cashPaymentResponse);
 
-      const invoicePdf      = (await createInvoice(cashPaymentResponse, clientForm, successTransItems)).doc;
+      const invoicePdf      = (await createInvoice(cashPaymentResponse, clientForm, orderedItems)).doc;
       const invoiceFileName = `${clientForm?.FirstName}_${clientForm?.LastName}`;
       const invoiceFile     = new File(
         [invoicePdf.buffer as ArrayBuffer],
@@ -545,7 +543,7 @@ const Checkout: React.FC = () => {
                   firstName={client.first_name}
                   lastName={client.last_name}
                   email={client.email}
-                  onSwitch={() => { setClientForm(undefined as any); setMode('guest'); }}
+                  onSwitch={() => { setClientForm(undefined); setMode('guest'); }}
                 />
               )}
 

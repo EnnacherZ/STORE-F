@@ -9,9 +9,22 @@ import deliveryFormPdf from "./delivery_form.pdf"; // ← your ordered-items tem
 import QRCode from 'qrcode';
 import NotoSansArabicUrl from "./NotoSansArabic-Regular.ttf?url";
 import * as fontkitImport from 'fontkit';
-const fontkit = (fontkitImport as any).default || fontkitImport;
+type PdfFontkit = Parameters<PDFDocument['registerFontkit']>[0];
+const fontkit = fontkitImport as unknown as PdfFontkit;
 
 import * as arabicReshaperModule from "arabic-reshaper";
+import type { clientData, PaymentResponse } from "./PaymentContext";
+
+interface InvoiceItem {
+  productType?: string;
+  product_type?: string;
+  category?: string;
+  name?: string;
+  size?: string | number;
+  quantity?: number;
+  price?: number;
+  promo?: number;
+}
 
 const origin = import.meta.env.VITE_ACTUAL_ORIGIN;
 
@@ -47,7 +60,7 @@ function unitPrice(price: number, promo: number): number {
 
 async function appendItemPages(
   masterDoc: PDFDocument,
-  items: any[],
+  items: InvoiceItem[],
   templateBytes: ArrayBuffer
 ): Promise<void> {
   const totalPages = Math.ceil(items.length / MAX_ROWS_PER_PAGE);
@@ -67,7 +80,7 @@ async function appendItemPages(
       (pageIdx + 1) * MAX_ROWS_PER_PAGE
     );
 
-    slice.forEach((item: any, rowIdx: number) => {
+    slice.forEach((item, rowIdx: number) => {
       const y         = rowY(rowIdx);
       const qty       = item.quantity ?? 1;
       const unit      = unitPrice(item.price ?? 0, item.promo ?? 0);
@@ -75,7 +88,7 @@ async function appendItemPages(
 
       // ITEM → productType
       templatePage.drawText(
-        arabicReshaperModule.convertArabic(String(item.productType ?? '')),
+        arabicReshaperModule.convertArabic(String(item.productType ?? item.product_type ?? '')),
         { x: COL_X.item, y, size: 9, font: pageFont, color: rgb(0, 0, 0) }
       );
 
@@ -118,9 +131,9 @@ async function appendItemPages(
 // + successTransItems pages appended at the end
 // ─────────────────────────────────────────────────────────────────
 const createInvoice = async (
-  paymentResponse: any,
-  clientForm: any,
-  successTransItems: any[] = []   // ← new, defaults to [] so existing callers are unaffected
+  paymentResponse: PaymentResponse,
+  clientForm: clientData | undefined,
+  successTransItems: InvoiceItem[] = []
 ) => {
   const invoiceFile = await fetch(invoiceEn).then(res => res.arrayBuffer());
   const invoicePdf  = await PDFDocument.load(invoiceFile);
@@ -194,16 +207,16 @@ const createInvoice = async (
   annots.push(linkRef);
 
   // ── Client info — coordinates measured from actual box borders ──
-  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.FirstName) || '', {
+  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.FirstName ?? '') || '', {
     x: 121.4, y: 662.5, size: 11, color: rgb(0, 0, 0), font
   });
-  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.LastName) || '', {
+  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.LastName ?? '') || '', {
     x: 374.2, y: 662.5, size: 11, color: rgb(0, 0, 0), font
   });
-  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.Address) || '', {
+  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.Address ?? '') || '', {
     x: 121.6, y: 615.5, size: 11, color: rgb(0, 0, 0), font
   });
-  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.City) || '', {
+  firstPage.drawText(arabicReshaperModule.convertArabic(clientForm?.City ?? '') || '', {
     x: 121.5, y: 574.8, size: 11, color: rgb(0, 0, 0), font
   });
   firstPage.drawText(clientForm?.ZipCode || '', {

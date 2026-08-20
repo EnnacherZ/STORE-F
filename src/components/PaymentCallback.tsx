@@ -8,6 +8,7 @@ import { useLangContext } from '../contexts/LanguageContext';
 import createInvoice from '../contexts/CreateInvoice';
 import Header from './Header';
 import Footer from './Footer';
+import { isAxiosError } from 'axios';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -261,7 +262,7 @@ const ErrorUI: React.FC<{ message: string; transactionId: string }> = ({ message
 
 const PaymentCallback: React.FC = () => {
   const { clientForm, setPaymentResponse } = usePayment();
-  const { allItems, clearCart, setSuccessTransItems, successTransItems } = useCart();
+  const { clearCart, setSuccessTransItems } = useCart();
   const { currentLang } = useLangContext();
   const { t } = useTranslation();
 
@@ -347,22 +348,25 @@ const PaymentCallback: React.FC = () => {
         setIsWaiting(false);
         setStatus('processing');
         const response = await connecter.post('api/payment/handle/', {
-          items: allItems, orderId: oid,
+          orderId: oid,
           transaction_id: transaction,
           date, onlinePayment: true,
         });
-        setSuccessTransItems(response.data.ordered_products ?? []);
+        const orderedItems = response.data.ordered_products ?? [];
+        setSuccessTransItems(orderedItems);
+
+        const paymentResult = response.data.paymentResponse;
 
         const freshResponse = {
-          transaction_id: transaction, order_id: oid, code,
+          transaction_id: transaction, order_id: paymentResult.order_id, code,
           success: true, message: 'Payment successful',
-          amount: clientForm?.Amount, currency: clientForm?.Currency,
+          amount: paymentResult.amount, currency: paymentResult.currency,
           date, isOnlinePayment: true,
         };
         setPaymentResponse(freshResponse);
 
         setStatus('emailing');
-        const invoicePdf      = (await createInvoice(freshResponse, clientForm, successTransItems)).doc;
+        const invoicePdf      = (await createInvoice(freshResponse, clientForm, orderedItems)).doc;
         const invoiceFileName = `${clientForm?.FirstName}_${clientForm?.LastName}`;
         const invoiceFile     = new File(
           [invoicePdf.buffer as ArrayBuffer],
@@ -384,7 +388,7 @@ const PaymentCallback: React.FC = () => {
     };
 
     run();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRetry = async () => {
     if (isBusy) return;
@@ -394,8 +398,6 @@ const PaymentCallback: React.FC = () => {
       const response = await connecter.post('api/payment/url/retry/', {
         order_id: orderId,
         tokenParams: {
-          success_url: `${window.location.origin}/payment/success`,
-          error_url  : `${window.location.origin}/payment/error`,
           lang       : selectedLang(currentLang),
         },
       });
@@ -403,8 +405,8 @@ const PaymentCallback: React.FC = () => {
       window.location.href = response.data.payment_url;        
 
 
-    } catch (err:any) {
-      if(err.response.status==423){
+    } catch (err: unknown) {
+      if(isAxiosError(err) && err.response?.status === 423){
         window.location.href='/Home'
       }
       setIsBusy(false);
@@ -422,8 +424,8 @@ const PaymentCallback: React.FC = () => {
         showToast('Order cancelled', 'success');
         goTo('/transaction/failed');
       }
-    } catch (err:any) {
-      if(err.response.status = 423){
+    } catch (err: unknown) {
+      if(isAxiosError(err) && err.response?.status === 423){
         window.location.href='/Home';
       }else{goTo('/transaction/failed');}
       

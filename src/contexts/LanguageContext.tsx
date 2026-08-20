@@ -2,6 +2,9 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useState } from 'react';
 import { selectedLang } from '../components/constants';
+import en from '../locales/en';
+import fr from '../locales/fr';
+import ar from '../locales/ar';
 
 i18n
   .use(initReactI18next)
@@ -1657,6 +1660,12 @@ i18n
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
   });
+
+// Keep the active legacy provider in sync with the extracted locale files.
+// Locale resources overwrite the matching inline entries and supply new keys.
+Object.entries({ en, fr, ar }).forEach(([language, resource]) => {
+  i18n.addResourceBundle(language, 'translation', resource.translation, true, true);
+});
 
 // ── Context ───────────────────────────────────────────────────────────────────
 

@@ -10,6 +10,7 @@ import { useLangContext } from '../contexts/LanguageContext';
 import { selectedLang } from './constants';
 import { CartItem } from '../contexts/CartContext';
 import ModalBackdrop from './modalBackdrop';
+import { connecter } from '../server/connecter';
 
 interface ConfirmModalProps {
   action: 'remove' | 'clear-all' | 'reviews' | string;
@@ -38,7 +39,6 @@ const Modal: React.FC<ConfirmModalProps> = ({
   onBack,
   onRemove,
   onClearAll,
-  rev_productType,
   rev_productId,
 }) => {
   const { t } = useTranslation();
@@ -73,25 +73,14 @@ const Modal: React.FC<ConfirmModalProps> = ({
     const now = new Date();
 
     try {
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: reviewerName,
-          email: reviewerEmail,
-          date: now.toISOString(),
-          review: reviewText,
-          stars: starRating,
-          productType: rev_productType,
-          productId: rev_productId,
-        }),
+      await connecter.post('api/reviews/add/', {
+        name:    reviewerName,
+        email:   reviewerEmail,
+        date:    now.toISOString(),
+        review:  reviewText,
+        stars:   starRating,
+        product: rev_productId,
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error — status: ${response.status}`);
-      }
-
-      await response.json();
       onBack();
     } catch {
       onBack();

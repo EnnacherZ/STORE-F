@@ -16,6 +16,7 @@ import {
   productIcon,
 } from "./constants";
 import { useProductsHandler } from "../server/productsHandler";
+import { getCategoryIcon } from "../illustrations/CategoryIcons";
 import "../styles/ProductPage.css";
 
 // ── Default filter state (stable reference — defined outside component) ──────
@@ -44,26 +45,36 @@ const ProductPage: React.FC = () => {
 
   if (!productType) return <Loading message={t("ui.loading")} />;
 
-  // Icon and title for this product type
-  const TitleIcon = productIcon[productType as keyof typeof productIcon];
-  const banner    = productBanner[productType as keyof typeof productBanner];
-  const title     = productTitle[productType as keyof typeof productTitle];
-  const cats      = categories[productType as keyof typeof categories] ?? [];
+  // Product types come from the backend and are not limited to the four
+  // original exact spellings. Resolve known display assets case-insensitively
+  // and always use an icon component with a safe fallback.
+  const normalizedType = productType.trim().toLowerCase();
+  const configuredType = Object.keys(productTitle).find((type) => {
+    const normalizedConfiguredType = type.toLowerCase();
+    return normalizedType === normalizedConfiguredType
+      || normalizedType === `${normalizedConfiguredType}s`;
+  });
+  const TitleIcon = productIcon[configuredType ?? ""] ?? getCategoryIcon(productType);
+  const banner = configuredType ? productBanner[configuredType as keyof typeof productBanner] : undefined;
+  const title = configuredType ? productTitle[configuredType as keyof typeof productTitle] : productType;
+  const cats = configuredType ? categories[configuredType as keyof typeof categories] : [];
 
   return (
     <>
       <Header />
 
       {/* ── Banner ──────────────────────────────────────────────────────── */}
-      <div className="product-banner">
-        <img src={banner} alt={`${title} banner`} />
-      </div>
+      {banner && (
+        <div className="product-banner">
+          <img src={banner} alt={`${title} banner`} />
+        </div>
+      )}
 
       {/* ── Title ───────────────────────────────────────────────────────── */}
       <div className="product-page-title" role="heading" aria-level={1}>
-        {<TitleIcon className="product-page-title__icon" aria-hidden />}
+        <TitleIcon className="product-page-title__icon" aria-hidden />
         <span>{title}</span>
-        {<TitleIcon className="product-page-title__icon" aria-hidden />}
+        <TitleIcon className="product-page-title__icon" aria-hidden />
       </div>
 
       {/* ── Category marquee ────────────────────────────────────────────── */}

@@ -1,0 +1,26 @@
+/* Input */
+
+.PhoneInputInput {
+  flex: 1;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  color: #0f172a;
+
+  /* font-size: 17px;
+  font-weight: 500; */
+  letter-spacing: 0.02em;
+
+  font-family: Inter, system-ui, sans-serif;
+} 
+
+.PhoneInputInput::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.PhoneInputInput:focus {
+  outline: none;
+}

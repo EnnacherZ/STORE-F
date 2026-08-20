@@ -9,56 +9,11 @@ import Marquee from "react-fast-marquee";
 import { FaHome, FaShoppingCart, FaUserCircle, FaSignOutAlt, FaUser } from "react-icons/fa";
 import { FaAngleRight } from "react-icons/fa6";
 import { MdLanguage } from "react-icons/md";
-import { GiSandal, GiRunningShoe, GiDress, GiAries, GiHoodie, GiTrousers } from "react-icons/gi";
-import { PiPantsBold, PiSneakerMoveFill, PiCoatHangerBold } from "react-icons/pi";
-import { TbShirt, TbShirtSport, TbSock } from "react-icons/tb";
 import { goTo, selectedLang } from "./constants";
 import icon2 from "../assets/WHITE FIRDAOUS STORE.png";
 import "../styles/header.css";
 
 const LANGUAGES = ["Français", "العربية", "English"];
-
-// ── Icon map: productType lowercase → icon ───────────────────────────────────
-const PRODUCT_TYPE_ICONS: Record<string, React.ReactNode> = {
-  shoe:       <GiRunningShoe />,
-  shoes:      <GiRunningShoe />,
-  chaussure:  <GiRunningShoe />,
-  chaussures: <GiRunningShoe />,
-  sandal:     <GiSandal />,
-  sandals:    <GiSandal />,
-  sandales:   <GiSandal />,
-  sneaker:    <PiSneakerMoveFill />,
-  sneakers:   <PiSneakerMoveFill />,
-  shirt:      <TbShirt />,
-  shirts:     <TbShirt />,
-  chemise:    <TbShirt />,
-  chemises:   <TbShirt />,
-  tshirt:     <TbShirtSport />,
-  "t-shirt":  <TbShirtSport />,
-  pant:       <PiPantsBold />,
-  pants:      <PiPantsBold />,
-  pantalon:   <PiPantsBold />,
-  pantalons:  <PiPantsBold />,
-  trouser:    <GiTrousers />,
-  trousers:   <GiTrousers />,
-  dress:      <GiDress />,
-  dresses:    <GiDress />,
-  robe:       <GiDress />,
-  hoodie:     <GiHoodie />,
-  hoodies:    <GiHoodie />,
-  jacket:     <PiCoatHangerBold />,
-  veste:      <PiCoatHangerBold />,
-  sock:       <TbSock />,
-  socks:      <TbSock />,
-  chaussette: <TbSock />,
-  underwear:  <GiAries />,
-  brief:      <GiAries />,
-  briefs:     <GiAries />,
-};
-
-// Falls back to a generic hanger icon for unknown types
-const getProductTypeIcon = (type: string): React.ReactNode =>
-  PRODUCT_TYPE_ICONS[type.toLowerCase()] ?? <PiCoatHangerBold />;
 
 // ── Shared language selector ─────────────────────────────────────────────────
 const LangSelector: React.FC<{
@@ -340,7 +295,6 @@ const Header: React.FC = () => {
                     ? Array.from({ length: 4 }).map((_, i) => (
                         <li key={i} className="sidebar__item">
                           <div className="sidebar__link-skeleton" aria-hidden>
-                            <span className="sidebar__skeleton-icon" />
                             <span className="sidebar__skeleton-label" />
                           </div>
                         </li>
@@ -352,7 +306,6 @@ const Header: React.FC = () => {
                             className="sidebar__link"
                             data-active={isActive(`/ProductPage/${type}`) ? "true" : "false"}
                           >
-                            <span className="sidebar__link-icon">{getProductTypeIcon(type)}</span>
                             <span className="sidebar__link-label">
                               {t(`productTypes.${type.toLowerCase()}`)}
                             </span>
@@ -434,7 +387,6 @@ const Header: React.FC = () => {
                       data-active={isActive(`/ProductPage/${type}`) ? "true" : "false"}
                       aria-current={isActive(`/ProductPage/${type}`) ? "page" : undefined}
                     >
-                      <span className="desktop-cat-btn__icon" aria-hidden>{getProductTypeIcon(type)}</span>
                       {t(`productTypes.${type.toLowerCase()}`)}
                     </button>
                   ))

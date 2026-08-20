@@ -25,7 +25,7 @@ const FeaturedProducts: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await connecter.get("api/products/newest/get");
+        const res = await connecter.get("api/products/get?newest=true");
         setProducts((res.data.products ?? res.data ?? []).slice(0, 8));
       } catch {
         // fail silently — section just won't render cards

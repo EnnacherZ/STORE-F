@@ -8,7 +8,6 @@ import Footer from './Footer';
 import Loading from './loading';
 
 const SUCCESS_ROUTE = '/Transaction/Success';
-const FAILURE_ROUTE = '/Transaction/Failed'; // must match this component's own route
 
 // ─── Error type classification ────────────────────────────────────────────────
 
@@ -170,8 +169,6 @@ const TransactionFailed: React.FC = () => {
         order_id: failureInfo.order_id,
         tokenParams: {
           lang: t('lang.code', { defaultValue: 'en' }),
-          success_url: `${window.location.origin}${SUCCESS_ROUTE}`,
-          error_url: `${window.location.origin}${FAILURE_ROUTE}`,
         },
       });
       const paymentUrl = response.data.payment_url;

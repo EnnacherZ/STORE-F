@@ -1,0 +1,24 @@
+/* ============================================================
+   tokens.css — shared design tokens
+
+   Single source of truth for the values that were previously
+   byte-identical duplicates across multiple stylesheets (header.css,
+   ProductDetail.css) — and, in checkout.css / auth.css, consumed via
+   var(--color-brand) without ever being declared locally, only working
+   by accident because header.css (which does declare it) happens to
+   always be loaded alongside every page. Imported once, globally, in
+   src/index.css so that's no longer accidental.
+
+   Only values that were IDENTICAL everywhere were moved here. Where two
+   files declared the same custom-property name with DIFFERENT values
+   (e.g. --color-black was #000000 in header.css but #111827 in
+   ProductDetail.css), each file's original value was left in place
+   rather than picking one and silently changing the other's rendered
+   color.
+   ============================================================ */
+
+:root {
+  --color-brand:      #0e92e4;
+  --color-brand-dark: #0a6eb0;
+  --color-white:      #ffffff;
+}

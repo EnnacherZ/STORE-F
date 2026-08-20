@@ -1,4 +1,4 @@
-import React, {useState, useEffect, createContext, useContext, ReactNode, Dispatch} from "react";
+import React, {useState, useEffect, createContext, useContext, ReactNode, Dispatch, SetStateAction} from "react";
 
 
 export interface Order {
@@ -19,6 +19,7 @@ export interface clientData{
     Address : string;
     Amount : number;
     Currency : string;
+    ZipCode?: string;
 }
 
 export interface PaymentResponse {
@@ -35,7 +36,7 @@ export interface PaymentResponse {
 
 export interface paymentContextProps {
     clientForm : clientData | undefined;
-    setClientForm : (data:clientData) => void;
+    setClientForm : Dispatch<SetStateAction<clientData | undefined>>;
     paymentResponse : PaymentResponse | undefined;
     setPaymentResponse : Dispatch<React.SetStateAction<PaymentResponse | undefined>>;
     clearPaymentResponse : () => void;
@@ -50,7 +51,7 @@ const PAYMENT_STORAGE_KEY = 'AlFirdaousStorePaymentResponse';
 const CLIENT_STORAGE_KEY  = 'ClientData';
 
 export const PaymentProvider : React.FC<{children:ReactNode}> =({children}) => {
-    const currencyIsAvailable : boolean = import.meta.env.VITE_CURRENCY_AVAILABLITY === "true";
+    const currencyIsAvailable : boolean = import.meta.env.VITE_CURRENCY_AVAILABILITY === "true";
     const [currentCurrency, setCurrentCurrency] = useState<string>('MAD');
 
     const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | undefined>(() => {
@@ -65,7 +66,7 @@ export const PaymentProvider : React.FC<{children:ReactNode}> =({children}) => {
           }
         }
         return undefined;
-      } catch (err) {
+      } catch {
         return undefined;
       }
     });
@@ -77,7 +78,9 @@ export const PaymentProvider : React.FC<{children:ReactNode}> =({children}) => {
         } else {
           sessionStorage.setItem(PAYMENT_STORAGE_KEY, JSON.stringify(paymentResponse));
         }
-      } catch (err) {}
+      } catch {
+        // Browser privacy settings can disable sessionStorage.
+      }
     }, [paymentResponse]);
 
     // Call before starting any new payment attempt, and after a transaction's

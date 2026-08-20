@@ -1,0 +1,743 @@
+/* ============================================================
+   header.css — Firdaous Store — Dynamic Product Types
+   ============================================================ */
+
+/* ── CSS custom properties ─────────────────────────────────── */
+/* --color-brand / --color-brand-dark / --color-white now come from
+   src/styles/tokens.css (imported globally in index.css). */
+:root {
+  --color-brand-deep:   #0a1c27;
+  --color-brand-light:  #7baccb;
+  --color-promo:        #0096c7;
+  --color-black:        #000000;
+  --color-backdrop:     rgba(0, 0, 0, 0.55);
+
+  --header-top-h:       56px;   /* logo + actions row */
+  --header-cat-h:       44px;   /* categories row */
+  --header-h-desktop:   calc(var(--header-top-h) + var(--header-cat-h));
+  --header-h-mobile:    60px;
+
+  --sidebar-width:      270px;
+  --transition-slide:   340ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast:    200ms ease;
+}
+
+/* ══════════════════════════════════════════════════════════
+   PROMO BANNER
+   FIX: a bright, moving cyan marquee reads as a discount-site attention
+   grab, not a premium boutique. Luxury/editorial retail sites almost
+   universally use a slim, quiet, dark bar with restrained, wide-tracked
+   type instead — same information, considerably more composed.
+   ══════════════════════════════════════════════════════════ */
+.promo-banner {
+  width: 100%;
+  height: 34px;
+  background: var(--color-brand-deep);
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100002;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.promo-banner__text {
+  color: rgba(255,255,255,0.92);
+  font-weight: 500;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding-right: 80px;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SITE HEADER
+   FIX: a flat solid fill is the "utility app" look; a subtle gradient
+   toward the deep brand tone adds real depth/dimension without
+   abandoning the brand color, and a hairline border reads more refined
+   than the previous heavy 3px one.
+   ══════════════════════════════════════════════════════════ */
+.site-header {
+  width: 100%;
+  background: linear-gradient(180deg, var(--color-brand) 0%, var(--color-brand-dark) 100%);
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 2px 24px rgba(10, 28, 39, 0.25);
+  position: sticky;
+  top: 34px;
+  z-index: 100001;
+  overflow: visible;
+}
+
+/* ══════════════════════════════════════════════════════════
+   DESKTOP LAYOUT — two-row structure
+   ══════════════════════════════════════════════════════════ */
+.desktop-bar {
+  display: flex;
+  flex-direction: column;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  overflow: visible;
+}
+
+/* ── Top row: logo + actions ──────────────────────────────── */
+.desktop-top-row {
+  height: var(--header-top-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  gap: 16px;
+  overflow: visible;
+}
+
+/* ── Logo ─────────────────────────────────────────────────── */
+.logo-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.site-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  will-change: filter;
+  transition: filter 0.5s ease, transform 0.3s ease;
+}
+
+.site-logo:hover {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.85));
+  transform: scale(1.05);
+}
+
+/* ── Bottom row: category nav ─────────────────────────────── */
+.desktop-cat-nav {
+  height: var(--header-cat-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0 28px;
+  border-top: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.18);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.desktop-cat-nav::-webkit-scrollbar { display: none; }
+
+/* FIX: bold weight + full-opacity white on every item reads busy/loud.
+   Dropping the rest-state to a lighter weight and slightly muted opacity
+   — reserving full weight/brightness for hover and the active item —
+   gives the row a calmer, more considered hierarchy typical of editorial
+   nav bars, and the wider tracking now has room to read as refined rather
+   than just "spaced out". */
+.desktop-cat-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0 22px;
+  height: var(--header-cat-h);
+  border-radius: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.desktop-cat-btn::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 22px;
+  right: 22px;
+  height: 2.5px;
+  background: var(--color-white);
+  border-radius: 2px 2px 0 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+.desktop-cat-btn:hover {
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.desktop-cat-btn:hover::after { transform: scaleX(1); }
+
+.desktop-cat-btn[data-active="true"] {
+  color: var(--color-white);
+  font-weight: 800;
+}
+
+.desktop-cat-btn[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Home button slight separation */
+.desktop-cat-btn--home {
+  padding-right: 26px;
+  border-right: 1px solid rgba(255,255,255,.18);
+  margin-right: 4px;
+  color: rgba(255,255,255,.9);
+}
+
+/* ── Desktop right-side actions ───────────────────────────── */
+.desktop-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  overflow: visible;
+  position: relative;
+}
+
+/* ── Cart button ──────────────────────────────────────────── */
+/* FIX: a solid near-black pill stood apart from the account button and
+   language selector's translucent-glass treatment right next to it —
+   inconsistent within the same row. Brought into the same frosted-glass
+   family (translucent fill + hairline border + blur) so the three
+   actions read as one considered set instead of three different styles. */
+.desktop-cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(255,255,255,0.12);
+  color: var(--color-white);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background var(--transition-fast), color var(--transition-fast),
+              border-color var(--transition-fast), box-shadow var(--transition-fast);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.desktop-cart-btn:hover {
+  background: var(--color-white);
+  color: var(--color-black);
+  border-color: rgba(255,255,255,0.7);
+  box-shadow: 0 4px 18px rgba(10,28,39,.25);
+}
+
+.desktop-cart-btn__badge {
+  background: var(--color-brand-deep);
+  color: var(--color-white);
+  border-radius: 999px;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0 5px;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border: 1.5px solid rgba(255,255,255,.35);
+}
+
+.desktop-cart-btn:hover .desktop-cart-btn__badge {
+  background: var(--color-brand);
+  color: var(--color-white);
+  border-color: rgba(10,28,39,.15);
+}
+
+/* Tight desktop — hide cart label text */
+@media (max-width: 900px) {
+  .desktop-top-row { padding: 0 14px; gap: 8px; }
+  .desktop-cat-nav { padding: 0 14px; gap: 0; }
+  .desktop-cart-btn span:not(.desktop-cart-btn__badge) { display: none; }
+  .desktop-cart-btn { padding: 8px 12px; gap: 6px; }
+  .lang-selector--desktop span,
+  .lang-selector--desktop .lang-selector-label { display: none; }
+}
+
+/* ── Language selector ────────────────────────────────────── */
+.lang-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-white);
+  background: rgba(255,255,255,.12);
+  border: 1.5px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lang-selector:hover { background: rgba(255,255,255,.2); }
+
+.lang-selector select {
+  background: transparent;
+  border: none;
+  color: var(--color-white);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.lang-selector select option {
+  background: var(--color-brand-dark);
+  color: var(--color-white);
+}
+
+/* ── Desktop account button ───────────────────────────────── */
+.desktop-account-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.12);
+  color: var(--color-white);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.desktop-account-btn:hover {
+  background: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.5);
+}
+
+.desktop-account-btn--active::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.3);
+  flex-shrink: 0;
+}
+
+/* ── Account dropdown ─────────────────────────────────────── */
+.account-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+  isolation: isolate;
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid rgba(14,146,228,0.15);
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+  z-index: 100020;
+}
+
+.account-dropdown__header {
+  padding: 14px 16px 12px;
+  background: linear-gradient(135deg, #f0f7fd, #e8f4fd);
+}
+
+.account-dropdown__name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-brand-deep);
+  margin: 0 0 2px;
+}
+
+.account-dropdown__email {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-dropdown__divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0;
+}
+
+.account-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+  transition: background var(--transition-fast);
+  color: #111827;
+}
+
+.account-dropdown__item:hover { background: #f9fafb; }
+.account-dropdown__item--danger { color: #ef4444; }
+.account-dropdown__item--danger:hover { background: #fef2f2; }
+
+.account-dropdown__header--link {
+  width: 100%;
+  background: linear-gradient(135deg, #f0f7fd, #e8f4fd);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 14px 16px 12px;
+  transition: background var(--transition-fast);
+  display: block;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.account-dropdown__header--link:hover {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE LAYOUT  (≤ 800 px)
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 800px) {
+
+  .site-header { top: 34px; }
+
+  .mobile-bar {
+    height: var(--header-h-mobile);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    position: relative;
+  }
+
+  .mobile-bar .logo-btn {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .mobile-bar .site-logo { width: 44px; height: 44px; }
+
+  /* Hamburger */
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-white);
+    padding: 8px;
+    width: 52px;
+    min-height: var(--header-h-mobile);
+    z-index: 1;
+  }
+
+  .hamburger__line {
+    display: block;
+    width: 24px;
+    height: 2.5px;
+    background: var(--color-white);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.25s ease;
+  }
+
+  .hamburger__line.is-top-open { transform: translateY(6.5px) rotate(45deg);  background: #ff4d4d; }
+  .hamburger__line.is-mid-open { opacity: 0; transform: scaleX(0); }
+  .hamburger__line.is-bot-open { transform: translateY(-6.5px) rotate(-45deg); background: #ff4d4d; }
+
+  .hamburger__label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
+  /* Mobile cart */
+  .mobile-cart-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-white);
+    padding: 8px;
+    width: 52px;
+    min-height: var(--header-h-mobile);
+    z-index: 1;
+    position: relative;
+  }
+
+  .mobile-cart-btn__icon { width: 23px; height: 23px; }
+
+  .mobile-cart-btn__badge {
+    position: absolute;
+    top: 9px;
+    right: 6px;
+    background: #ef4444;
+    color: var(--color-white);
+    border-radius: 999px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    border: 2px solid var(--color-brand);
+  }
+
+  .mobile-cart-btn__label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  /* FIX: the sidebar and its backdrop used to be manually toggled via CSS
+     classes (visibility + a fixed translateX(-100%)), always sliding in
+     from the left regardless of language — the header's outer <header>
+     was hardcoded `dir="ltr"` with no RTL branch at all for mobile,
+     unlike the desktop bar a few lines below it which already does this
+     correctly. They're now independently-positioned, Framer Motion
+     -driven elements (see Header.tsx) — same pattern as Dash-F-main's
+     DeliveryPortal sidebar: conditionally mounted via AnimatePresence
+     (so there's nothing sitting inert in the DOM while closed) and slid
+     in from whichever edge matches the actual reading direction. Static,
+     non-animated properties (size, background, shadow, scrollbar) stay
+     in CSS; position/transform are driven by Framer Motion inline styles. */
+  .sidebar {
+    position: fixed;
+    top: calc(34px + var(--header-h-mobile));
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: var(--color-white);
+    border-inline-end: 1px solid rgba(14,146,228,0.15);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-brand-light) transparent;
+    box-shadow: 6px 0 24px -4px rgba(0, 0, 0, 0.2);
+    z-index: 100001;
+  }
+
+  .sidebar::-webkit-scrollbar       { width: 5px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--color-brand-light); border-radius: 3px; }
+
+  /* Sidebar list */
+  .sidebar__list { list-style: none; width: 100%; padding: 0; margin: 0; }
+  .sidebar__item { border-bottom: 1px solid #eef2f5; }
+
+  .sidebar__item--lang { padding: 14px 16px; background: #f8fafc; }
+  .sidebar__item--lang .lang-selector { color: var(--color-brand); background: transparent; border: none; padding: 0; }
+  .sidebar__item--lang .lang-selector select { color: var(--color-brand-dark); font-size: 0.95rem; }
+
+  .sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    height: 56px;
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+
+  .sidebar__link:hover { background: #f0f7fd; color: var(--color-brand); }
+
+  .sidebar__link[data-active="true"] {
+    background: rgba(14,146,228,0.06);
+    color: var(--color-brand-deep);
+    /* FIX: was a hardcoded border-right — always sat on the sidebar's
+       trailing edge in LTR, but on the WRONG (leading) edge once the
+       sidebar actually slides in from the right in RTL. The logical
+       property follows text direction automatically. */
+    border-inline-end: 2px solid var(--color-brand);
+    font-weight: 700;
+  }
+
+  .sidebar__link-icon {
+    font-size: 1.1rem;
+    color: var(--color-brand);
+    display: flex;
+    align-items: center;
+    width: 24px;
+    flex-shrink: 0;
+  }
+
+  /* Dynamic product type icon in sidebar */
+  .sidebar__type-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .sidebar__link-label { flex: 1; }
+  .sidebar__link-count { font-style: normal; color: var(--color-brand); font-weight: 700; }
+  .sidebar__link-arrow { color: #9ca3af; font-size: 0.85rem; flex-shrink: 0; }
+
+  /* Mon compte link row inside sidebar */
+  .sidebar__link--account-btn { border-top: 1px solid #eef2f5; }
+
+  /* Sidebar account block */
+  .sidebar__item--account { padding: 0; display: flex; flex-direction: column; }
+
+  .sidebar__account-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px 10px;
+    background: linear-gradient(135deg, #f0f7fd, #e8f4fd);
+  }
+
+  .sidebar__account-icon { font-size: 2rem; color: var(--color-brand); flex-shrink: 0; }
+  .sidebar__account-name { font-size: 0.9rem; font-weight: 700; color: var(--color-brand-deep); margin: 0 0 2px; }
+  .sidebar__account-email {
+    font-size: 0.75rem; color: #6b7280; margin: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;
+  }
+
+  .sidebar__signout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    border-top: 1px solid #eef2f5;
+    width: 100%;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #ef4444;
+    transition: background var(--transition-fast);
+  }
+
+  .sidebar__signout-btn:hover { background: #fef2f2; }
+
+  /* Backdrop — now an independently fixed-position element (was a flex
+     sibling of .sidebar inside a shared .sidebar-overlay wrapper that no
+     longer exists) so it can be animated/mounted on its own by Framer
+     Motion, matching the sidebar panel. */
+  .sidebar-backdrop {
+    position: fixed;
+    top: calc(34px + var(--header-h-mobile));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 100000;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SKELETON LOADING — product types
+   ══════════════════════════════════════════════════════════ */
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+/* Shared shimmer mixin via custom property */
+.desktop-cat-btn-skeleton,
+.sidebar__skeleton-label {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.08) 25%,
+    rgba(255,255,255,0.22) 50%,
+    rgba(255,255,255,0.08) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Desktop cat nav skeletons */
+.desktop-cat-btn-skeleton {
+  width: 90px;
+  height: 18px;
+  margin: 0 22px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* Stagger widths so it doesn't look uniform */
+.desktop-cat-btn-skeleton:nth-child(2) { width: 70px;  }
+.desktop-cat-btn-skeleton:nth-child(3) { width: 110px; }
+.desktop-cat-btn-skeleton:nth-child(4) { width: 80px;  }
+.desktop-cat-btn-skeleton:nth-child(5) { width: 95px;  }
+
+/* Mobile sidebar skeletons */
+.sidebar__link-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 56px;
+}
+
+.sidebar__skeleton-label {
+  height: 14px;
+  border-radius: 4px;
+  flex: 1;
+  max-width: 140px;
+  background: linear-gradient(
+    90deg,
+    rgba(14,146,228,0.12) 25%,
+    rgba(14,146,228,0.28) 50%,
+    rgba(14,146,228,0.12) 75%
+  );
+  background-size: 400px 100%;
+}
+
+/* Stagger sidebar skeleton label widths */
+li:nth-child(5) .sidebar__skeleton-label { max-width: 100px; }
+li:nth-child(6) .sidebar__skeleton-label { max-width: 120px; }
+li:nth-child(7) .sidebar__skeleton-label { max-width: 80px;  }
