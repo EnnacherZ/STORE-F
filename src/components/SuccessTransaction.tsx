@@ -17,6 +17,7 @@ import { selectedLang, sendEmail } from './constants';
 import { usePayment, PaymentResponse } from '../contexts/PaymentContext';
 import createInvoice from '../contexts/CreateInvoice';
 import { connecter } from '../server/connecter';
+import { isAxiosError } from 'axios';
 
 const FAILURE_ROUTE = '/Transaction/Failed'; // ⚠️ update to match your actual route
 const MAX_VERIFY_ATTEMPTS = 10;
@@ -170,7 +171,7 @@ const SuccessTransaction: React.FC = () => {
 
       setPaymentResponse(onlinePaymentResponse);
 
-      await generateInvoice(onlinePaymentResponse);
+      await generateInvoice(onlinePaymentResponse, orderedItems);
 
       if (clientForm) {
         try {
@@ -193,10 +194,10 @@ const SuccessTransaction: React.FC = () => {
       // still displays amount/currency/order_id from it. It gets cleared the
       // next time Checkout mounts.
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Online payment handling failed:', error);
 
-      const isOrderNotFound = error?.response?.status === 404;
+      const isOrderNotFound = isAxiosError(error) && error.response?.status === 404;
       setErrorMessage(
         isOrderNotFound
           ? 'Order not found or not yet confirmed. Please wait a moment and refresh.'
@@ -209,10 +210,13 @@ const SuccessTransaction: React.FC = () => {
 
   // ── Generate invoice PDF ──────────────────────────────────────────────────────
 
-  const generateInvoice = async (response: PaymentResponse) => {
+  const generateInvoice = async (
+    response: PaymentResponse,
+    items = successTransItems
+  ) => {
     if (!clientForm) return;
     try {
-      const invoice = await createInvoice(response, clientForm, successTransItems);
+      const invoice = await createInvoice(response, clientForm, items);
       setInvoiceUrl(invoice.url);
     } catch (err) {
       console.error('Invoice generation failed:', err);
@@ -250,10 +254,6 @@ const SuccessTransaction: React.FC = () => {
     );
   }
 
-  if (!invoiceUrl) {
-    return <Loading message={t('ui.loading')} />;
-  }
-
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
   const getItemTotal = (price: number, promo: number, quantity: number) => (price * (1 - promo * 0.01) * quantity).toFixed(2);
@@ -264,14 +264,18 @@ const SuccessTransaction: React.FC = () => {
 
   // ── Download button ───────────────────────────────────────────────────────────
 
-  const renderDownloadTicketButton = () => (
-    <a href={invoiceUrl} download={`${invoiceFileName}.pdf`} className="suc-download-link">
-      <button className="suc-download-btn">
-        <GiTicket size={18} />
-        <span>{t('transaction.downloadTicket')}</span>
-      </button>
-    </a>
-  );
+  const renderDownloadTicketButton = () => {
+    if (!invoiceUrl) return null;
+
+    return (
+      <a href={invoiceUrl} download={`${invoiceFileName}.pdf`} className="suc-download-link">
+        <button className="suc-download-btn">
+          <GiTicket size={18} />
+          <span>{t('transaction.downloadTicket')}</span>
+        </button>
+      </a>
+    );
+  };
 
   const activeResponse = paymentResponse;
 

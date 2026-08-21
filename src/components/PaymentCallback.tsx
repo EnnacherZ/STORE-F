@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePayment } from '../contexts/PaymentContext';
+import { clientData, usePayment } from '../contexts/PaymentContext';
 import { useCart } from '../contexts/CartContext';
 import { connecter } from '../server/connecter';
 import { goTo, sendEmail, selectedLang, showToast } from './constants';
@@ -34,6 +34,15 @@ interface VerifyResponse {
 const MAX_ATTEMPTS = 6;
 const RETRY_DELAYS = [2000, 3000, 4000, 6000, 8000];
 const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+const EMAIL_TIMEOUT_MS = 12000;
+
+const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> =>
+  Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      window.setTimeout(() => reject(new Error('Operation timed out.')), timeoutMs);
+    }),
+  ]);
 
 // ─── Step config ──────────────────────────────────────────────────────────────
 
@@ -261,7 +270,7 @@ const ErrorUI: React.FC<{ message: string; transactionId: string }> = ({ message
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const PaymentCallback: React.FC = () => {
-  const { clientForm, setPaymentResponse } = usePayment();
+  const { clientForm, setClientForm, setPaymentResponse } = usePayment();
   const { clearCart, setSuccessTransItems } = useCart();
   const { currentLang } = useLangContext();
   const { t } = useTranslation();
@@ -284,7 +293,10 @@ const PaymentCallback: React.FC = () => {
 
       const params      = getQueryParams();
       const transaction = params['transaction_id'] ?? '';
-      const isSuccess   = params['is_success'] === '1' || params['success'] === '1';
+      const callbackPath = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      const isSuccess   = callbackPath === '/payment/success'
+        || params['is_success'] === '1'
+        || params['success'] === '1';
       const oid         = params['order_id']    ?? '';
       const code        = params['code']         ?? '';
       const failMsg     = params['message']      ?? t('transaction.retryDefaultReason');
@@ -305,6 +317,12 @@ const PaymentCallback: React.FC = () => {
         return;
       }
 
+      if (!transaction || !oid) {
+        setStatus('error');
+        setErrorMsg(t('transaction.errorTitle'));
+        return;
+      }
+
       try {
         setStatus('verifying');
         let verified    = false;
@@ -316,7 +334,11 @@ const PaymentCallback: React.FC = () => {
           setIsWaiting(false);
 
           console.log(`[verify] attempt ${attempt + 1}/${MAX_ATTEMPTS}`);
-          const res  = await connecter.post('api/payment/verify/', { transaction_id: transaction, order_id: oid });
+          const res  = await connecter.post(
+            'api/payment/verify/',
+            { transaction_id: transaction, order_id: oid },
+            { timeout: 10000 }
+          );
           const data = res.data as VerifyResponse;
           console.log(`[verify] response:`, JSON.stringify(data));
 
@@ -347,12 +369,23 @@ const PaymentCallback: React.FC = () => {
 
         setIsWaiting(false);
         setStatus('processing');
-        const response = await connecter.post('api/payment/handle/', {
-          orderId: oid,
-          transaction_id: transaction,
-          date, onlinePayment: true,
-        });
+        const response = await connecter.post(
+          'api/payment/handle/',
+          {
+            orderId: oid,
+            transaction_id: transaction,
+            date,
+            onlinePayment: true,
+          },
+          { timeout: 15000 }
+        );
         const orderedItems = response.data.ordered_products ?? [];
+        const serverClient = response.data.client as clientData | undefined;
+        const invoiceClient = clientForm ?? serverClient;
+
+        if (!clientForm && serverClient) {
+          setClientForm(serverClient);
+        }
         setSuccessTransItems(orderedItems);
 
         const paymentResult = response.data.paymentResponse;
@@ -366,14 +399,25 @@ const PaymentCallback: React.FC = () => {
         setPaymentResponse(freshResponse);
 
         setStatus('emailing');
-        const invoicePdf      = (await createInvoice(freshResponse, clientForm, orderedItems)).doc;
-        const invoiceFileName = `${clientForm?.FirstName}_${clientForm?.LastName}`;
-        const invoiceFile     = new File(
-          [invoicePdf.buffer as ArrayBuffer],
-          `${invoiceFileName}.pdf`,
-          { type: 'application/pdf' }
-        );
-        await sendEmail(clientForm, invoiceFile, 'Invoice', 'Here is your Invoice');
+        if (invoiceClient) {
+          try {
+            const invoicePdf      = (await createInvoice(freshResponse, invoiceClient, orderedItems)).doc;
+            const invoiceFileName = `${invoiceClient.FirstName}_${invoiceClient.LastName}`;
+            const invoiceFile     = new File(
+              [invoicePdf.buffer as ArrayBuffer],
+              `${invoiceFileName}.pdf`,
+              { type: 'application/pdf' }
+            );
+            await withTimeout(
+              sendEmail(invoiceClient, invoiceFile, 'Invoice', 'Here is your Invoice'),
+              EMAIL_TIMEOUT_MS
+            );
+          } catch (emailErr) {
+            // Payment and stock finalization already succeeded. An invoice
+            // email failure must never trap the customer on the callback page.
+            console.error('[PaymentCallback] invoice email failed:', emailErr);
+          }
+        }
 
         setStatus('done');
         clearCart();

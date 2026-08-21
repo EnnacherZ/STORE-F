@@ -117,13 +117,25 @@ export const cities = [
 ];
 
 
-export const sendEmail = async (emailData:clientData | undefined, file: File, subject:any, body: any): Promise<boolean> => {
-
+export const sendEmail = async (
+  emailData: clientData | undefined,
+  file: File,
+  subject: string,
+  body: string
+): Promise<boolean> => {
+      const recipient = emailData?.Email?.trim();
+      if (!recipient) {
+        throw new Error('Cannot send invoice email without a recipient address.');
+      }
 
       const formData = new FormData();
 
       // 👇 ajouter les champs
-      formData.append("to", emailData?.Email || "");
+      formData.append("to", recipient);
+      formData.append(
+        "customer_name",
+        [emailData?.FirstName, emailData?.LastName].filter(Boolean).join(" ")
+      );
       //formData.append("cc", emailData.cc);
       //formData.append("bcc", emailData.bcc);
       formData.append("subject", subject);
@@ -134,11 +146,9 @@ export const sendEmail = async (emailData:clientData | undefined, file: File, su
         formData.append("file", file);
       }    
 
-      const res = await connecter.post("api/send_mail/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      // Do not set Content-Type manually: the browser must add the multipart
+      // boundary or Django can receive an empty request payload.
+      const res = await connecter.post("api/send_mail/", formData)
       return res.status == 200
 
     

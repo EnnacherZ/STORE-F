@@ -42,6 +42,9 @@ import en from 'react-phone-number-input/locale/en';
 // pages. Both online and COD flows now go through the SAME two constants,
 // so success/failure always lands on the same page regardless of payment method.
 const SUCCESS_ROUTE = '/Transaction/Success';
+const CHECKOUT_ROUTE = '/Checkout';
+const CHECKOUT_SIGN_IN_ROUTE = `/account/signin?returnTo=${encodeURIComponent(CHECKOUT_ROUTE)}`;
+const CHECKOUT_SIGN_UP_ROUTE = `/account/signup?returnTo=${encodeURIComponent(CHECKOUT_ROUTE)}`;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -180,11 +183,11 @@ const GuestNudge: React.FC = () => {
   return (
     <div className="co-guest-nudge">
       <span>{t('auth.guestNudge')}</span>
-      <button className="co-guest-nudge__btn" onClick={() => goTo('/signin')}>
+      <button className="co-guest-nudge__btn" onClick={() => goTo(CHECKOUT_SIGN_IN_ROUTE)}>
         {t('auth.signIn')}
       </button>
       <span>{t('auth.or')}</span>
-      <button className="co-guest-nudge__btn co-guest-nudge__btn--secondary" onClick={() => goTo('/signup')}>
+      <button className="co-guest-nudge__btn co-guest-nudge__btn--secondary" onClick={() => goTo(CHECKOUT_SIGN_UP_ROUTE)}>
         {t('auth.createOne')}
       </button>
     </div>
@@ -380,15 +383,21 @@ const Checkout: React.FC = () => {
 
       setPaymentResponse(cashPaymentResponse);
 
-      const invoicePdf      = (await createInvoice(cashPaymentResponse, clientForm, orderedItems)).doc;
-      const invoiceFileName = `${clientForm?.FirstName}_${clientForm?.LastName}`;
-      const invoiceFile     = new File(
-        [invoicePdf.buffer as ArrayBuffer],
-        `${invoiceFileName}.pdf`,
-        { type: 'application/pdf' }
-      );
+      try {
+        const invoicePdf      = (await createInvoice(cashPaymentResponse, clientForm, orderedItems)).doc;
+        const invoiceFileName = `${clientForm?.FirstName}_${clientForm?.LastName}`;
+        const invoiceFile     = new File(
+          [invoicePdf.buffer as ArrayBuffer],
+          `${invoiceFileName}.pdf`,
+          { type: 'application/pdf' }
+        );
 
-      await sendEmail(clientForm, invoiceFile, 'Invoice', 'Here is your Invoice');
+        await sendEmail(clientForm, invoiceFile, 'Invoice', 'Here is your Invoice');
+      } catch (emailErr) {
+        // The order is already complete. Email delivery must not block the
+        // success page or make the customer think their order failed.
+        console.error('[Checkout] invoice email failed:', emailErr);
+      }
 
       // Clear cart BEFORE navigating away, so we don't touch cart state
       // on an unmounted component after the route change.
@@ -445,7 +454,7 @@ const Checkout: React.FC = () => {
         <Header />
         <div className="co-page">
           <ModeChooser
-            onAccount={() => goTo('/signin')}
+            onAccount={() => goTo(CHECKOUT_SIGN_IN_ROUTE)}
             onGuest={() => setMode('guest')}
           />
         </div>

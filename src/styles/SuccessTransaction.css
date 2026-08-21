@@ -38,7 +38,8 @@
 .suc-logo img {
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: contain;
+  object-position: center;
 }
 
 /* ─── Check icon ──────────────────────────────────────────────────────────────── */
@@ -242,7 +243,11 @@
 .suc-item-img img {
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  box-sizing: border-box;
+  padding: 4px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
 
 /* ─── Item info ───────────────────────────────────────────────────────────────── */

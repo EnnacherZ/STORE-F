@@ -6,6 +6,18 @@ import { useClientAuth } from "../contexts/ClientAuthContext";
 import icon2 from "../assets/WHITE FIRDAOUS STORE.png";
 import "../styles/auth.css";
 import Header from "./Header";
+import { isAxiosError } from "axios";
+
+interface SignInLocationState {
+  from?: {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+  };
+}
+
+const safeInternalPath = (value: string | null | undefined, fallback = "/Home") =>
+  value?.startsWith("/") && !value.startsWith("//") ? value : fallback;
 
 const SignInPage: React.FC = () => {
   const { t }      = useTranslation();
@@ -13,8 +25,15 @@ const SignInPage: React.FC = () => {
   const location   = useLocation();
   const { signIn } = useClientAuth();
 
-  // Redirect to where the user came from, or /Home
-  const from = (location.state as any)?.from?.pathname ?? "/Home";
+  // A query parameter survives full-page navigation/reloads from Checkout;
+  // router state still supports protected-route redirects such as /account.
+  const state = location.state as SignInLocationState | null;
+  const stateFrom = state?.from?.pathname
+    ? `${state.from.pathname}${state.from.search ?? ""}${state.from.hash ?? ""}`
+    : undefined;
+  const requestedReturnTo = new URLSearchParams(location.search).get("returnTo") ?? stateFrom;
+  const returnTo = safeInternalPath(requestedReturnTo);
+  const signUpTarget = `/account/signup?returnTo=${encodeURIComponent(returnTo)}`;
 
   const [email,     setEmail]     = useState("");
   const [password,  setPassword]  = useState("");
@@ -28,9 +47,11 @@ const SignInPage: React.FC = () => {
     setLoading(true);
     try {
       await signIn(email, password);
-      navigate(from, { replace: true });
-    } catch (err: any) {
-      const msg = err?.response?.data?.error ?? t("auth.genericError");
+      navigate(returnTo, { replace: true });
+    } catch (err: unknown) {
+      const msg = isAxiosError(err)
+        ? err.response?.data?.error ?? t("auth.genericError")
+        : t("auth.genericError");
       setError(msg);
     } finally {
       setLoading(false);
@@ -56,7 +77,7 @@ const SignInPage: React.FC = () => {
           <h1 className="auth-card__title">{t("auth.signInTitle")}</h1>
           <p className="auth-card__sub">
             {t("auth.noAccount")}{" "}
-            <Link to="/signup" className="auth-link">{t("auth.createOne")}</Link>
+            <Link to={signUpTarget} className="auth-link">{t("auth.createOne")}</Link>
           </p>
 
           {error && (

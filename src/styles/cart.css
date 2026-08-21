@@ -205,12 +205,16 @@
   border-radius: 8px;
   overflow:      hidden;
   border:        1px solid #eee;
+  background:    #ffffff;
 }
 
 .cart-item-image__img {
   width:       100%;
   height:      100%;
-  object-fit:  cover;
+  box-sizing:  border-box;
+  padding:     5px;
+  object-fit:  contain;
+  object-position: center;
   display:     block;
 }
 

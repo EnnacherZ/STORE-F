@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "react-phone-number-input/style.css";
 import PhoneInput, {
@@ -19,6 +19,7 @@ import { useLangContext } from "../contexts/LanguageContext";
 import { selectedLang, cities } from "./constants";
 import icon2 from "../assets/WHITE FIRDAOUS STORE.png";
 import "../styles/auth.css";
+import { isAxiosError } from "axios";
 
 // ── Password strength ──────────────────────────────────────────────────────────
 
@@ -100,11 +101,17 @@ const INITIAL: FormState = {
 const SignUpPage: React.FC = () => {
   const { t }           = useTranslation();
   const navigate        = useNavigate();
+  const location        = useLocation();
   const { signUp }      = useClientAuth();
   const { currentLang } = useLangContext();
 
   const lang        = selectedLang(currentLang);
   const phoneLabels = lang === "fr" ? localeFr : lang === "ar" ? localeAr : localeEn;
+  const requestedReturnTo = new URLSearchParams(location.search).get("returnTo");
+  const returnTo = requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")
+    ? requestedReturnTo
+    : "/Home";
+  const signInTarget = `/account/signin?returnTo=${encodeURIComponent(returnTo)}`;
 
   const [form,       setForm]       = useState<FormState>(INITIAL);
   const [showPass,   setShowPass]   = useState(false);
@@ -146,11 +153,20 @@ const SignUpPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const { confirmPassword, ...payload } = form;
+      const payload = {
+        email: form.email,
+        password: form.password,
+        first_name: form.first_name,
+        last_name: form.last_name,
+        phone: form.phone,
+        address: form.address,
+        city: form.city,
+        country: form.country,
+      };
       await signUp(payload);
       setSuccess(true);
-    } catch (err: any) {
-      const data = err?.response?.data;
+    } catch (err: unknown) {
+      const data = isAxiosError(err) ? err.response?.data : undefined;
       setError(data?.error ?? data?.email?.[0] ?? t("auth.genericError"));
     } finally {
       setLoading(false);
@@ -173,7 +189,7 @@ const SignUpPage: React.FC = () => {
           <FaCheckCircle className="auth-success-icon" aria-hidden />
           <h1 className="auth-card__title">{t("auth.successTitle")}</h1>
           <p className="auth-card__sub">{t("auth.successSub", { email: form.email })}</p>
-          <button className="auth-btn auth-btn--primary" onClick={() => navigate("/signin")}>
+          <button className="auth-btn auth-btn--primary" onClick={() => navigate(signInTarget)}>
             {t("auth.goToSignIn")}
           </button>
         </div>
@@ -199,7 +215,7 @@ const SignUpPage: React.FC = () => {
           <h1 className="auth-card__title">{t("auth.signUpTitle")}</h1>
           <p className="auth-card__sub">
             {t("auth.haveAccount")}{" "}
-            <Link to="/signin" className="auth-link">{t("auth.signInLink")}</Link>
+            <Link to={signInTarget} className="auth-link">{t("auth.signInLink")}</Link>
           </p>
 
           {error && <div className="auth-alert auth-alert--error" role="alert">{error}</div>}
