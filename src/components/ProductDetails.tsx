@@ -1,15 +1,21 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLangContext } from "../contexts/LanguageContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bounce, toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, FreeMode, Navigation, Thumbs } from "swiper/modules";
+import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import { type Swiper as SwiperType } from "swiper";
 import { FaCartPlus, FaShirt, FaStar } from "react-icons/fa6";
 import { TbRosetteDiscount } from "react-icons/tb";
-import { MdOutlineRateReview, MdRateReview, MdReviews } from "react-icons/md";
+import {
+  MdLocalShipping,
+  MdOutlineRateReview,
+  MdRateReview,
+  MdReviews,
+  MdVerifiedUser,
+} from "react-icons/md";
 import { IoAddCircle, IoClose } from "react-icons/io5";
 import { LiaShoePrintsSolid } from "react-icons/lia";
 import { GiSandal } from "react-icons/gi";
@@ -22,8 +28,8 @@ import "swiper/css/thumbs";
 
 import Header from "./Header";
 import Footer from "./Footer";
-import Loading from "./loading";
-import ModalBackDrop from "./modalBackdrop";
+import Loading from "./Loading";
+import ModalBackDrop from "./ModalBackdrop";
 import ProductCarousel from "./ProductCarousel";
 import CommandDetails from "./CommandDetails";
 import TextReducer from "./TextReducer";
@@ -31,6 +37,7 @@ import { CartItem, useCart } from "../contexts/CartContext";
 import { Product, ProductReviews } from "../contexts/ProductsContext";
 import { connecter } from "../server/connecter";
 import { selectedLang } from "./constants";
+import { getCategoryIcon } from "../illustrations/CategoryIcons";
 import reviewGuestImg from "../assets/review-guest.jpg";
 import "../styles/ProductDetail.css";
 import "../styles/HomePage.css";
@@ -175,9 +182,11 @@ const ProductDetails: React.FC = () => {
   // ── UI state ────────────────────────────────────────────────────────────
   const [sizeSelection,    setSizeSelection]    = useState<SizeSelection | null>(null);
   const [thumbsSwiper,     setThumbsSwiper]     = useState<SwiperType | null>(null);
+  const [mainSwiper,       setMainSwiper]       = useState<SwiperType | null>(null);
   const [isMobile,         setIsMobile]         = useState(false);
   const [showReviewModal,  setShowReviewModal]  = useState(false);
   const [reviewsExpanded,  setReviewsExpanded]  = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // ── Fetch ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -190,6 +199,8 @@ const ProductDetails: React.FC = () => {
         setProduct(res.data.product);
         setRelated(res.data.products);
         setReviews(res.data.reviews ?? []);
+        setActiveImageIndex(0);
+        setSizeSelection(null);
       } catch {
         // Handle fetch error gracefully — e.g. show error state
       }
@@ -217,25 +228,13 @@ const ProductDetails: React.FC = () => {
 
   // ── Handlers ────────────────────────────────────────────────────────────
 
-  const showSizeError = () =>
-    toast.error(t("cart.sizeNotSelected"), {
-      position:        "top-center",
-      autoClose:       2000,
-      hideProgressBar: false,
-      closeOnClick:    false,
-      pauseOnHover:    false,
-      draggable:       true,
-      theme:           "colored",
-      transition:      Bounce,
-    });
-
   /**
    * Single handler for both "add to cart" and "buy now".
    * @param goToCheckout — navigates to /Checkout after adding when true
    */
   const handleAddToCart = (goToCheckout = false) => {
     if (!product) return;
-    if (!sizeSelection) { showSizeError(); return; }
+    if (!sizeSelection) return;
 
     const item: CartItem = {
       product_type: product.product_type,
@@ -251,16 +250,7 @@ const ProductDetails: React.FC = () => {
       maxQuantity:  sizeSelection.quantity,
     };
 
-    addItem(item);
-    toast.success(t("cart.addSuccess"), {
-      autoClose:       2000,
-      hideProgressBar: false,
-      closeOnClick:    false,
-      pauseOnHover:    false,
-      draggable:       true,
-      theme:           "colored",
-      transition:      Bounce,
-    });
+    addItem(item, { showConfirmation: !goToCheckout });
 
     if (goToCheckout) navigate("/Checkout");
   };
@@ -285,8 +275,6 @@ const ProductDetails: React.FC = () => {
     setShowReviewModal(false);
   };
 
-  const isInStock = () => !sizeSelection || sizeSelection.quantity > 0;
-
   // ── Loading state ────────────────────────────────────────────────────────
   if (!product) {
     return (
@@ -301,22 +289,32 @@ const ProductDetails: React.FC = () => {
   const finalPrice = (product.price * (1 - product.promo * 0.01)).toFixed(2);
   const origPrice  = product.price.toFixed(2);
   const typeConfig = PRODUCT_TYPE_MAP[product.product_type];
+  const RelatedIcon = typeConfig?.Icon ?? getCategoryIcon(product.product_type);
+  const isSoldOut = product.stock.every((stockItem) => stockItem.quantity === 0);
+  const canPurchase = Boolean(sizeSelection && sizeSelection.quantity > 0);
+  const savings = (product.price - Number(finalPrice)).toFixed(2);
+  const localizedProductType = t(`productTypes.${product.product_type.toLowerCase()}`, {
+    defaultValue: product.product_type,
+  });
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <>
       <Header />
 
+      <nav className={`pd-breadcrumb${isRtl ? " pd-breadcrumb--rtl" : ""}`} aria-label="Breadcrumb">
+        <Link to="/Home">{t("nav.home")}</Link>
+        <span aria-hidden>/</span>
+        <Link to={`/ProductPage/${product.product_type}`}>{localizedProductType}</Link>
+        <span aria-hidden>/</span>
+        <span aria-current="page">{product.name}</span>
+      </nav>
+
       {/* ── Main: images + info side by side ────────────────────────────── */}
       <section
         className={`pd-layout ${isMobile ? "pd-layout--mobile" : ""}`}
         dir={isRtl ? "rtl" : "ltr"}
       >
-        {/* Mobile-only preview title */}
-        {isMobile && (
-          <p className="pd-preview-title">{t("product.preview")}</p>
-        )}
-
         {/* Images column — vertical thumb strip (left) + main image (right) */}
         <div className={`pd-images ${isMobile ? "pd-images--mobile" : ""}`}>
 
@@ -330,34 +328,50 @@ const ProductDetails: React.FC = () => {
             watchSlidesProgress
             modules={[FreeMode, Thumbs]}
             className={`pd-thumbs${isMobile ? " pd-thumbs--mobile" : ""}`}
-            style={isMobile
-              ? { width: "100%", height: "64px" }
-              : { width: "72px",  height: "460px" }
-            }
           >
             {productImages.map((src, i) => (
-              <SwiperSlide key={i} className="pd-thumb">
-                <img src={src} alt="" aria-hidden />
+              <SwiperSlide
+                key={i}
+                className="pd-thumb"
+                role="button"
+                tabIndex={0}
+                aria-label={`${t("product.preview")} ${i + 1}`}
+                aria-current={activeImageIndex === i ? "true" : undefined}
+                onClick={() => mainSwiper?.slideTo(i)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    mainSwiper?.slideTo(i);
+                  }
+                }}
+              >
+                <img src={src} alt="" aria-hidden loading="lazy" />
               </SwiperSlide>
             ))}
           </Swiper>
 
           {/* Main image */}
-          <Swiper
-            className="pd-swiper"
-            spaceBetween={10}
-            thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-            navigation
-            modules={[Navigation, FreeMode, Thumbs, Autoplay]}
-            autoplay={{ delay: 2500, disableOnInteraction: true }}
-            style={{ height: isMobile ? "280px" : "460px" }}
-          >
-            {productImages.map((src, i) => (
-              <SwiperSlide key={i}>
-                <img src={src} alt={`${product.name} — view ${i + 1}`} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="pd-main-image">
+            <Swiper
+              className="pd-swiper"
+              onSwiper={setMainSwiper}
+              spaceBetween={10}
+              thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+              navigation={productImages.length > 1}
+              rewind={productImages.length > 1}
+              modules={[Navigation, FreeMode, Thumbs]}
+              onSlideChange={(swiper) => setActiveImageIndex(swiper.realIndex)}
+            >
+              {productImages.map((src, i) => (
+                <SwiperSlide key={i}>
+                  <img src={src} alt={`${product.name} — view ${i + 1}`} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <span className="pd-main-image__count" aria-label={`${productImages.length} images`}>
+              {activeImageIndex + 1} / {productImages.length}
+            </span>
+          </div>
         </div>
 
         {/* Info column */}
@@ -365,13 +379,17 @@ const ProductDetails: React.FC = () => {
 
           {/* Meta row: type pill + ref */}
           <div className="pd-info__meta">
-            <span className="pd-info__meta-tag">{t(`productTypes.${product.product_type.toLowerCase()}`)}</span>
+            <span className="pd-info__meta-tag">{localizedProductType}</span>
             <span className="pd-info__meta-ref">REF: {product.ref}</span>
+            <span className={`pd-info__stock${isSoldOut ? " pd-info__stock--sold-out" : ""}`}>
+              <span aria-hidden />
+              {isSoldOut ? t("product.soldOut") : t("product.inStock")}
+            </span>
           </div>
 
           {/* Name hierarchy */}
-          <h1 className="pd-info__title">{product.category.toUpperCase()}</h1>
-          <h2 className="pd-info__subtitle">{product.name}</h2>
+          <h1 className="pd-info__title">{product.name}</h1>
+          <p className="pd-info__subtitle">{product.category}</p>
 
           <hr className="pd-info__divider" />
 
@@ -385,16 +403,27 @@ const ProductDetails: React.FC = () => {
 
           {/* Price */}
           <div className="pd-info__prices">
-            <span className="pd-info__price--final">{finalPrice} MAD</span>
+            <span className="pd-info__price--final">{finalPrice} {t("product.currency")}</span>
             {product.promo !== 0 && (
-              <span className="pd-info__price--original">
-                {origPrice} {t("product.currency")}
-              </span>
+              <>
+                <span className="pd-info__price--original">
+                  {origPrice} {t("product.currency")}
+                </span>
+                <span className="pd-info__savings">
+                  {t("product.youSave", { amount: savings })} {t("product.currency")}
+                </span>
+              </>
             )}
           </div>
 
           {/* Sizes */}
-          <p className="pd-info__section-label">{t("product.sizes")}</p>
+          <div className="pd-info__size-header">
+            <p className="pd-info__section-label">{t("product.sizes")}</p>
+            <span>{sizeSelection
+              ? `${t("product.selectedSize")}: ${sizeSelection.size}`
+              : t("product.chooseSizeHint")}
+            </span>
+          </div>
           <div className="pd-info__sizes">
             {product.stock?.map((s, i) => {
               const outOfStock = s.quantity === 0;
@@ -423,25 +452,31 @@ const ProductDetails: React.FC = () => {
             <button
               className="pd-btn pd-btn--cart"
               onClick={() => handleAddToCart(false)}
-              disabled={!isInStock()}
+              disabled={!canPurchase}
             >
               <FaCartPlus aria-hidden />
-              {isInStock() ? t("product.addToCart") : t("product.soldOut")}
+              {isSoldOut ? t("product.soldOut") : t("product.addToCart")}
             </button>
             <button
               className="pd-btn pd-btn--checkout"
               onClick={() => handleAddToCart(true)}
-              disabled={!isInStock()}
+              disabled={!canPurchase}
             >
               <FaCartPlus aria-hidden />
-              {isInStock() ? t("order.checkoutNow") : t("product.soldOut")}
+              {isSoldOut ? t("product.soldOut") : t("order.checkoutNow")}
             </button>
           </div>
 
-          {/* Trust strip */}
-          <div className="pd-info__trust">
-            <span className="pd-info__trust-icon">🚚</span>
-            {t("delivery.cityOnly")}
+          {/* Purchase reassurance */}
+          <div className="pd-info__benefits">
+            <div>
+              <MdLocalShipping aria-hidden />
+              <span>{t("delivery.label")}<strong>{t("delivery.free")}</strong></span>
+            </div>
+            <div>
+              <MdVerifiedUser aria-hidden />
+              <span>{t("cart.secureCheckout")}<strong>{t("payment.methods")}</strong></span>
+            </div>
           </div>
 
         </div>
@@ -458,7 +493,8 @@ const ProductDetails: React.FC = () => {
       <div className={`pd-reviews ${isRtl ? "rtl" : ""}`}>
         <div className="pd-reviews__card card shadow">
           <h3 className="pd-reviews__title">
-            <MdRateReview aria-hidden /> {t("review.title")}
+            <span><MdRateReview aria-hidden /> {t("review.title")}</span>
+            <b>{reviews.length}</b>
           </h3>
 
           {reviews.length === 0 && (
@@ -549,19 +585,18 @@ const ProductDetails: React.FC = () => {
       </div>
 
       {/* ── Related products carousel ────────────────────────────────────── */}
-      {typeConfig && (
+      {related.length > 0 && (
         <div className="pd-carousel-section">
           <div className="pd-carousel-section__title">
-            <typeConfig.Icon aria-hidden />
-            {t(typeConfig.labelKey)}
-            <typeConfig.Icon aria-hidden />
+            <RelatedIcon aria-hidden />
+            {typeConfig ? t(typeConfig.labelKey) : t("product.relatedProducts")}
+            <RelatedIcon aria-hidden />
           </div>
           <ProductCarousel Data={related} productType={product.product_type + "s"} />
         </div>
       )}
 
       <Footer />
-      <ToastContainer style={{ width: "40%", marginLeft: "15%" }} />
     </>
   );
 };

@@ -571,6 +571,15 @@
 
   .sidebar__link:hover { background: #f0f7fd; color: var(--color-brand); }
 
+  .sidebar__link--button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    text-align: inherit;
+    cursor: pointer;
+  }
+
   .sidebar__link[data-active="true"] {
     background: #e8f4fd;
     color: var(--color-brand);

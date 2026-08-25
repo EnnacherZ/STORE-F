@@ -9,7 +9,7 @@ import { FaStar, FaUser } from 'react-icons/fa6';
 import { useLangContext } from '../contexts/LanguageContext';
 import { selectedLang } from './constants';
 import { CartItem } from '../contexts/CartContext';
-import ModalBackdrop from './modalBackdrop';
+import ModalBackdrop from './ModalBackdrop';
 import { connecter } from '../server/connecter';
 
 interface ConfirmModalProps {

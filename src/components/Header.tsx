@@ -166,7 +166,7 @@ const SidebarAccountItem: React.FC<{ isActive: boolean }> = ({ isActive }) => {
 const Header: React.FC = () => {
   const isPub = import.meta.env.VITE_IS_HEADER_PUB === "true";
 
-  const { itemCount } = useCart();
+  const { itemCount, openCartDrawer } = useCart();
   const { setCurrentLang, currentLang } = useLangContext();
   const { t } = useTranslation();
   const location = useLocation();
@@ -193,6 +193,20 @@ const Header: React.FC = () => {
 
   const isActive = (path: string) =>
     location.pathname === path || (path === "/Home" && location.pathname === "/");
+
+  const handleCartClick = () => {
+    if (itemCount > 0) {
+      if (sidebarOpen) {
+        setSidebarOpen(false);
+        window.setTimeout(openCartDrawer, 0);
+        return;
+      }
+      openCartDrawer();
+      return;
+    }
+    setSidebarOpen(false);
+    goTo('/Cart');
+  };
 
   return (
     <>
@@ -234,7 +248,7 @@ const Header: React.FC = () => {
 
               <button
                 className="mobile-cart-btn"
-                onClick={() => goTo("/Cart")}
+                onClick={handleCartClick}
                 aria-label={`${t("cart.title")}, ${itemCount} items`}
               >
                 <FaShoppingCart className="mobile-cart-btn__icon" aria-hidden />
@@ -263,10 +277,11 @@ const Header: React.FC = () => {
 
                   {/* Cart */}
                   <li className="sidebar__item">
-                    <Link
-                      to="/YourCart"
-                      className="sidebar__link"
-                      data-active={isActive("/YourCart") ? "true" : "false"}
+                    <button
+                      type="button"
+                      className="sidebar__link sidebar__link--button"
+                      data-active={isActive("/Cart") ? "true" : "false"}
+                      onClick={handleCartClick}
                     >
                       <span className="sidebar__link-icon"><FaShoppingCart /></span>
                       <span className="sidebar__link-label">
@@ -274,7 +289,7 @@ const Header: React.FC = () => {
                         <em className="sidebar__link-count"> ({itemCount})</em>
                       </span>
                       <FaAngleRight className="sidebar__link-arrow" aria-hidden />
-                    </Link>
+                    </button>
                   </li>
 
                   {/* Home */}
@@ -345,7 +360,7 @@ const Header: React.FC = () => {
 
                 <button
                   className="desktop-cart-btn"
-                  onClick={() => goTo("/Cart")}
+                  onClick={handleCartClick}
                   aria-label={`${t("cart.title")}, ${itemCount} items`}
                 >
                   <FaShoppingCart aria-hidden />

@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CartItem, useCart } from '../contexts/CartContext';
 import { Zoom, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Header from './Header';
 import '../styles/cart.css';
 import Modal from './Modal';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { FaMoneyCheckAlt, FaRegTrashAlt, FaShoppingCart } from 'react-icons/fa';
-import { MdRemoveShoppingCart } from 'react-icons/md';
+import {
+  MdClose,
+  MdKeyboardArrowUp,
+  MdLocalShipping,
+  MdRemoveShoppingCart,
+  MdVerifiedUser,
+} from 'react-icons/md';
+import { IoArrowBackOutline } from 'react-icons/io5';
 import { TbCreditCardPay } from 'react-icons/tb';
 import ReactCountryFlag from 'react-country-flag';
 import Footer from './Footer';
@@ -15,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { useLangContext } from '../contexts/LanguageContext';
 import { usePayment } from '../contexts/PaymentContext';
 import { goTo, selectedLang } from './constants';
+import PromoCodeField from './PromoCodeField';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -53,7 +61,11 @@ const Cart: React.FC = () => {
   const { setCurrentCurrency, currentCurrency, currencyIsAvailable } = usePayment();
   const {
     cartTotalAmount,
+    discountedCartTotalAmount,
+    promotionDiscountAmount,
+    appliedPromotion,
     cartChecker,
+    itemCount,
     allItems,
     removeItem,
     clearCart,
@@ -64,8 +76,35 @@ const Cart: React.FC = () => {
   const isRtl = selectedLang(currentLang) === 'ar';
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSummaryDrawerOpen, setIsSummaryDrawerOpen] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth <= 800,
+  );
   const [itemToDelete,      setItemToDelete]      = useState<CartItem>(EMPTY_CART_ITEM);
   const [deleteAction,      setDeleteAction]      = useState<'remove' | 'clear-all' | ''>('');
+
+  useEffect(() => {
+    const updateViewport = () => setIsCompactViewport(window.innerWidth <= 800);
+    window.addEventListener('resize', updateViewport);
+    return () => window.removeEventListener('resize', updateViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isSummaryDrawerOpen || !cartChecker) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsSummaryDrawerOpen(false);
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isSummaryDrawerOpen, cartChecker]);
 
   // ── Delete handlers ──────────────────────────────────────────────────────────
 
@@ -83,7 +122,7 @@ const Cart: React.FC = () => {
   const confirmRemoveItem = (item: CartItem) => {
     removeItem(item);
     setIsDeleteModalOpen(false);
-    toast.error(t('cart.itemRemoved'), {
+    toast.info(t('cart.itemRemoved'), {
       position:        'top-center',
       autoClose:       2000,
       hideProgressBar: false,
@@ -104,7 +143,7 @@ const Cart: React.FC = () => {
   const confirmClearCart = () => {
     clearCart();
     setIsDeleteModalOpen(false);
-    toast.error(t('cart.cleared'), {
+    toast.info(t('cart.cleared'), {
       position:        'top-center',
       autoClose:       2000,
       hideProgressBar: false,
@@ -131,7 +170,7 @@ const Cart: React.FC = () => {
       <MdRemoveShoppingCart className="cart__empty-icon" size={50} />
       <p className={isRtl ? 'rtl' : ''}>{t('cart.empty')}</p>
       <button
-        className={`btn btn-primary mt-4 ${isRtl ? 'rtl' : ''}`}
+        className={`cart__empty-cta ${isRtl ? 'rtl' : ''}`}
         onClick={() => goTo('/')}
       >
         <b>{t('cart.shopNow')} !</b>
@@ -152,11 +191,12 @@ const Cart: React.FC = () => {
     CSS trick from the original (which required a `data-total` attribute
     that was never set by the component).
   */
-  const renderCartRow = (item: CartItem, index: number) => {
+  const renderCartRow = (item: CartItem) => {
     const lineTotal = getLineTotal(item.price, item.promo, item.quantity);
+    const isAtMaximum = !Number.isFinite(item.maxQuantity) || item.quantity >= item.maxQuantity;
 
     return (
-      <div key={index} className="cart-row">
+      <div key={`${item.id}-${item.size}`} className="cart-row">
 
         {/* ── Col 1: image + details (desktop) / image (mobile top-left) ── */}
         <div className="cart-row__product">
@@ -172,7 +212,7 @@ const Cart: React.FC = () => {
             <strong className="cart-item-details__ref">
               {item.category} {item.ref}
             </strong>
-            <span style={{ fontSize: 13 }}>{item.name}</span>
+            <span className="cart-item-details__name">{item.name}</span>
             <div className="cart-item-details__price">
               <span className="price--current">
                 {getDiscountedPrice(item.price, item.promo)} {t('product.currency')}
@@ -182,8 +222,11 @@ const Cart: React.FC = () => {
                   {item.price.toFixed(2)} {t('product.currency')}
                 </span>
               )}
+              {item.promo > 0 && (
+                <span className="cart-item-details__promo">-{item.promo}%</span>
+              )}
             </div>
-            <span className="cart-item-details__size">
+            <span className="cart-item-details__size-pill">
               {t('product.size')}: {item.size}
             </span>
           </div>
@@ -196,7 +239,8 @@ const Cart: React.FC = () => {
             <button
               className="quantity-control__btn btn btn-outline-primary btn-sm rounded-0"
               onClick={() => handleMinusQuantity(item)}
-              aria-label="Decrease quantity"
+              disabled={item.quantity <= 1}
+              aria-label={t('cart.decreaseQuantity')}
             >−</button>
             <input
               type="text"
@@ -208,13 +252,15 @@ const Cart: React.FC = () => {
             <button
               className="quantity-control__btn btn btn-outline-success btn-sm rounded-0"
               onClick={() => handlePlusQuantity(item)}
-              aria-label="Increase quantity"
+              disabled={isAtMaximum}
+              aria-label={t('cart.increaseQuantity')}
+              title={isAtMaximum ? t('cart.maxQuantity') : undefined}
             >+</button>
           </div>
           <button
             className="cart-item-remove-btn btn btn-light p-2"
             onClick={() => handleRemoveItemClick(item)}
-            aria-label={`Remove ${item.name} from cart`}
+            aria-label={t('cart.removeItemLabel', { name: item.name })}
           >
             <FaRegTrashAlt />
           </button>
@@ -240,6 +286,21 @@ const Cart: React.FC = () => {
   return (
     <>
       <Header />
+      <div className={`cart-shell${isRtl ? ' cart-shell--rtl' : ''}`}>
+        <header className="cart-hero">
+          <div>
+            <span className="cart-hero__eyebrow">{t('order.details')}</span>
+            <div className="cart-hero__title-row">
+              <h1 className="cart-hero__title">{t('cart.title')}</h1>
+              <span className="cart-hero__count">{t('cart.items', { count: itemCount })}</span>
+            </div>
+          </div>
+          <button className="cart-hero__continue" onClick={() => goTo('/')}>
+            <IoArrowBackOutline className={isRtl ? 'cart-hero__continue-icon--rtl' : ''} />
+            {t('cart.continueShopping')}
+          </button>
+        </header>
+
       <div className={`cart-page${isRtl ? ' cart-page--rtl' : ''}`}>
 
         {/*
@@ -255,17 +316,16 @@ const Cart: React.FC = () => {
           <div className="currency-bar">
             <div className="currency-bar__selector">
               <select
-                className="form-select shadow-none border-0"
-                style={{ width: 95, color: 'green', backgroundColor: '#efecec', fontWeight: 500 }}
+                className="currency-bar__select"
                 onChange={(e) => setCurrentCurrency(e.target.value)}
                 defaultValue={currentCurrency}
                 aria-label="Select currency"
               >
-                <option value="MAD" style={{ fontWeight: 500 }}>MAD</option>
+                <option value="MAD">MAD</option>
                 {currencyIsAvailable && (
                   <>
-                    <option value="USD" style={{ fontWeight: 500 }}>USD $</option>
-                    <option value="EUR" style={{ fontWeight: 500 }}>EUR €</option>
+                    <option value="USD">USD $</option>
+                    <option value="EUR">EUR €</option>
                   </>
                 )}
               </select>
@@ -277,46 +337,66 @@ const Cart: React.FC = () => {
                 title={currentCurrency}
               />
             </div>
-            <strong style={{ fontSize: 13 }}>
-              {t('cart.total')}:{' '}
-              <span style={{ color: 'green' }}>{cartTotalAmount.toFixed(2)}</span>
-            </strong>
+            <div className="currency-bar__copy">
+              <span>{t('transaction.currency')}</span>
+              <strong>{currentCurrency}</strong>
+            </div>
           </div>
 
           {/* Order summary card */}
-          <div className="order-summary card shadow">
-            <div className="order-summary__title text-center fs-5 fw-bold">
-              <FaMoneyCheckAlt style={{ marginTop: -3 }} /> {t('order.summary')}
+          <div className="order-summary">
+            <div className="order-summary__title">
+              <span className="order-summary__title-copy">
+                <FaMoneyCheckAlt style={{ marginTop: -3 }} /> {t('order.summary')}
+              </span>
+              <button
+                className="order-summary__drawer-trigger"
+                onClick={() => setIsSummaryDrawerOpen(true)}
+                aria-expanded={isSummaryDrawerOpen}
+                aria-controls="cart-summary-drawer"
+              >
+                <FaShoppingCart aria-hidden />
+                {t('cart.viewSummary')}
+              </button>
             </div>
-            <hr className="m-2" />
 
-            <ul className="order-summary__list list-group px-1">
-              <li className={`order-summary__list-item py-3 px-2 border-0 d-flex justify-content-between ${isRtl ? 'rtl' : ''}`}>
-                {t('order.totalAmount')}:
-                <b style={{ color: 'green' }}>{cartTotalAmount.toFixed(2)} {t('product.currency')}</b>
+            <ul className="order-summary__list">
+              <li className={`order-summary__list-item ${isRtl ? 'rtl' : ''}`}>
+                <span>{t('order.subtotal')}</span>
+                <b>{cartTotalAmount.toFixed(2)} {t('product.currency')}</b>
               </li>
-              <li className={`order-summary__list-item py-3 px-2 border-0 d-flex justify-content-between ${isRtl ? 'rtl' : ''}`}>
-                {t('order.shipping')}:
-                <b style={{ color: 'green' }}>0 {t('product.currency')}</b>
+              <li className={`order-summary__list-item ${isRtl ? 'rtl' : ''}`}>
+                <span>{t('order.shipping')}</span>
+                <b className="order-summary__free">{t('delivery.free')}</b>
               </li>
+              {appliedPromotion && (
+                <li className={`order-summary__list-item order-summary__discount ${isRtl ? 'rtl' : ''}`}>
+                  <span>{t('promoCode.discount')} ({appliedPromotion.code})</span>
+                  <b>−{promotionDiscountAmount.toFixed(2)} {t('product.currency')}</b>
+                </li>
+              )}
             </ul>
 
-            <hr className="m-2" />
+            <PromoCodeField />
 
-            <div className={`order-summary__grand-total d-flex justify-content-between ${isRtl ? 'rtl' : ''}`}>
-              {t('cart.total')}:
-              <b style={{ color: 'green' }}>{cartTotalAmount.toFixed(2)} {t('product.currency')}</b>
+            <div className={`order-summary__grand-total ${isRtl ? 'rtl' : ''}`}>
+              <span>{t('cart.total')}</span>
+              <b>{discountedCartTotalAmount.toFixed(2)} {t('product.currency')}</b>
             </div>
 
             <button
-              className="btn btn-dark mx-2 mt-3"
-              style={{ height: 48, borderRadius: 8 }}
+              className="order-summary__checkout-btn"
               disabled={!cartChecker}
               onClick={navigateToCheckout}
             >
               <TbCreditCardPay style={{ marginTop: -3 }} className="me-2" />
               {t('order.checkoutNow')}
             </button>
+
+            <div className="order-summary__trust">
+              <span><MdVerifiedUser /> {t('cart.secureCheckout')}</span>
+              <span><MdLocalShipping /> {t('delivery.free')} {t('order.shipping').toLowerCase()}</span>
+            </div>
 
             <div className="payment-logos">
               <div className="payment-logos__grid">
@@ -334,10 +414,11 @@ const Cart: React.FC = () => {
         </aside>
 
         {/* ── Main: Cart Items ──────────────────────────────────────────────── */}
-        <main className="cart-items-panel card shadow">
-          <div className="text-center card cart-items-panel__inner">
-            <div className="cart-items-panel__header text-center my-2 fs-4">
-              <b><FaShoppingCart style={{ marginTop: -3 }} /> {t('cart.title')}</b>
+        <main className="cart-items-panel">
+          <div className="cart-items-panel__inner">
+            <div className="cart-items-panel__header">
+              <b><FaShoppingCart /> {t('order.reviewItems')}</b>
+              <span>{t('cart.items', { count: itemCount })}</span>
             </div>
 
             {!cartChecker ? renderEmptyCart() : (
@@ -348,16 +429,13 @@ const Cart: React.FC = () => {
                   <span className="cart-list-header__actions">{t('cart.quantityAction')}</span>
                   <span className="cart-list-header__total">{t('cart.total')}</span>
                 </div>
-                <hr className="mt-0 mb-0" />
-
                 <div className="cart-list">
-                  {allItems.map((item, index) => renderCartRow(item, index))}
+                  {allItems.map((item) => renderCartRow(item))}
                 </div>
 
-                <div className="cart-items-panel__footer d-flex justify-content-center mb-2 mt-2">
+                <div className="cart-items-panel__footer">
                   <button
-                    className="cart-item-remove-btn btn btn-light"
-                    style={{ fontSize: 15 }}
+                    className="cart-clear-btn"
                     onClick={handleClearCartClick}
                   >
                     <FaRegTrashAlt className="me-1" /> {t('cart.clear')}
@@ -368,6 +446,7 @@ const Cart: React.FC = () => {
           </div>
         </main>
       </div>
+      </div>
 
       {/* ── Floating checkout bar (mobile only) ─────────────────────────── */}
       {cartChecker && (
@@ -375,17 +454,144 @@ const Cart: React.FC = () => {
           <div className="cart-float-bar__total">
             <span className="cart-float-bar__label">{t('cart.total')}</span>
             <span className="cart-float-bar__amount">
-              {cartTotalAmount.toFixed(2)} {t('product.currency')}
+              {discountedCartTotalAmount.toFixed(2)} {t('product.currency')}
             </span>
           </div>
-          <button
-            className="cart-float-bar__btn"
-            onClick={navigateToCheckout}
-          >
-            <TbCreditCardPay size={18} /> {t('order.checkoutNow')}
-          </button>
+          <div className="cart-float-bar__actions">
+            <button
+              className="cart-float-bar__summary-btn"
+              onClick={() => setIsSummaryDrawerOpen(true)}
+              aria-expanded={isSummaryDrawerOpen}
+              aria-controls="cart-summary-drawer"
+            >
+              <MdKeyboardArrowUp size={20} />
+              <span>{t('order.summary')}</span>
+            </button>
+            <button
+              className="cart-float-bar__btn"
+              onClick={navigateToCheckout}
+            >
+              <TbCreditCardPay size={18} /> {t('order.checkoutNow')}
+            </button>
+          </div>
         </div>
       )}
+
+      {/* ── Mobile order-summary drawer ────────────────────────────────── */}
+      <AnimatePresence>
+        {isSummaryDrawerOpen && cartChecker && (
+          <>
+            <motion.div
+              className="cart-drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSummaryDrawerOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.aside
+              id="cart-summary-drawer"
+              className={`cart-summary-drawer${isRtl ? ' cart-summary-drawer--rtl' : ''}`}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="cart-summary-drawer-title"
+              initial={isCompactViewport
+                ? { y: '100%', opacity: 0.5 }
+                : { x: isRtl ? '-100%' : '100%', opacity: 0.5 }}
+              animate={{ x: 0, y: 0, opacity: 1 }}
+              exit={isCompactViewport
+                ? { y: '100%', opacity: 0 }
+                : { x: isRtl ? '-100%' : '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 320 }}
+            >
+              <div className="cart-summary-drawer__handle" aria-hidden="true" />
+              <header className="cart-summary-drawer__header">
+                <div>
+                  <span className="cart-summary-drawer__eyebrow">{t('cart.items', { count: itemCount })}</span>
+                  <h2 id="cart-summary-drawer-title">{t('order.summary')}</h2>
+                </div>
+                <button
+                  className="cart-summary-drawer__close"
+                  onClick={() => setIsSummaryDrawerOpen(false)}
+                  aria-label={t('cart.closeSummary')}
+                  autoFocus
+                >
+                  <MdClose size={21} />
+                </button>
+              </header>
+
+              <div className="cart-summary-drawer__items">
+                {allItems.map((item) => (
+                  <div className="cart-drawer-item" key={`${item.id}-${item.size}`}>
+                    <div className="cart-drawer-item__image">
+                      <img src={item.image} alt="" aria-hidden loading="lazy" />
+                    </div>
+                    <div className="cart-drawer-item__copy">
+                      <strong>{item.name}</strong>
+                      <span>{item.category} · {t('product.size')}: {item.size} · ×{item.quantity}</span>
+                    </div>
+                    <div className="cart-drawer-item__price">
+                      {getLineTotal(item.price, item.promo, item.quantity)} {t('product.currency')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="cart-summary-drawer__currency">
+                <label htmlFor="drawer-currency">{t('cart.selectCurrency')}</label>
+                <div>
+                  <ReactCountryFlag
+                    countryCode={getCountryCodeByCurrency(currentCurrency)}
+                    svg
+                    style={{ width: 22, height: 22 }}
+                    title={currentCurrency}
+                  />
+                  <select
+                    id="drawer-currency"
+                    value={currentCurrency}
+                    onChange={(event) => setCurrentCurrency(event.target.value)}
+                  >
+                    <option value="MAD">MAD</option>
+                    {currencyIsAvailable && <option value="USD">USD $</option>}
+                    {currencyIsAvailable && <option value="EUR">EUR €</option>}
+                  </select>
+                </div>
+              </div>
+
+              <div className="cart-summary-drawer__totals">
+                <div>
+                  <span>{t('order.subtotal')}</span>
+                  <strong>{cartTotalAmount.toFixed(2)} {t('product.currency')}</strong>
+                </div>
+                <div>
+                  <span>{t('order.shipping')}</span>
+                  <strong className="cart-summary-drawer__free">{t('delivery.free')}</strong>
+                </div>
+                {appliedPromotion && <div className="cart-summary-drawer__discount">
+                  <span>{t('promoCode.discount')} ({appliedPromotion.code})</span>
+                  <strong>−{promotionDiscountAmount.toFixed(2)} {t('product.currency')}</strong>
+                </div>}
+                <div className="cart-summary-drawer__grand-total">
+                  <span>{t('cart.total')}</span>
+                  <strong>{discountedCartTotalAmount.toFixed(2)} {t('product.currency')}</strong>
+                </div>
+              </div>
+
+              <PromoCodeField compact />
+
+              <div className="cart-summary-drawer__footer">
+                <div className="cart-summary-drawer__secure">
+                  <MdVerifiedUser /> {t('cart.secureCheckout')}
+                </div>
+                <button className="cart-summary-drawer__checkout" onClick={navigateToCheckout}>
+                  <TbCreditCardPay size={19} />
+                  {t('order.checkoutNow')}
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── Delete confirmation modal ─────────────────────────────────────── */}
       <AnimatePresence mode="wait">

@@ -28,7 +28,10 @@
   min-height: 100vh;
   background: var(--co-off-white);
   font-family: 'Inter', 'Segoe UI', sans-serif;
-  padding-bottom: 60px;
+  padding-bottom: 72px;
+  background:
+    radial-gradient(circle at top right, rgba(79, 172, 255, 0.09), transparent 30%),
+    var(--co-off-white);
 }
 
 /* ─── Topbar ─────────────────────────────────────────────────────────────────*/
@@ -193,6 +196,9 @@
   font-size: 13.5px;
   font-weight: 500;
   color: var(--co-navy);
+  max-width: 1144px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .co-alert__icon {
@@ -213,7 +219,7 @@
 .co-card {
   background: var(--co-white);
   border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(15, 28, 53, 0.10);
+  box-shadow: 0 8px 28px rgba(15, 28, 53, 0.08);
   border: 1px solid var(--co-border);
   overflow: hidden;
 }
@@ -306,6 +312,7 @@
   border-radius: 9px;
   padding: 10px 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 46px;
 }
 
 .co-field__input-wrap:focus-within {
@@ -368,6 +375,21 @@
   gap: 10px;
   cursor: pointer;
   margin-top: 2px;
+  position: relative;
+}
+
+.co-policies__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.co-policies__input:focus-visible + .co-policies__box {
+  outline: 3px solid var(--co-blue-soft);
+  outline-offset: 2px;
+  border-color: var(--co-blue);
 }
 
 .co-policies__box {
@@ -433,6 +455,13 @@
 }
 
 .co-save-btn:hover { opacity: 0.9; }
+.co-save-btn:focus-visible,
+.co-pay-now-btn:focus-visible,
+.co-pay-method:focus-visible,
+.co-card__edit-btn:focus-visible {
+  outline: 3px solid rgba(79, 172, 255, 0.28);
+  outline-offset: 3px;
+}
 
 /* ─── Saved confirmation ─────────────────────────────────────────────────────*/
 .co-saved-confirm {
@@ -466,6 +495,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: sticky;
+  top: 78px;
+  align-self: flex-start;
 }
 
 /* ─── Payment panel ──────────────────────────────────────────────────────────*/
@@ -509,6 +541,14 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+.co-pay-method:hover:not(:disabled):not(.co-pay-method--selected) {
+  border-color: var(--co-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 28, 53, 0.08);
+}
+
+.co-pay-method__copy { flex: 1; min-width: 0; }
 
 .co-pay-method--cod.co-pay-method--selected {
   background: linear-gradient(135deg, var(--co-navy) 0%, var(--co-navy-mid) 100%);
@@ -615,6 +655,87 @@
   gap: 8px;
 }
 
+.co-summary__count {
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--co-blue-soft);
+  color: var(--co-blue-hover);
+  font-size: 0.62rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.co-summary__items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--co-border);
+}
+
+.co-summary-item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+
+.co-summary-item__image {
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border: 1px solid var(--co-border);
+  border-radius: 9px;
+  background: #fff;
+}
+
+.co-summary-item__image img {
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  box-sizing: border-box;
+  object-fit: contain;
+  display: block;
+}
+
+.co-summary-item__copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.co-summary-item__name {
+  overflow: hidden;
+  color: var(--co-navy);
+  font-size: 0.75rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.co-summary-item__meta {
+  color: var(--co-muted);
+  font-size: 0.66rem;
+}
+
+.co-summary-item__price {
+  color: var(--co-navy);
+  font-size: 0.72rem;
+}
+
+.co-summary__more {
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: var(--co-off-white);
+  color: var(--co-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+}
+
 .co-summary__accent {
   display: inline-block;
   width: 3px;
@@ -634,6 +755,10 @@
 .co-summary__row span:last-child {
   font-weight: 500;
 }
+
+.co-summary__row .co-summary__free { color: #15803d; font-weight: 750; }
+.co-summary__row.co-summary__discount,
+.co-summary__row.co-summary__discount span:last-child { color: #15915c; font-weight: 750; }
 
 .co-summary__divider {
   height: 1px;
@@ -680,6 +805,21 @@
 
 .co-pay-now-btn--ready:hover { opacity: 0.9; }
 
+.co-pay-now-btn--ready:active { transform: translateY(1px); }
+
+.co-checkout-hint {
+  margin-top: -8px;
+  padding: 9px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--co-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+}
+
 /* ─── SSL note ───────────────────────────────────────────────────────────────*/
 .co-ssl-note {
   text-align: center;
@@ -714,6 +854,7 @@
 
   .co-right-col {
     width: 100%;
+    position: static;
   }
 
   .co-form-row {
@@ -745,6 +886,25 @@
     font-size: 12px;
   }
 }
+
+@media (max-width: 520px) {
+  .co-page { padding-bottom: 36px; }
+
+  .co-topbar__actions { width: 100%; justify-content: space-between; }
+  .co-topbar__total { flex: 1; text-align: center; }
+  .co-step__label { font-size: 0.7rem; }
+  .co-topbar__step-connector { width: 22px; }
+
+  .co-card__header { padding: 16px 18px; }
+  .co-form-body { padding: 18px; }
+  .co-payment-body { padding: 14px; }
+  .co-summary { padding: 16px; }
+  .co-pay-method { padding: 12px; gap: 10px; }
+  .co-pay-method__icon { width: 40px; height: 40px; }
+}
+
+[dir="rtl"] .co-summary__count { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .co-pay-method { text-align: right; }
 
 /* ============================================================
    checkout-auth.css — Auth-aware checkout additions

@@ -1,10 +1,10 @@
 {
-  "name": "ennacherstore",
+  "name": "al-firdaous-storefront",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "vite",
     "serve": "vite preview",
     "dev": "vite",
     "build": "tsc -b && vite build",

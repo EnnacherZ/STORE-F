@@ -1,104 +1,152 @@
-/* ============================================================
-   ProductPage.css — Al-Firdaous Store
-   Drop into: src/styles/ProductPage.css
-   ============================================================ */
-
-/* ── Banner ─────────────────────────────────────────────────────────────────── */
-.product-banner {
-  width: 100%;
-  height: clamp(200px, 36vw, 480px);
-  overflow: hidden;
+/* ── Collection hero ───────────────────────────────────────────────────────── */
+.product-collection-hero {
   position: relative;
-  /* Safari GPU fix */
-  -webkit-transform: translateZ(0);
-          transform: translateZ(0);
+  min-height: clamp(320px, 42vw, 520px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+  background: #0f1c35;
 }
 
-.product-banner img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
-  display: block;
-  -webkit-transition: -webkit-transform 0.6s ease;
-          transition: transform 0.6s ease;
+.product-collection-hero--fallback {
+  background:
+    radial-gradient(circle at 78% 22%, rgba(14, 146, 228, 0.38), transparent 28%),
+    linear-gradient(135deg, #0f1c35, #18335f);
 }
 
-/* Gradient overlay so the title reads cleanly on top of any image */
-.product-banner::after {
-  content: "";
+.product-collection-hero__image {
   position: absolute;
   inset: 0;
-  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 32%;
+  transform: scale(1.015);
+}
+
+.product-collection-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background:
-    linear-gradient(to top,  rgba(15,28,53,0.72) 0%,  rgba(15,28,53,0.20) 55%, transparent 100%),
-    linear-gradient(to right, rgba(15,28,53,0.30) 0%, transparent 60%);
-  pointer-events: none;
+    linear-gradient(90deg, rgba(7, 18, 39, 0.90) 0%, rgba(7, 18, 39, 0.67) 44%, rgba(7, 18, 39, 0.16) 76%),
+    linear-gradient(0deg, rgba(7, 18, 39, 0.56), transparent 55%);
 }
 
-/* ── Page title — sits on top of the banner overlay ────────────────────────── */
-.product-page-title {
-  /* Pull the title up to sit over the bottom of the banner */
-  position: relative;
-  z-index: 2;
-  margin-top: -72px;
-  padding: 0 32px 28px;
-  font-size: clamp(1.4rem, 3vw, 2.4rem);
-  font-weight: 800;
-  color: #ffffff;
-  display: -webkit-box;
-  display: -webkit-flex;
+.product-collection-hero__content {
+  width: min(1380px, 100%);
+  margin: 0 auto;
+  padding: clamp(34px, 6vw, 72px) 32px;
+  color: #fff;
+}
+
+.product-collection-hero__breadcrumb {
+  margin-bottom: 24px;
   display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-          align-items: center;
-  -webkit-box-pack: start;
-  -webkit-justify-content: flex-start;
-          justify-content: flex-start;
-  gap: 14px;
-  letter-spacing: -0.025em;
-  text-shadow: 0 2px 16px rgba(15,28,53,0.55);
+  align-items: center;
+  gap: 9px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.72rem;
+  font-weight: 650;
 }
 
-.product-page-title__icon {
-  font-size: 1.5rem;
-  -webkit-flex-shrink: 0;
-          flex-shrink: 0;
-  opacity: 0.9;
-  filter: drop-shadow(0 2px 4px rgba(14,146,228,0.5));
+.product-collection-hero__breadcrumb a {
+  color: inherit;
+  text-decoration: none;
 }
 
-/* ── Category marquee strip ─────────────────────────────────────────────────── */
-.product-page-marquee {
-  background: #0f1c35;
-  height: 38px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-          align-items: center;
-  overflow: hidden;
-  border-top: 2px solid rgba(14,146,228,0.35);
-  border-bottom: 2px solid rgba(14,146,228,0.35);
+.product-collection-hero__breadcrumb a:hover { color: #fff; }
+
+.product-collection-hero__heading-row {
+  display: block;
 }
 
-.product-page-marquee__item {
-  margin: 0 2.5rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
+.product-collection-hero__eyebrow {
+  margin: 0 0 4px;
+  color: #71c4f7;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.75);
-  white-space: nowrap;
 }
 
-.product-page-marquee__item::before {
-  content: "◆";
-  margin-right: 0.5rem;
-  color: #0e92e4;
-  font-size: 0.45rem;
-  vertical-align: middle;
+.product-collection-hero h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 5vw, 4.6rem);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.product-collection-hero__description {
+  max-width: 570px;
+  margin: 22px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: clamp(0.85rem, 1.3vw, 1rem);
+  line-height: 1.65;
+}
+
+.product-collection-hero__stats {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.72rem;
+}
+
+.product-collection-hero__stats strong,
+.product-collection-hero__stats span {
+  padding: 7px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(15, 28, 53, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.product-category-overview {
+  min-height: 66px;
+  padding: 11px max(24px, calc((100vw - 1380px) / 2 + 28px));
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  overflow: hidden;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.product-category-overview__label {
+  flex-shrink: 0;
+  color: #64748b;
+  font-size: 0.65rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.product-category-overview__list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.product-category-overview__list::-webkit-scrollbar { display: none; }
+
+.product-category-overview__chip {
+  padding: 7px 12px;
+  flex-shrink: 0;
+  border: 1px solid #dbe2ea;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 /* ── No-product state ───────────────────────────────────────────────────────── */
@@ -149,24 +197,49 @@
 
 /* ── Responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .product-page-title {
-    margin-top: -60px;
-    padding: 0 20px 22px;
-    font-size: 1.5rem;
+  .product-collection-hero { min-height: 350px; }
+  .product-collection-hero__content { padding: 42px 20px 30px; }
+  .product-collection-hero__overlay {
+    background: linear-gradient(90deg, rgba(7, 18, 39, 0.88), rgba(7, 18, 39, 0.36));
   }
-  .product-page-marquee__item {
-    margin: 0 1.6rem;
-  }
+  .product-category-overview { padding-inline: 16px; }
 }
 
 @media (max-width: 480px) {
-  .product-banner {
-    height: 200px;
+  .product-collection-hero { min-height: 290px; }
+  .product-collection-hero__content { padding: 28px 14px 22px; }
+  .product-collection-hero__breadcrumb {
+    margin-bottom: 14px;
+    overflow: hidden;
+    font-size: 0.65rem;
+    white-space: nowrap;
   }
-  .product-page-title {
-    margin-top: -52px;
-    padding: 0 14px 18px;
-    font-size: 1.25rem;
-    gap: 10px;
+  .product-collection-hero__breadcrumb span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+  .product-collection-hero h1 { font-size: clamp(1.85rem, 10vw, 2.55rem); line-height: 1.02; }
+  .product-collection-hero__eyebrow { font-size: 0.6rem; }
+  .product-collection-hero__description {
+    max-width: 94%;
+    margin-top: 13px;
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  .product-collection-hero__stats { margin-top: 14px; gap: 6px; flex-wrap: wrap; }
+  .product-collection-hero__stats strong,
+  .product-collection-hero__stats span { padding: 6px 9px; font-size: 0.64rem; }
+  .product-category-overview { min-height: 54px; padding-inline: 10px; gap: 8px; }
+  .product-category-overview__label { font-size: 0.58rem; }
+  .product-category-overview__chip { padding: 6px 10px; font-size: 0.67rem; scroll-snap-align: start; }
+  .product-category-overview__list { scroll-snap-type: x proximity; }
+}
+
+@media (max-width: 340px) {
+  .product-category-overview__label { display: none; }
+  .product-collection-hero__content { padding-inline: 12px; }
 }

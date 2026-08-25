@@ -2,6 +2,7 @@ import React, {
   createContext, useCallback, useContext,
   useEffect, useRef, useState,
 } from "react";
+import { isAxiosError } from "axios";
 import { connecter } from "../server/connecter";
 
 export interface ClientProfile {
@@ -56,8 +57,8 @@ export const ClientAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       const res = await connecter.get<ClientProfile>("api/client/me/");
       setState({ client: res.data, isLoading: false, isAuthenticated: true });
-    } catch (err: any) {
-      if (err?.response?.status === 401 && !isRetry) {
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 401 && !isRetry) {
         try {
           await connecter.post("api/client/refresh/");
           return fetchMe(true);

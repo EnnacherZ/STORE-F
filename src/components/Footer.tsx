@@ -1,18 +1,34 @@
 import React from "react";
 import { FaRegCopyright } from "react-icons/fa6";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
+import {
+  faFacebook,
+  faInstagram,
+  faTiktok,
+  faWhatsapp,
+  faYoutube,
+} from "@fortawesome/free-brands-svg-icons";
 import iconStoreWhite from "../assets/WHITE FIRDAOUS STORE.png";
 import "../styles/footer.css";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLangContext } from "../contexts/LanguageContext";
 import { selectedLang } from "./constants";
+import { useSiteSettings } from "../server/siteSettings";
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   const { currentLang } = useLangContext();
   const isRtl = selectedLang(currentLang) === "ar";
+  const siteSettings = useSiteSettings();
+  const phoneHref = `tel:${siteSettings.phone_number.replace(/[^\d+]/g, "")}`;
+  const socialLinks = [
+    { key: "facebook", label: "Facebook", url: siteSettings.facebook_url, icon: faFacebook, className: "fb" },
+    { key: "instagram", label: "Instagram", url: siteSettings.instagram_url, icon: faInstagram, className: "ig" },
+    { key: "whatsapp", label: "WhatsApp", url: siteSettings.whatsapp_url, icon: faWhatsapp, className: "wa" },
+    { key: "tiktok", label: "TikTok", url: siteSettings.tiktok_url, icon: faTiktok, className: "tt" },
+    { key: "youtube", label: "YouTube", url: siteSettings.youtube_url, icon: faYoutube, className: "yt" },
+  ].filter((social) => social.url);
 
   return (
     <footer
@@ -35,29 +51,28 @@ const Footer: React.FC = () => {
             })}
           </p>
 
-          {/* Social pills */}
-          <div className="footer-socials">
-            <div className="footer-sm fb rounded-pill">
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href="https://web.facebook.com/profile.php?id=61581025313047"
-              >
-                <FontAwesomeIcon icon={faFacebook} />
-                Facebook
-              </a>
-            </div>
-            <div className="footer-sm ig rounded-pill">
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href="https://www.instagram.com/store_alfirdaous/"
-              >
-                <FontAwesomeIcon icon={faInstagram} />
-                Instagram
-              </a>
-            </div>
-          </div>
+          {/* Dashboard-configured social channels */}
+          {socialLinks.length > 0 && (
+            <nav className="footer-social-section" aria-label={t("footer.followUs")}>
+              <span className="footer-social-title">{t("footer.followUs")}</span>
+              <div className="footer-socials">
+                {socialLinks.map((social) => (
+                  <a
+                    className={`footer-social-link footer-social-link--${social.className}`}
+                    key={social.key}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={social.url}
+                    aria-label={`${t("footer.followUs")}: ${social.label}`}
+                    title={social.label}
+                  >
+                    <FontAwesomeIcon icon={social.icon} aria-hidden="true" />
+                    <span className="visually-hidden">{social.label}</span>
+                  </a>
+                ))}
+              </div>
+            </nav>
+          )}
         </div>
 
         {/* ── Policies column ── */}
@@ -86,22 +101,22 @@ const Footer: React.FC = () => {
         {/* ── Contact column ── */}
         <div className="footer-col">
           <p className="fw-bold text-center fs-4">{t("footer.contactUs")}</p>
-          <div style={{ fontSize: 14 }}>
-            <p>
+          <div className="footer-contact">
+            {siteSettings.phone_number && <p>
               {t("form.phone.label")} :{" "}
-              <a href="tel:+212600000000" className="socialLinks">
-                +212 600 000 000
+              <a href={phoneHref} className="socialLinks">
+                {siteSettings.phone_number}
               </a>
-            </p>
-            <p>
+            </p>}
+            {siteSettings.contact_email && <p>
               {t("form.email.label")} :{" "}
               <a
-                href="mailto:contact@alfirdaousstore.com"
+                href={`mailto:${siteSettings.contact_email}`}
                 className="socialLinks"
               >
-                contact@alfirdaousstore.com
+                {siteSettings.contact_email}
               </a>
-            </p>
+            </p>}
           </div>
         </div>
       </div>

@@ -25,6 +25,9 @@ export const STORE_SOCIALS = {
   facebook: "https://web.facebook.com/profile.php?id=61581025313047",
   instagram: "https://www.instagram.com/store_alfirdaous/",
   instagramHandle: "store_alfirdaous",
+  whatsapp: "",
+  tiktok: "",
+  youtube: "",
 };
 
 // Every localStorage/sessionStorage key this app writes, in one place.

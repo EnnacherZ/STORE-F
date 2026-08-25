@@ -5,7 +5,7 @@ import "../styles/ProductCarousel.css";
 import { useNavigate } from "react-router-dom";
 import { Product } from "../contexts/ProductsContext";
 import { useTranslation } from "react-i18next";
-import Loading from "./loading";
+import Loading from "./Loading";
 import NoProduct from "./NoProduct";
 import { motion } from "framer-motion";
 import { ShoppingBag } from "lucide-react";

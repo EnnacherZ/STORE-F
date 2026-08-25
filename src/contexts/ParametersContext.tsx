@@ -4,8 +4,8 @@ import { connecter } from "../server/connecter";
 
 
 interface ParametersProps {
-    productTypes : Array<string> | undefined
-    categories : any;
+    productTypes: string[] | undefined;
+    categories: Record<string, string[]>;
 }
 
 
@@ -14,13 +14,13 @@ const ParametersContext = createContext<ParametersProps | undefined>(undefined);
 
 export const ParametersContextProvider : React.FC<{children:ReactNode}> = ({children}) => {
     const [productTypes, setProductTypes] = useState<Array<string>>()
-    const [categories, setCategories] = useState<any>({});
+    const [categories, setCategories] = useState<Record<string, string[]>>({});
 
     useEffect(()=>{
         const getParams = async () => {
             const response = await connecter.get('db/products/parameters/get');
             try{
-                setCategories(response.data.categories || undefined);
+                setCategories(response.data.categories || {});
                 setProductTypes(response.data.types);
             }catch(error){
                 alert(error)

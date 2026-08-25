@@ -440,7 +440,6 @@ const OrderTracker: React.FC = () => {
         setSearched(true);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, isLoading, limitReached, attempts]
   );
 

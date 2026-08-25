@@ -56,7 +56,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
       name: selectedName,
     });
     if (isDroppable) setDropOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.getElementById('products-results')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Category list applies immediately on click — no separate "Search"

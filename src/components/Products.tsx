@@ -2,7 +2,6 @@ import React, { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bounce, toast } from "react-toastify";
 import ReactPaginate from "react-paginate";
 import { FaHeart, FaRegHeart, FaCartPlus } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
@@ -13,7 +12,7 @@ import { useLangContext } from "../contexts/LanguageContext";
 import { selectedLang } from "./constants";
 import FilterSection, { DataToFilter } from "./FilterSection";
 import NotFound from "./NotFound";
-import Loading from "./loading";
+import Loading from "./Loading";
 import "../styles/products.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -29,6 +28,8 @@ interface ProductsProps {
   handleFilter: (criteria: DataToFilter) => void;
   handleReset:  () => void;
 }
+
+type SortOption = "featured" | "newest" | "price-low" | "price-high";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -48,9 +49,9 @@ const cardVariants = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Injects Cloudinary auto-format + quality transforms for image URLs that go through /upload/ */
-const optimizeImageUrl = (url: string, width = 500): string =>
+const optimizeImageUrl = (url: string, width = 720): string =>
   url.includes("/upload/")
-    ? url.replace("/upload/", `/upload/f_auto,q_auto,w_${width}/`)
+    ? url.replace("/upload/", `/upload/f_auto,q_auto,dpr_auto,w_${width}/`)
     : url;
 
 const getDiscountedPrice = (price: number, promo: number): string =>
@@ -71,6 +72,7 @@ const Products: React.FC<ProductsProps> = ({
   const isRtl = selectedLang(currentLang) === "ar";
 
   const [currentPage, setCurrentPage] = useState(0);
+  const [sortOption, setSortOption] = useState<SortOption>("featured");
 
   // Two-step flow: clicking a size only *selects* it (step 1). The actual
   // cart add only happens when the person then clicks the confirm button
@@ -88,15 +90,35 @@ const Products: React.FC<ProductsProps> = ({
 
   // ── Pagination ───────────────────────────────────────────────────────────────
 
-  const pageCount = Math.ceil(productsData.length / ITEMS_PER_PAGE);
+  const sortedProducts = useMemo(() => {
+    const result = [...productsData];
+
+    if (sortOption === "newest") {
+      return result.sort((a, b) => Number(b.newest) - Number(a.newest) || b.id - a.id);
+    }
+    if (sortOption === "price-low") {
+      return result.sort(
+        (a, b) => a.price * (1 - a.promo * 0.01) - b.price * (1 - b.promo * 0.01),
+      );
+    }
+    if (sortOption === "price-high") {
+      return result.sort(
+        (a, b) => b.price * (1 - b.promo * 0.01) - a.price * (1 - a.promo * 0.01),
+      );
+    }
+
+    return result;
+  }, [productsData, sortOption]);
+
+  const pageCount = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
 
   const displayedProducts = useMemo(
     () =>
-      productsData.slice(
+      sortedProducts.slice(
         currentPage * ITEMS_PER_PAGE,
         (currentPage + 1) * ITEMS_PER_PAGE
       ),
-    [productsData, currentPage]
+    [sortedProducts, currentPage]
   );
 
   // Reset to page 0 on filter change
@@ -145,16 +167,6 @@ const Products: React.FC<ProductsProps> = ({
 
     addItem(item);
 
-    toast.success(t("cart.addSuccess"), {
-      autoClose:       2000,
-      hideProgressBar: false,
-      closeOnClick:    false,
-      pauseOnHover:    false,
-      draggable:       true,
-      theme:           "colored",
-      transition:      Bounce,
-    });
-
     // Brief "Added" confirmation, then clear the selection so the card
     // returns to its resting state.
     setJustAdded((prev) => ({ ...prev, [product.id]: true }));
@@ -191,8 +203,30 @@ const Products: React.FC<ProductsProps> = ({
           handleReset={handleReset}
         />
 
-        {productsData.length > 0 ? (
-          <div className="products-grid">
+        <section id="products-results" className="products-content" aria-label={t('product.resultsCount', { count: productsData.length }) as string}>
+          <div className="products-toolbar">
+            <div className="products-toolbar__count" aria-live="polite">
+              <span>{t('product.resultsCount', { count: productsData.length })}</span>
+            </div>
+            <label className="products-toolbar__sort">
+              <span>{t('product.sortBy')}</span>
+              <select
+                value={sortOption}
+                onChange={(event) => {
+                  setSortOption(event.target.value as SortOption);
+                  setCurrentPage(0);
+                }}
+              >
+                <option value="featured">{t('product.sortFeatured')}</option>
+                <option value="newest">{t('product.sortNewest')}</option>
+                <option value="price-low">{t('product.sortPriceLow')}</option>
+                <option value="price-high">{t('product.sortPriceHigh')}</option>
+              </select>
+            </label>
+          </div>
+
+          {productsData.length > 0 ? (
+            <div className="products-grid">
             {displayedProducts.map((product, index) => {
               const hasPromo     = product.promo > 0;
               const finalPrice   = getDiscountedPrice(product.price, product.promo);
@@ -200,6 +234,7 @@ const Products: React.FC<ProductsProps> = ({
               const sel          = sizeSelections[product.id];
               const isWishlisted = !!wishlisted[product.id];
               const wasJustAdded = !!justAdded[product.id];
+              const isSoldOut    = product.stock.every((stockItem) => stockItem.quantity === 0);
 
               return (
                 <motion.article
@@ -237,6 +272,14 @@ const Products: React.FC<ProductsProps> = ({
                       <span className="product-card__tag">
                         {t("product.label")}
                       </span>
+                    )}
+
+                    {product.newest && (
+                      <span className="product-card__new-badge">{t('product.new')}</span>
+                    )}
+
+                    {isSoldOut && (
+                      <span className="product-card__sold-out">{t('product.soldOut')}</span>
                     )}
 
                     {/* Wishlist toggle — visual-only state, no persistence yet */}
@@ -281,9 +324,9 @@ const Products: React.FC<ProductsProps> = ({
                     aria-hidden
                   >
                     <p className="product-card__meta">
-                      {t(`productTypes.${product.product_type.toLowerCase()}`, {
-                        defaultValue: product.product_type,
-                      })}
+                      <span>{product.category}</span>
+                      <span aria-hidden>·</span>
+                      <span>{product.ref}</span>
                     </p>
                     <p className="product-card__name">{product.name}</p>
 
@@ -300,7 +343,11 @@ const Products: React.FC<ProductsProps> = ({
                   </div>
 
                   {/* ── Sizes — step 1: select only, no cart action yet ─ */}
-                  <div className="product-card__size-grid" role="group" aria-label="Available sizes">
+                  <div className="product-card__size-heading">
+                    <span>{t('product.selectSize')}</span>
+                    <span>{t('product.availability')}</span>
+                  </div>
+                  <div className="product-card__size-grid" role="group" aria-label={t('product.selectSize') as string}>
                     {product.stock.map((stockItem, si) => {
                       const outOfStock = stockItem.quantity === 0;
                       const isSelected = sel?.size === stockItem.size;
@@ -356,10 +403,11 @@ const Products: React.FC<ProductsProps> = ({
                 </motion.article>
               );
             })}
-          </div>
-        ) : (
-          <NotFound onReset={handleReset} />
-        )}
+            </div>
+          ) : (
+            <NotFound onReset={handleReset} />
+          )}
+        </section>
       </div>
 
       {/* ── Pagination ──────────────────────────────────────────── */}
@@ -373,7 +421,7 @@ const Products: React.FC<ProductsProps> = ({
           pageRangeDisplayed={3}
           onPageChange={({ selected }) => {
             setCurrentPage(selected);
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            document.getElementById('products-results')?.scrollIntoView({ behavior: 'smooth' });
           }}
           forcePage={currentPage}
           containerClassName="pagination"

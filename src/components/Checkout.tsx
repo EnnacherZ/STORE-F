@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useLangContext } from '../contexts/LanguageContext';
 import { toast, Zoom } from 'react-toastify';
 import { CartItem, useCart } from '../contexts/CartContext';
-import Loading from './loading';
+import Loading from './Loading';
 import Footer from './Footer';
 import { HiOutlineCash } from 'react-icons/hi';
 import { MdCheckCircle } from 'react-icons/md';
@@ -25,6 +25,8 @@ import {
 import createInvoice from '../contexts/CreateInvoice';
 import { connecter } from '../server/connecter';
 import { useClientAuth } from '../contexts/ClientAuthContext';
+import PromoCodeField from './PromoCodeField';
+import { isAxiosError } from 'axios';
 
 
 
@@ -134,7 +136,7 @@ const ModeChooser: React.FC<{
       <p className="co-mode-chooser__sub">{t('auth.checkoutSub')}</p>
 
       <div className="co-mode-chooser__cards">
-        <button className="co-mode-card co-mode-card--account" onClick={onAccount}>
+        <button type="button" className="co-mode-card co-mode-card--account" onClick={onAccount}>
           <FaUserCheck className="co-mode-card__icon" />
           <div>
             <p className="co-mode-card__title">{t('auth.checkoutWithAccount')}</p>
@@ -143,7 +145,7 @@ const ModeChooser: React.FC<{
           <IoArrowBackOutline className="co-mode-card__arrow" style={{ transform: 'rotate(180deg)' }} />
         </button>
 
-        <button className="co-mode-card co-mode-card--guest" onClick={onGuest}>
+        <button type="button" className="co-mode-card co-mode-card--guest" onClick={onGuest}>
           <FaUserSlash className="co-mode-card__icon" />
           <div>
             <p className="co-mode-card__title">{t('auth.checkoutAsGuest')}</p>
@@ -200,7 +202,17 @@ const Checkout: React.FC = () => {
   const orderDate = new Date();
   const { t } = useTranslation();
   const { currentLang } = useLangContext();
-  const { cartTotalAmount, cartChecker, clearCart, allItems, setSuccessTransItems } = useCart();
+  const {
+    cartTotalAmount,
+    discountedCartTotalAmount,
+    promotionDiscountAmount,
+    appliedPromotion,
+    cartChecker,
+    itemCount,
+    clearCart,
+    allItems,
+    setSuccessTransItems,
+  } = useCart();
   const {
     setClientForm, clientForm, setPaymentResponse, clearPaymentResponse,
     setCurrentCurrency, currentCurrency, currencyIsAvailable,
@@ -220,7 +232,7 @@ const Checkout: React.FC = () => {
   const [mode, setMode] = useState<CheckoutMode>('choosing');
 
   const isRtl        = selectedLang(currentLang) === 'ar';
-  const displayTotal = confirmedAmount ?? cartTotalAmount;
+  const displayTotal = confirmedAmount ?? discountedCartTotalAmount;
   const labels = selectedLang(currentLang) == 'fr'?fr: selectedLang(currentLang) == 'ar'?ar:en
 
   // Clear any leftover payment result from a previous transaction the
@@ -277,7 +289,7 @@ const Checkout: React.FC = () => {
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = () => {
     if (!arePoliciesAccepted) {
       setHasPoliciesError(true);
       toast.error(t('footer.policiesNotAccepted'), {
@@ -297,11 +309,10 @@ const Checkout: React.FC = () => {
       City:      getValues('city'),
       Address:   getValues('address'),
       Currency:  'MAD',
-      Amount:    cartTotalAmount,
+      Amount:    discountedCartTotalAmount,
     };
     setClientForm(clientCoords);
     setIsFormLocked(true);
-    await new Promise(r => setTimeout(r, 1000));
   };
 
   const handlePayNowClick = async () => {
@@ -333,6 +344,7 @@ const Checkout: React.FC = () => {
             email:        clientForm.Email,
           },
           items: itemsPayload(allItems),
+          promotion_code: appliedPromotion?.code ?? '',
         });
         setConfirmedAmount(response.data.amount);
         setOverlayStage('redirecting');
@@ -341,7 +353,8 @@ const Checkout: React.FC = () => {
       } catch (err) {
         console.error(err);
         setOverlayStage(null);
-        showToast('Failed to initialize payment. Please try again.', 'error');
+        const reason = isAxiosError(err) ? err.response?.data?.reason : undefined;
+        showToast(reason ? t(`promoCode.errors.${reason}`) : t('payment.initializeError'), 'error');
       }
       return;
     }
@@ -360,6 +373,7 @@ const Checkout: React.FC = () => {
         onlinePayment:  false,
         transaction_id: transactionId,
         client:         clientForm,
+        promotion_code: appliedPromotion?.code ?? '',
       };
 
       const response = await connecter.post('api/payment/handle/', payload);
@@ -405,7 +419,8 @@ const Checkout: React.FC = () => {
       goTo(SUCCESS_ROUTE);
     } catch (error) {
       console.error(error);
-      showToast('Something went wrong. Please contact support.', 'error');
+      const reason = isAxiosError(error) ? error.response?.data?.reason : undefined;
+      showToast(reason ? t(`promoCode.errors.${reason}`) : t('payment.orderError'), 'error');
     } finally {
       setIsLoading(false);
       setOverlayStage(null);
@@ -533,7 +548,7 @@ const Checkout: React.FC = () => {
             <form className="co-card co-form-panel" onSubmit={handleSubmit(handleFormSubmit)}>
               <div className="co-card__header">
                 <div>
-                  <div className="co-card__header-step">Step 1</div>
+                  <div className="co-card__header-step">1 / 2</div>
                   <div className="co-card__header-title">
                     <FaUserCircle style={{ marginRight: 8, verticalAlign: 'middle' }} />
                     {t('form.clientInfo')}
@@ -673,15 +688,23 @@ const Checkout: React.FC = () => {
                 </div>
 
                 {!isFormLocked && (
-                  <div className={`co-policies ${isRtl ? 'rtl' : ''}`}
-                    onClick={() => setArePoliciesAccepted(p => !p)}>
+                  <label className={`co-policies ${isRtl ? 'rtl' : ''}`}>
+                    <input
+                      className="co-policies__input"
+                      type="checkbox"
+                      checked={arePoliciesAccepted}
+                      onChange={(event) => {
+                        setArePoliciesAccepted(event.target.checked);
+                        if (event.target.checked) setHasPoliciesError(false);
+                      }}
+                    />
                     <div className={`co-policies__box ${arePoliciesAccepted ? 'co-policies__box--checked' : ''} ${hasPoliciesError ? 'co-policies__box--error' : ''}`}>
                       {arePoliciesAccepted && <MdCheckCircle size={13} />}
                     </div>
-                    <span className={`co-policies__text ${hasPoliciesError ? 'co-policies__text--error' : ''}`}>
+                    <div className={`co-policies__text ${hasPoliciesError ? 'co-policies__text--error' : ''}`}>
                       {policiesAcceptanceText(selectedLang(currentLang))}
-                    </span>
-                  </div>
+                    </div>
+                  </label>
                 )}
 
                 {!isFormLocked && (
@@ -699,11 +722,11 @@ const Checkout: React.FC = () => {
             </form>
 
             {/* ── Right column ──────────────────────────────────────────── */}
-            <div className="co-right-col">
+            <div className="co-right-col" dir={isRtl ? 'rtl' : 'ltr'}>
               <div className="co-card">
                 <div className="co-card__header">
                   <div>
-                    <div className="co-card__header-step">Step 2</div>
+                    <div className="co-card__header-step">2 / 2</div>
                     <div className="co-card__header-title">
                       <FaMoneyBillTransfer style={{ marginRight: 8, verticalAlign: 'middle' }} />
                       {t('payment.portal')}
@@ -714,11 +737,12 @@ const Checkout: React.FC = () => {
                   <button type="button"
                     className={`co-pay-method co-pay-method--cod ${selectedPaymentMethod === 'cod' ? 'co-pay-method--selected' : ''}`}
                     onClick={() => setSelectedPaymentMethod('cod')}
+                    aria-pressed={selectedPaymentMethod === 'cod'}
                     disabled={!isFormReady}>
                     <div className="co-pay-method__icon"><HiOutlineCash size={22} /></div>
-                    <div style={{ flex: 1 }}>
+                    <div className="co-pay-method__copy">
                       <div className="co-pay-method__label">{t('payment.cod')}</div>
-                      <div className="co-pay-method__sublabel">Pay when your order arrives</div>
+                      <div className="co-pay-method__sublabel">{t('payment.codHint')}</div>
                     </div>
                     <div className="co-pay-method__radio">
                       {selectedPaymentMethod === 'cod' && <div className="co-pay-method__radio-dot" />}
@@ -728,18 +752,19 @@ const Checkout: React.FC = () => {
                   <button type="button"
                     className={`co-pay-method co-pay-method--online ${selectedPaymentMethod === 'online' ? 'co-pay-method--selected' : ''}`}
                     onClick={() => setSelectedPaymentMethod('online')}
+                    aria-pressed={selectedPaymentMethod === 'online'}
                     disabled={!IS_ONLINE_PAYMENT_ENABLED || !isFormReady}>
                     <div className="co-pay-method__icon"><FaCreditCard size={22} /></div>
-                    <div style={{ flex: 1 }}>
+                    <div className="co-pay-method__copy">
                       <div className="co-pay-method__label">{t('payment.creditCard')}</div>
-                      <div className="co-pay-method__sublabel">Secure online payment</div>
+                      <div className="co-pay-method__sublabel">{t('payment.onlineHint')}</div>
                     </div>
                     <div className="co-pay-method__radio">
                       {selectedPaymentMethod === 'online' && <div className="co-pay-method__radio-dot" />}
                     </div>
                   </button>
 
-                  <div className={`co-payment-status ${selectedPaymentMethod ? 'co-payment-status--chosen' : ''}`}>
+                  <div className={`co-payment-status ${selectedPaymentMethod ? 'co-payment-status--chosen' : ''}`} aria-live="polite">
                     {selectedPaymentMethod === undefined ? t('payment.notChosen')
                       : selectedPaymentMethod === 'online' ? `✓ ${t('payment.creditCard')}`
                       : `✓ ${t('payment.cod')}`}
@@ -749,19 +774,48 @@ const Checkout: React.FC = () => {
 
               <div className="co-card co-summary">
                 <div className="co-summary__title">
-                  <span className="co-summary__accent" />Order Summary
+                  <span className="co-summary__accent" />{t('order.summary')}
+                  <span className="co-summary__count">{t('cart.items', { count: itemCount })}</span>
+                </div>
+
+                <div className="co-summary__items">
+                  {allItems.slice(0, 3).map((item) => (
+                    <div className="co-summary-item" key={`${item.id}-${item.size}`}>
+                      <div className="co-summary-item__image">
+                        <img src={item.image} alt="" aria-hidden loading="lazy" />
+                      </div>
+                      <div className="co-summary-item__copy">
+                        <span className="co-summary-item__name">{item.name}</span>
+                        <span className="co-summary-item__meta">
+                          {t('product.size')}: {item.size} · ×{item.quantity}
+                        </span>
+                      </div>
+                      <strong className="co-summary-item__price">
+                        {(item.price * (1 - item.promo * 0.01) * item.quantity).toFixed(2)} {currentCurrency}
+                      </strong>
+                    </div>
+                  ))}
+                  {allItems.length > 3 && (
+                    <div className="co-summary__more">+ {t('cart.items', { count: allItems.length - 3 })}</div>
+                  )}
+                </div>
+
+                <div className="co-summary__row">
+                  <span>{t('order.subtotal')}</span>
+                  <span>{cartTotalAmount.toFixed(2)} {currentCurrency}</span>
                 </div>
                 <div className="co-summary__row">
-                  <span>Subtotal</span>
-                  <span>{displayTotal.toFixed(2)} {currentCurrency}</span>
+                  <span>{t('order.shipping')}</span>
+                  <span className="co-summary__free">{t('delivery.free')}</span>
                 </div>
-                <div className="co-summary__row">
-                  <span>Shipping</span>
-                  <span style={{ color: '#2e7d32', fontWeight: 600 }}>FREE</span>
-                </div>
+                {appliedPromotion && <div className="co-summary__row co-summary__discount">
+                  <span>{t('promoCode.discount')} ({appliedPromotion.code})</span>
+                  <span>−{promotionDiscountAmount.toFixed(2)} {currentCurrency}</span>
+                </div>}
+                <PromoCodeField compact />
                 <div className="co-summary__divider" />
                 <div className="co-summary__total">
-                  <span className="co-summary__total-label">Total</span>
+                  <span className="co-summary__total-label">{t('cart.total')}</span>
                   <span className="co-summary__total-value">{displayTotal.toFixed(2)} {currentCurrency}</span>
                 </div>
               </div>
@@ -770,16 +824,24 @@ const Checkout: React.FC = () => {
                 type="button"
                 className={`co-pay-now-btn ${isFormReady && selectedPaymentMethod ? 'co-pay-now-btn--ready' : ''}`}
                 onClick={handlePayNowClick}
+                aria-busy={overlayStage !== null}
                 disabled={!isFormReady || !selectedPaymentMethod || overlayStage !== null}>
                 <IoArrowBackOutline style={{ transform: 'rotate(180deg)' }} />
-                {overlayStage ? '⏳ Please wait…' : `${t('payment.pay')} ${displayTotal.toFixed(2)} ${currentCurrency}`}
+                {overlayStage ? `⏳ ${t('transaction.pleaseWait')}` : `${t('payment.pay')} ${displayTotal.toFixed(2)} ${currentCurrency}`}
               </button>
+
+              {!isFormReady && (
+                <div className="co-checkout-hint">{t('payment.completeDetailsFirst')}</div>
+              )}
+              {isFormReady && !selectedPaymentMethod && (
+                <div className="co-checkout-hint">{t('payment.selectMethodPrompt')}</div>
+              )}
 
               <div className="co-ssl-note">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
-                SSL encrypted · Secure Checkout
+                {t('payment.secureNote')}
               </div>
             </div>
           </div>

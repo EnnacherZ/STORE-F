@@ -10,7 +10,8 @@
   flex-shrink: 0;
   background: #ffffff;
   border: 1px solid #e4e4e2;
-  border-radius: 2px;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px rgba(15, 28, 53, 0.045);
 
   /* Desktop header is `position: sticky` (not fixed), so it scrolls out
      of view — the filter panel only needs clearance for it on initial
@@ -43,6 +44,7 @@
   top: 0;
   background: #ffffff;
   z-index: 2;
+  border-radius: 14px 14px 0 0;
 }
 
 .filter-section__eyebrow {
@@ -56,7 +58,7 @@
 
 .filter-section__heading {
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: 800;
   color: #14161a;
   margin: 0;
 }
@@ -97,6 +99,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
+  min-height: 28px;
   font-size: 0.8rem;
   color: #14161a;
   cursor: pointer;
@@ -142,14 +145,15 @@
 .filter-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 9px 10px;
+  min-height: 40px;
+  padding: 9px 11px;
   font-size: 0.8rem;
   font-weight: 400;
   color: #14161a;
 
   background: #ffffff;
   border: 1px solid #e4e4e2;
-  border-radius: 2px;
+  border-radius: 8px;
 
   outline: none;
   transition: border-color 0.15s ease;
@@ -180,7 +184,7 @@
   text-transform: uppercase;
 
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: 9px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   font-family: inherit;
@@ -219,7 +223,8 @@
   border: 1px solid #e4e4e2;
   background: #ffffff;
   padding: 11px;
-  border-radius: 2px;
+  border-radius: 11px;
+  box-shadow: 0 5px 16px rgba(15, 28, 53, 0.06);
   cursor: pointer;
 
   font-size: 0.72rem;
@@ -262,7 +267,7 @@
 
   border: 1px solid #e4e4e2;
   background: #ffffff;
-  border-radius: 2px;
+  border-radius: 9px;
   cursor: pointer;
   color: #8b8d92;
   transition: border-color 0.15s ease, color 0.15s ease;
@@ -289,6 +294,26 @@
     border-right: none;
     border-radius: 0;
   }
+}
+
+@media (max-width: 480px) {
+  .filter-section {
+    max-height: calc(100dvh - 94px - 8px);
+  }
+
+  .filter-drop-toggle {
+    width: calc(100% - 20px);
+    min-height: 44px;
+    margin: 10px;
+    border-radius: 10px;
+  }
+
+  .filter-block { padding: 14px; }
+  .filter-actions { padding: 14px; flex-direction: row; }
+  .filter-check { min-height: 32px; }
+  .filter-input { min-height: 44px; font-size: 0.84rem; }
+  .filter-btn { min-height: 44px; padding: 8px; }
+  .filter-drop-close { min-height: 42px; margin: 0 14px 14px; }
 }
 
 /* ── RTL ──────────────────────────────────────────────────────── */

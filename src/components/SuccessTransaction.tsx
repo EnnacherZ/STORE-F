@@ -10,7 +10,7 @@ import Footer from './Footer';
 import { BsBagCheckFill } from 'react-icons/bs';
 import { useTranslation } from 'react-i18next';
 import Header from './Header';
-import Loading from './loading';
+import Loading from './Loading';
 import { useLangContext } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { selectedLang, sendEmail } from './constants';

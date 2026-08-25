@@ -1,0 +1,18 @@
+.promo-field { display: grid; gap: 8px; padding: 14px 0; border-top: 1px solid #e8edf3; border-bottom: 1px solid #e8edf3; }
+.promo-field label { display: flex; align-items: center; gap: 7px; margin: 0; color: #273b54; font-size: 12px; font-weight: 800; }
+.promo-field label svg { color: #0e92e4; }
+.promo-field__controls { display: flex; gap: 7px; }
+.promo-field__controls input { min-width: 0; flex: 1; height: 40px; border: 1px solid #d8e1eb; border-radius: 9px; padding: 0 11px; color: #10243d; font-family: ui-monospace, monospace; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; outline: none; }
+.promo-field__controls input:focus { border-color: #0e92e4; box-shadow: 0 0 0 3px rgba(14,146,228,.1); }
+.promo-field__controls button { height: 40px; border: 0; border-radius: 9px; padding: 0 13px; color: #fff; background: #0e92e4; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.promo-field__controls button:disabled { opacity: .55; cursor: wait; }
+.promo-field__error { color: #c43d49; font-size: 11px; font-weight: 650; }
+.promo-applied { display: flex; align-items: center; gap: 10px; margin: 13px 0; padding: 11px 12px; border: 1px solid #bcebd5; border-radius: 11px; color: #11623f; background: #effbf5; }
+.promo-applied__icon { display: grid; place-items: center; width: 27px; height: 27px; flex: 0 0 auto; border-radius: 50%; color: #fff; background: #16a46a; }
+.promo-applied__copy { min-width: 0; flex: 1; display: grid; }
+.promo-applied__copy strong { font-family: ui-monospace, monospace; letter-spacing: .05em; }
+.promo-applied__copy span { font-size: 11px; color: #438065; }
+.promo-applied button { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 8px; color: #438065; background: transparent; }
+.promo-applied button:hover { background: #d9f4e6; }
+.promo-field--compact { margin-top: 11px; }
+@media (max-width: 430px) { .promo-field__controls { flex-direction: column; } .promo-field__controls button { width: 100%; } }

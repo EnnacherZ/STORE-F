@@ -124,13 +124,17 @@
 @media (max-width: 480px) {
   .list-command-details li {
     padding: 10px;
+    flex-direction: column;
+    gap: 7px;
   }
 
   .Delai-command-title {
-    width: 110px;
-    min-width: 110px;
+    width: 100%;
+    min-width: 0;
     font-size: 0.8rem;
   }
+
+  .delai-command-details { width: 100%; padding: 0; font-size: 0.8rem !important; }
 
   .delai-command-details div img {
     max-width: 44px;

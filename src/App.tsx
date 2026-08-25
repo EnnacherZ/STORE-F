@@ -1,17 +1,11 @@
 /**
  * App.tsx
  *
- * Root component. Splits routing between the storefront and the dashboard
- * at the /Dashboard path prefix. Each surface has its own router so they
- * can never accidentally share routes.
- *
- * Auth is provided at the appropriate level:
- *   - ClientAuthProvider wraps the entire storefront tree
- *   - AuthProvider (dashboard) wraps only dashboard routes
+ * Root storefront component. Owns route registration and provider composition;
+ * staff functionality lives in the separate Dash-F application.
  */
 import React from "react";
 import "react-toastify/dist/ReactToastify.css";
-// import "./App.css";
 import { motion } from "framer-motion";
 import { ToastContainer } from "react-toastify";
 import {
@@ -29,8 +23,8 @@ import { ParametersContextProvider} from "./contexts/ParametersContext";
 
 // ── Storefront pages ──────────────────────────────────────────────────────────
 import HomePage          from "./components/HomePage";
-import Cart              from "./components/cart";
-import Checkout          from "./components/checkout";
+import Cart              from "./components/Cart";
+import Checkout          from "./components/Checkout";
 import SuccessTransaction from "./components/SuccessTransaction";
 import FailedTransaction  from "./components/FailedTransaction";
 import ProductDetails    from "./components/ProductDetails";
@@ -39,41 +33,44 @@ import OrderTracker      from "./components/OrderTracker";
 import Policies          from "./components/Policies";
 import NotFoundPage      from "./components/NotFoundPage";
 import PaymentCallback   from "./components/PaymentCallback";
-import SignInPage        from "./components/Signinpage";
-import SignUpPage        from "./components/Signuppage";
-import AccountPage       from "./client profile/ClientAccount";
-import ActivateAccount   from "./client profile/ActivateAccount";
-// import SendEmail         from "./sendMail";
-import AddProductTypeForm from "./reloader";
+import SignInPage        from "./components/SignInPage";
+import SignUpPage        from "./components/SignUpPage";
+import AccountPage       from "./client-profile/ClientAccount";
+import ActivateAccount   from "./client-profile/ActivateAccount";
 import ProductsPage from "./components/ProductsPage";
+import CartAddedDrawer from "./components/CartAddedDrawer";
+import ScrollToTop from "./components/ScrollToTop";
 
 
 // ── Storefront routes ─────────────────────────────────────────────────────────
 const storefrontRouter = createBrowserRouter(
   [
-    { path: "/",                                          element: <Navigate to="/Home" replace /> },
-    { path: "/Home",                                      element: <HomePage /> },
-    { path: "/ProductPage/:productType",                  element: <ProductPage /> },
-    { path: "/productDetails/:productType/:category/:ref/:id" ,element: <ProductDetails /> },
-    { path: "/Cart",                                      element: <Cart /> },
-    { path: "/Checkout",                                  element: <Checkout /> },
-    { path: "/Transaction/Success",                       element: <SuccessTransaction /> },
-    { path: "/Transaction/Failed",                        element: <FailedTransaction /> },
-    { path: "/payment/success",                           element: <PaymentCallback /> },
-    { path: "/payment/error",                             element: <PaymentCallback /> },
-    { path: "/orders/track/:OrderID",                          element: <OrderTracker /> },
-    { path: "/orders/track",                                   element: <OrderTracker /> },
-    { path: "/Policies/:option",                          element: <Policies /> },
-    { path: "/account/activate/:activation_code",         element: <ActivateAccount /> },
-    { path: "/account/signin",                                    element: <SignInPage /> },
-    { path: "/account/signup",                                    element: <SignUpPage /> },
-    { path: "/signin",                                     element: <Navigate to="/account/signin" replace /> },
-    { path: "/signup",                                    element: <Navigate to="/account/signup" replace /> },
-    { path: "/account",                                   element: <AccountPage /> },
-    // { path: "/send_mail",                                 element: <SendEmail /> },
-    { path: "/testy",                                     element: <AddProductTypeForm /> },
-    { path: "*",                                          element: <NotFoundPage /> },
-    { path:"/products",  element:<ProductsPage /> }
+    {
+      element: <ScrollToTop />,
+      children: [
+        { path: "/",                                          element: <Navigate to="/Home" replace /> },
+        { path: "/Home",                                      element: <HomePage /> },
+        { path: "/ProductPage/:productType",                  element: <ProductPage /> },
+        { path: "/productDetails/:productType/:category/:ref/:id" ,element: <ProductDetails /> },
+        { path: "/Cart",                                      element: <Cart /> },
+        { path: "/Checkout",                                  element: <Checkout /> },
+        { path: "/Transaction/Success",                       element: <SuccessTransaction /> },
+        { path: "/Transaction/Failed",                        element: <FailedTransaction /> },
+        { path: "/payment/success",                           element: <PaymentCallback /> },
+        { path: "/payment/error",                             element: <PaymentCallback /> },
+        { path: "/orders/track/:OrderID",                     element: <OrderTracker /> },
+        { path: "/orders/track",                              element: <OrderTracker /> },
+        { path: "/Policies/:option",                          element: <Policies /> },
+        { path: "/account/activate/:activation_code",         element: <ActivateAccount /> },
+        { path: "/account/signin",                            element: <SignInPage /> },
+        { path: "/account/signup",                            element: <SignUpPage /> },
+        { path: "/signin",                                    element: <Navigate to="/account/signin" replace /> },
+        { path: "/signup",                                    element: <Navigate to="/account/signup" replace /> },
+        { path: "/account",                                   element: <AccountPage /> },
+        { path: "/products",                                  element: <ProductsPage /> },
+        { path: "*",                                          element: <NotFoundPage /> },
+      ],
+    },
   ],
   { future: { v7_relativeSplatPath: true } }
 );
@@ -89,13 +86,13 @@ const App: React.FC = () => (
     exit={{ opacity: 0, y: -20 }}
     transition={{ duration: 0.4 }}
   >
-    { (
-      // Storefront surface
+    {
       <ClientAuthProvider>
       <ParametersContextProvider>
         <CartProvider>
           <PaymentProvider>
             <ProductsContextProvider>
+              <CartAddedDrawer />
               <RouterProvider
                 router={storefrontRouter}
                 future={{ v7_startTransition: true }}
@@ -105,7 +102,7 @@ const App: React.FC = () => (
         </CartProvider>
         </ParametersContextProvider>
       </ClientAuthProvider>
-    )}
+    }
 
     <ToastContainer />
   </motion.div>

@@ -5,7 +5,7 @@ import { usePayment } from '../contexts/PaymentContext';
 import { connecter } from '../server/connecter';
 import Header from './Header';
 import Footer from './Footer';
-import Loading from './loading';
+import Loading from './Loading';
 
 const SUCCESS_ROUTE = '/Transaction/Success';
 
