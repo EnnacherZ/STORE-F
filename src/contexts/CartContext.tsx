@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
+import { connecter } from '../server/connecter';
 
 export interface CartItem {
   product_type: string;
@@ -38,6 +39,9 @@ export interface CartContextType {
   cartTotalAmount: number;
   discountedCartTotalAmount: number;
   promotionDiscountAmount: number;
+  offerDiscountAmount: number;
+  offerCode: string;
+  shippingFee: number;
   appliedPromotion: AppliedPromotion | null;
   cartChecker: boolean;
   addItem: (item: CartItem, options?: { showConfirmation?: boolean }) => void;
@@ -61,6 +65,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const STORAGE_KEY = 'AL-Firdaous-All-Items';
 const SUCCESS_KEY = 'AL-Firdaous-Success-All-Items';
 const PROMOTION_KEY = 'AL-Firdaous-Promotion';
+
+interface CartQuote {
+  subtotal: number;
+  offer_code: string;
+  offer_discount_amount: number;
+  promotion_discount_amount: number;
+  shipping_fee: number;
+  total_amount: number;
+}
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
@@ -95,6 +108,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [cartDrawerMode, setCartDrawerMode] = useState<'added' | 'summary'>('added');
+  const [serverQuote, setServerQuote] = useState<CartQuote | null>(null);
 
   // 🔹 sync localStorage (UNE SEULE SOURCE DE VÉRITÉ)
   useEffect(() => {
@@ -109,6 +123,29 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (appliedPromotion) localStorage.setItem(PROMOTION_KEY, JSON.stringify(appliedPromotion));
     else localStorage.removeItem(PROMOTION_KEY);
   }, [appliedPromotion]);
+
+  useEffect(() => {
+    if (allItems.length === 0) {
+      setServerQuote(null);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await connecter.post('api/cart/quote/', {
+          items: allItems.map(item => ({ id: item.id, size: item.size, quantity: item.quantity })),
+          promotion_code: appliedPromotion?.code ?? '',
+        });
+        if (!cancelled) setServerQuote(response.data);
+      } catch {
+        if (!cancelled) setServerQuote(null);
+      }
+    }, 120);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [allItems, appliedPromotion?.code]);
 
   const invalidatePromotion = () => setAppliedPromotion(null);
 
@@ -218,10 +255,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return Math.round(total*100)/100
   }, [allItems]);
 
-  const promotionDiscountAmount = appliedPromotion?.discount_amount ?? 0;
-  const discountedCartTotalAmount = Math.max(
+  const authoritativeSubtotal = serverQuote?.subtotal ?? cartTotalAmount;
+  const promotionDiscountAmount = serverQuote?.promotion_discount_amount
+    ?? appliedPromotion?.discount_amount ?? 0;
+  const offerDiscountAmount = serverQuote?.offer_discount_amount ?? 0;
+  const offerCode = serverQuote?.offer_code ?? '';
+  const shippingFee = serverQuote?.shipping_fee ?? 0;
+  const discountedCartTotalAmount = serverQuote?.total_amount ?? Math.max(
     0,
-    Math.round((cartTotalAmount - promotionDiscountAmount) * 100) / 100,
+    Math.round((authoritativeSubtotal - promotionDiscountAmount - offerDiscountAmount + shippingFee) * 100) / 100,
   );
 
   const applyPromotion = (promotion: AppliedPromotion) => setAppliedPromotion(promotion);
@@ -232,9 +274,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         allItems,
         itemCount,
-        cartTotalAmount,
+        cartTotalAmount: authoritativeSubtotal,
         discountedCartTotalAmount,
         promotionDiscountAmount,
+        offerDiscountAmount,
+        offerCode,
+        shippingFee,
         appliedPromotion,
         cartChecker,
         successTransItems,

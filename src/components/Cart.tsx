@@ -61,6 +61,9 @@ const Cart: React.FC = () => {
     cartTotalAmount,
     discountedCartTotalAmount,
     promotionDiscountAmount,
+    offerDiscountAmount,
+    offerCode,
+    shippingFee,
     appliedPromotion,
     cartChecker,
     itemCount,
@@ -347,8 +350,14 @@ const Cart: React.FC = () => {
               </li>
               <li className={`order-summary__list-item ${isRtl ? 'rtl' : ''}`}>
                 <span>{t('order.shipping')}</span>
-                <b className="order-summary__free">{t('delivery.free')}</b>
+                <b className="order-summary__free">{shippingFee === 0 ? t('delivery.free') : `${shippingFee.toFixed(2)} ${t('product.currency')}`}</b>
               </li>
+              {offerDiscountAmount > 0 && (
+                <li className={`order-summary__list-item order-summary__discount ${isRtl ? 'rtl' : ''}`}>
+                  <span>عرض جوج كاسكيطات ({offerCode})</span>
+                  <b>−{offerDiscountAmount.toFixed(2)} {t('product.currency')}</b>
+                </li>
+              )}
               {appliedPromotion && (
                 <li className={`order-summary__list-item order-summary__discount ${isRtl ? 'rtl' : ''}`}>
                   <span>{t('promoCode.discount')} ({appliedPromotion.code})</span>
@@ -545,8 +554,12 @@ const Cart: React.FC = () => {
                 </div>
                 <div>
                   <span>{t('order.shipping')}</span>
-                  <strong className="cart-summary-drawer__free">{t('delivery.free')}</strong>
+                  <strong className="cart-summary-drawer__free">{shippingFee === 0 ? t('delivery.free') : `${shippingFee.toFixed(2)} ${t('product.currency')}`}</strong>
                 </div>
+                {offerDiscountAmount > 0 && <div className="cart-summary-drawer__discount">
+                  <span>عرض جوج كاسكيطات ({offerCode})</span>
+                  <strong>−{offerDiscountAmount.toFixed(2)} {t('product.currency')}</strong>
+                </div>}
                 {appliedPromotion && <div className="cart-summary-drawer__discount">
                   <span>{t('promoCode.discount')} ({appliedPromotion.code})</span>
                   <strong>−{promotionDiscountAmount.toFixed(2)} {t('product.currency')}</strong>

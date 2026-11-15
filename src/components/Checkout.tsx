@@ -170,6 +170,9 @@ const Checkout: React.FC = () => {
     cartTotalAmount,
     discountedCartTotalAmount,
     promotionDiscountAmount,
+    offerDiscountAmount,
+    offerCode,
+    shippingFee,
     appliedPromotion,
     cartChecker,
     itemCount,
@@ -753,8 +756,12 @@ const Checkout: React.FC = () => {
                 </div>
                 <div className="co-summary__row">
                   <span>{t('order.shipping')}</span>
-                  <span className="co-summary__free">{t('delivery.free')}</span>
+                  <span className="co-summary__free">{shippingFee === 0 ? t('delivery.free') : `${shippingFee.toFixed(2)} ${currentCurrency}`}</span>
                 </div>
+                {offerDiscountAmount > 0 && <div className="co-summary__row co-summary__discount">
+                  <span>عرض جوج كاسكيطات ({offerCode})</span>
+                  <span>−{offerDiscountAmount.toFixed(2)} {currentCurrency}</span>
+                </div>}
                 {appliedPromotion && <div className="co-summary__row co-summary__discount">
                   <span>{t('promoCode.discount')} ({appliedPromotion.code})</span>
                   <span>−{promotionDiscountAmount.toFixed(2)} {currentCurrency}</span>
