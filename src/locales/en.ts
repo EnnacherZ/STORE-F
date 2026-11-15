@@ -30,6 +30,7 @@ export default {
             noneYet: 'New products will come!',
             stayTuned: 'Stay tuned!',
             view: 'View the product',
+            viewAndOrder: 'View & order',
             addToCart: 'Add to cart',
             size: 'Size',
             category: 'Category',
@@ -239,6 +240,7 @@ export default {
           },
 
           review: {
+            requiredFields: 'Please complete all review fields and select a rating.',
             title: 'Product reviews',
             add: 'Add your review',
             submit: 'Add the review',

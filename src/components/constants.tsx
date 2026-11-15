@@ -3,7 +3,7 @@ import { DataToFilter } from "./FilterSection";
 import { validate } from "uuid";
 import { connecter } from "../server/connecter";
 import { clientData } from "../contexts/PaymentContext";
-import { toast, Zoom } from "react-toastify";
+export { showToast } from "../utils/toast";
 
 type Lang   = "fr" | "en" | "ar";
 
@@ -129,37 +129,5 @@ export const sendEmail = async (
     
 
 };
-
-export const showToast = (message:string, event : "success" | "error") => {
-            if(event == "error"){
-                toast.error(message,{
-                  position: "top-center",
-                  autoClose: 2000,
-                  hideProgressBar: false, 
-                  closeOnClick: false,
-                  pauseOnHover: false,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "colored",
-                  transition: Zoom,
-                })
-            }else if(event == "success"){
-                toast.success(message,{
-                  position: "top-center",
-                  autoClose: 2000,
-                  hideProgressBar: false, 
-                  closeOnClick: false,
-                  pauseOnHover: false,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "colored",
-                  transition: Zoom,
-                })
-            }
-
-
-}
-
-
 
 export const homePagePromotion = 10

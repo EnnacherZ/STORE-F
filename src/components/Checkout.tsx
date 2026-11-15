@@ -7,12 +7,11 @@ import { AiFillAlert } from 'react-icons/ai';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { FaCreditCard, FaMoneyBillTransfer, FaPhone } from 'react-icons/fa6';
 import { BsGeoAltFill } from 'react-icons/bs';
-import { FaCity, FaRegUserCircle, FaUserCircle, FaUserCheck, FaUserSlash } from 'react-icons/fa';
+import { FaCity, FaRegUserCircle, FaUserCircle, FaUserCheck } from 'react-icons/fa';
 import { MdAlternateEmail, MdRemoveShoppingCart } from 'react-icons/md';
 import ReactCountryFlag from 'react-country-flag';
 import { useTranslation } from 'react-i18next';
 import { useLangContext } from '../contexts/LanguageContext';
-import { toast, Zoom } from 'react-toastify';
 import { CartItem, useCart } from '../contexts/CartContext';
 import Loading from './Loading';
 import Footer from './Footer';
@@ -58,7 +57,7 @@ type CheckoutFormValues = {
 
 type PaymentMethod = 'cod' | 'online' | undefined;
 
-type CheckoutMode = 'choosing' | 'account' | 'guest';
+type CheckoutMode = 'account' | 'guest';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -120,41 +119,6 @@ const PayNowOverlay: React.FC<{ stage: OverlayStage }> = ({ stage }) => {
         </div>
       </div>
     </>
-  );
-};
-
-// ─── Auth mode chooser screen ─────────────────────────────────────────────────
-
-const ModeChooser: React.FC<{
-  onAccount: () => void;
-  onGuest:   () => void;
-}> = ({ onAccount, onGuest }) => {
-  const { t } = useTranslation();
-  return (
-    <div className="co-mode-chooser">
-      <h2 className="co-mode-chooser__title">{t('auth.checkoutHowToContinue')}</h2>
-      <p className="co-mode-chooser__sub">{t('auth.checkoutSub')}</p>
-
-      <div className="co-mode-chooser__cards">
-        <button type="button" className="co-mode-card co-mode-card--account" onClick={onAccount}>
-          <FaUserCheck className="co-mode-card__icon" />
-          <div>
-            <p className="co-mode-card__title">{t('auth.checkoutWithAccount')}</p>
-            <p className="co-mode-card__sub">{t('auth.checkoutWithAccountSub')}</p>
-          </div>
-          <IoArrowBackOutline className="co-mode-card__arrow" style={{ transform: 'rotate(180deg)' }} />
-        </button>
-
-        <button type="button" className="co-mode-card co-mode-card--guest" onClick={onGuest}>
-          <FaUserSlash className="co-mode-card__icon" />
-          <div>
-            <p className="co-mode-card__title">{t('auth.checkoutAsGuest')}</p>
-            <p className="co-mode-card__sub">{t('auth.checkoutAsGuestSub')}</p>
-          </div>
-          <IoArrowBackOutline className="co-mode-card__arrow" style={{ transform: 'rotate(180deg)' }} />
-        </button>
-      </div>
-    </div>
   );
 };
 
@@ -229,7 +193,8 @@ const Checkout: React.FC = () => {
   const [overlayStage,          setOverlayStage]          = useState<OverlayStage | null>(null);
   const [confirmedAmount,       setConfirmedAmount]       = useState<number | null>(null);
 
-  const [mode, setMode] = useState<CheckoutMode>('choosing');
+  // Ad visitors land directly on the delivery form; sign-in remains optional.
+  const [mode, setMode] = useState<CheckoutMode>('guest');
 
   const isRtl        = selectedLang(currentLang) === 'ar';
   const displayTotal = confirmedAmount ?? discountedCartTotalAmount;
@@ -292,11 +257,7 @@ const Checkout: React.FC = () => {
   const handleFormSubmit = () => {
     if (!arePoliciesAccepted) {
       setHasPoliciesError(true);
-      toast.error(t('footer.policiesNotAccepted'), {
-        position: 'top-center', autoClose: 2000,
-        closeOnClick: false, pauseOnHover: false,
-        draggable: true, theme: 'colored', transition: Zoom,
-      });
+      showToast(t('footer.policiesNotAccepted'), 'warning');
       return;
     }
     setHasPoliciesError(false);
@@ -313,6 +274,8 @@ const Checkout: React.FC = () => {
     };
     setClientForm(clientCoords);
     setIsFormLocked(true);
+    // Default to the fastest local path while keeping online payment selectable.
+    setSelectedPaymentMethod('cod');
   };
 
   const handlePayNowClick = async () => {
@@ -457,22 +420,6 @@ const Checkout: React.FC = () => {
       <>
         <Header />
         <Loading message={t('ui.loading')} />
-        <Footer />
-      </>
-    );
-  }
-
-  // ── Mode chooser screen ────────────────────────────────────────────────────
-  if (mode === 'choosing') {
-    return (
-      <>
-        <Header />
-        <div className="co-page">
-          <ModeChooser
-            onAccount={() => goTo(CHECKOUT_SIGN_IN_ROUTE)}
-            onGuest={() => setMode('guest')}
-          />
-        </div>
         <Footer />
       </>
     );

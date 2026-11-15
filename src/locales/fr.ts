@@ -30,6 +30,7 @@ export default {
             noneYet: 'De nouveaux produits arriveront !',
             stayTuned: "Restez à l'écoute !",
             view: 'Voir le produit',
+            viewAndOrder: 'Voir et commander',
             addToCart: 'Ajouter au panier',
             size: 'Taille',
             category: 'Catégorie',
@@ -239,6 +240,7 @@ export default {
           },
 
           review: {
+            requiredFields: 'Complétez tous les champs de l’avis et choisissez une note.',
             title: 'Avis sur les produits',
             add: 'Ajouter votre avis',
             submit: "Ajouter l'avis",

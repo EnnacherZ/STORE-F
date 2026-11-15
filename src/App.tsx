@@ -7,7 +7,6 @@
 import React from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
-import { ToastContainer } from "react-toastify";
 import {
   Navigate,
   RouterProvider,
@@ -40,6 +39,7 @@ import ActivateAccount   from "./client-profile/ActivateAccount";
 import ProductsPage from "./components/ProductsPage";
 import CartAddedDrawer from "./components/CartAddedDrawer";
 import ScrollToTop from "./components/ScrollToTop";
+import AppToastContainer from "./components/AppToastContainer";
 
 
 // ── Storefront routes ─────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ const App: React.FC = () => (
       </ClientAuthProvider>
     }
 
-    <ToastContainer />
+    <AppToastContainer />
   </motion.div>
 );
 

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { CartItem, useCart } from '../contexts/CartContext';
-import { Zoom, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import Header from './Header';
 import '../styles/cart.css';
 import Modal from './Modal';
@@ -21,7 +19,7 @@ import Footer from './Footer';
 import { useTranslation } from 'react-i18next';
 import { useLangContext } from '../contexts/LanguageContext';
 import { usePayment } from '../contexts/PaymentContext';
-import { goTo, selectedLang } from './constants';
+import { goTo, selectedLang, showToast } from './constants';
 import PromoCodeField from './PromoCodeField';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -122,16 +120,7 @@ const Cart: React.FC = () => {
   const confirmRemoveItem = (item: CartItem) => {
     removeItem(item);
     setIsDeleteModalOpen(false);
-    toast.info(t('cart.itemRemoved'), {
-      position:        'top-center',
-      autoClose:       2000,
-      hideProgressBar: false,
-      closeOnClick:    false,
-      pauseOnHover:    false,
-      draggable:       true,
-      theme:           'colored',
-      transition:      Zoom,
-    });
+    showToast(t('cart.itemRemoved'), 'info');
   };
 
   const cancelDelete = () => {
@@ -143,16 +132,7 @@ const Cart: React.FC = () => {
   const confirmClearCart = () => {
     clearCart();
     setIsDeleteModalOpen(false);
-    toast.info(t('cart.cleared'), {
-      position:        'top-center',
-      autoClose:       2000,
-      hideProgressBar: false,
-      closeOnClick:    false,
-      pauseOnHover:    false,
-      draggable:       true,
-      theme:           'colored',
-      transition:      Zoom,
-    });
+    showToast(t('cart.cleared'), 'info');
   };
 
   // ── Price helpers ────────────────────────────────────────────────────────────

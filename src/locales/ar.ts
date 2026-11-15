@@ -30,6 +30,7 @@ export default {
             noneYet: 'منتجات جديدة قادمة !',
             stayTuned: 'ترقبوا !',
             view: 'معاينة المنتج',
+            viewAndOrder: 'شاهد واطلب',
             addToCart: 'اضافة الى السلة',
             size: 'المقاس',
             category: 'الصنف',
@@ -239,6 +240,7 @@ export default {
           },
 
           review: {
+            requiredFields: 'يرجى إكمال جميع حقول التقييم واختيار عدد النجوم.',
             title: 'مراجعات المنتج',
             add: 'إضافة تقييمك',
             submit: 'إضافة التقييم',

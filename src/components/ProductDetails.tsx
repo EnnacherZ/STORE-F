@@ -3,7 +3,6 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLangContext } from "../contexts/LanguageContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { toast } from "react-toastify";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import { type Swiper as SwiperType } from "swiper";
@@ -36,7 +35,7 @@ import TextReducer from "./TextReducer";
 import { CartItem, useCart } from "../contexts/CartContext";
 import { Product, ProductReviews } from "../contexts/ProductsContext";
 import { connecter } from "../server/connecter";
-import { selectedLang } from "./constants";
+import { selectedLang, showToast } from "./constants";
 import { getCategoryIcon } from "../illustrations/CategoryIcons";
 import reviewGuestImg from "../assets/review-guest.jpg";
 import "../styles/ProductDetail.css";
@@ -90,7 +89,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, onClose }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !text || stars === 0) {
-      toast.error("Please fill in all fields and provide a rating.");
+      showToast(t("review.requiredFields"), "warning");
       return;
     }
     setLoading(true);
@@ -207,6 +206,18 @@ const ProductDetails: React.FC = () => {
     };
     load();
   }, [productType, category, ref, id]);
+
+  // When there is no real size choice, save ad visitors an unnecessary tap.
+  useEffect(() => {
+    if (!product || sizeSelection) return;
+    const availableSizes = product.stock.filter((stockItem) => stockItem.quantity > 0);
+    if (availableSizes.length === 1) {
+      setSizeSelection({
+        size: availableSizes[0].size,
+        quantity: availableSizes[0].quantity,
+      });
+    }
+  }, [product, sizeSelection]);
 
   // ── Responsive ──────────────────────────────────────────────────────────
   useLayoutEffect(() => {

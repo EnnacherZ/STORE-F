@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { toast } from "react-toastify";
+import { showToast } from "../../utils/toast";
 
 const NewsletterSection: React.FC = () => {
   const { t } = useTranslation();
@@ -11,11 +11,11 @@ const NewsletterSection: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
-      toast.error(t("newsletter.invalid"));
+      showToast(t("newsletter.invalid"), "error");
       return;
     }
     setSubmitted(true);
-    toast.success(t("newsletter.success"));
+    showToast(t("newsletter.success"), "success");
   };
 
   return (

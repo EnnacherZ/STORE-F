@@ -222,6 +222,9 @@ const ProductsPage: React.FC = () => {
                         {finalPrice.toFixed(2)} {currency}
                       </span>
                     </div>
+                    <span className="products-page__cta" aria-hidden>
+                      {soldOut ? t("product.soldOut") : t("product.viewAndOrder")}
+                    </span>
                   </div>
                 </div>
               );

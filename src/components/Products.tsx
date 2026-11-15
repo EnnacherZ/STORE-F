@@ -57,6 +57,15 @@ const optimizeImageUrl = (url: string, width = 720): string =>
 const getDiscountedPrice = (price: number, promo: number): string =>
   (price * (1 - promo * 0.01)).toFixed(2);
 
+const hasAvailableStock = (product: Product): boolean =>
+  product.stock.some((stockItem) => stockItem.quantity > 0);
+
+const compareAvailability = (a: Product, b: Product): number =>
+  Number(hasAvailableStock(b)) - Number(hasAvailableStock(a));
+
+const compareNewest = (a: Product, b: Product): number =>
+  Number(b.newest) - Number(a.newest) || b.id - a.id;
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const Products: React.FC<ProductsProps> = ({
@@ -72,7 +81,7 @@ const Products: React.FC<ProductsProps> = ({
   const isRtl = selectedLang(currentLang) === "ar";
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [sortOption, setSortOption] = useState<SortOption>("featured");
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
 
   // Two-step flow: clicking a size only *selects* it (step 1). The actual
   // cart add only happens when the person then clicks the confirm button
@@ -94,20 +103,22 @@ const Products: React.FC<ProductsProps> = ({
     const result = [...productsData];
 
     if (sortOption === "newest") {
-      return result.sort((a, b) => Number(b.newest) - Number(a.newest) || b.id - a.id);
+      return result.sort((a, b) => compareAvailability(a, b) || compareNewest(a, b));
     }
     if (sortOption === "price-low") {
       return result.sort(
-        (a, b) => a.price * (1 - a.promo * 0.01) - b.price * (1 - b.promo * 0.01),
+        (a, b) => compareAvailability(a, b)
+          || a.price * (1 - a.promo * 0.01) - b.price * (1 - b.promo * 0.01),
       );
     }
     if (sortOption === "price-high") {
       return result.sort(
-        (a, b) => b.price * (1 - b.promo * 0.01) - a.price * (1 - a.promo * 0.01),
+        (a, b) => compareAvailability(a, b)
+          || b.price * (1 - b.promo * 0.01) - a.price * (1 - a.promo * 0.01),
       );
     }
 
-    return result;
+    return result.sort((a, b) => compareAvailability(a, b) || compareNewest(a, b));
   }, [productsData, sortOption]);
 
   const pageCount = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
