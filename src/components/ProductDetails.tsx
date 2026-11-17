@@ -9,7 +9,6 @@ import { type Swiper as SwiperType } from "swiper";
 import { FaCartPlus, FaShirt, FaStar } from "react-icons/fa6";
 import { TbRosetteDiscount } from "react-icons/tb";
 import {
-  MdLocalShipping,
   MdOutlineRateReview,
   MdRateReview,
   MdReviews,
@@ -480,10 +479,6 @@ const ProductDetails: React.FC = () => {
 
           {/* Purchase reassurance */}
           <div className="pd-info__benefits">
-            <div>
-              <MdLocalShipping aria-hidden />
-              <span>{t("delivery.label")}<strong>{t("delivery.free")}</strong></span>
-            </div>
             <div>
               <MdVerifiedUser aria-hidden />
               <span>{t("cart.secureCheckout")}<strong>{t("payment.methods")}</strong></span>

@@ -1,6 +1,5 @@
 import React from "react";
 import "../styles/CommandDetails.css"
-import { TbTruckDelivery } from "react-icons/tb";
 import { MdOutlineAccessTimeFilled, MdPayment } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import { useLangContext } from "../contexts/LanguageContext";
@@ -21,14 +20,6 @@ return(<>
     <div className={`command-time ${(lang()==='ar')&&'rtl'} px-2`}>
         <h2 className="command-details-title pt-3">{t('product.details')} :</h2>
         <ul className="list-command-details">
-            <li className="Delai-command d-flex">
-                <h6 className="Delai-command-title my-1">
-                    <TbTruckDelivery size={25}/> {t('delivery.label')} :
-                </h6>
-                <div className="delai-command-details fw-bold" style={{color:'green'}}>
-                    {t('delivery.free')}
-                </div>
-            </li>
             <li className="Delai-command d-flex ">
                 <h6 className="Delai-command-title d-flex my-1">
                     <MdOutlineAccessTimeFilled className="me-1" size={22}/> {t('delivery.time')} :
