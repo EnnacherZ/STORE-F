@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState, useEffect } from 'react';
+import React, { useLayoutEffect, useState, useEffect, useRef } from 'react';
 import Header from './Header';
 import '../styles/checkout.css';
 import { clientData, usePayment, PaymentResponse } from '../contexts/PaymentContext';
@@ -195,6 +195,10 @@ const Checkout: React.FC = () => {
   const [hasPoliciesError,      setHasPoliciesError]      = useState(false);
   const [overlayStage,          setOverlayStage]          = useState<OverlayStage | null>(null);
   const [confirmedAmount,       setConfirmedAmount]       = useState<number | null>(null);
+  const [payButtonVisible,      setPayButtonVisible]      = useState(false);
+  const formPanelRef = useRef<HTMLFormElement>(null);
+  const paymentPanelRef = useRef<HTMLDivElement>(null);
+  const payButtonRef = useRef<HTMLButtonElement>(null);
 
   // Ad visitors land directly on the delivery form; sign-in remains optional.
   const [mode, setMode] = useState<CheckoutMode>('guest');
@@ -255,6 +259,17 @@ const Checkout: React.FC = () => {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  useEffect(() => {
+    const button = payButtonRef.current;
+    if (!button) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPayButtonVisible(entry.isIntersecting),
+      { threshold: 0.65 },
+    );
+    observer.observe(button);
+    return () => observer.disconnect();
+  }, [isLoading, authLoading]);
+
   // ── Handlers ───────────────────────────────────────────────────────────────
 
   const handleFormSubmit = () => {
@@ -277,8 +292,24 @@ const Checkout: React.FC = () => {
     };
     setClientForm(clientCoords);
     setIsFormLocked(true);
-    // Default to the fastest local path while keeping online payment selectable.
-    setSelectedPaymentMethod('cod');
+  };
+
+  const scrollToFirstCheckoutAction = () => {
+    if (!isFormReady) {
+      formPanelRef.current?.requestSubmit();
+      window.setTimeout(() => {
+        const target = document.querySelector<HTMLElement>(
+          '.co-field__input-wrap--error, .co-policies__box--error',
+        );
+        (target ?? formPanelRef.current)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
+    if (!selectedPaymentMethod) {
+      paymentPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    void handlePayNowClick();
   };
 
   const handlePayNowClick = async () => {
@@ -495,7 +526,7 @@ const Checkout: React.FC = () => {
           <div className="co-layout">
 
             {/* ── Form panel ────────────────────────────────────────────── */}
-            <form className="co-card co-form-panel" onSubmit={handleSubmit(handleFormSubmit)}>
+            <form ref={formPanelRef} className="co-card co-form-panel" onSubmit={handleSubmit(handleFormSubmit)}>
               <div className="co-card__header">
                 <div>
                   <div className="co-card__header-step">1 / 2</div>
@@ -673,7 +704,7 @@ const Checkout: React.FC = () => {
 
             {/* ── Right column ──────────────────────────────────────────── */}
             <div className="co-right-col" dir={isRtl ? 'rtl' : 'ltr'}>
-              <div className="co-card">
+              <div ref={paymentPanelRef} className="co-card">
                 <div className="co-card__header">
                   <div>
                     <div className="co-card__header-step">2 / 2</div>
@@ -775,6 +806,7 @@ const Checkout: React.FC = () => {
               </div>
 
               <button
+                ref={payButtonRef}
                 type="button"
                 className={`co-pay-now-btn ${isFormReady && selectedPaymentMethod ? 'co-pay-now-btn--ready' : ''}`}
                 onClick={handlePayNowClick}
@@ -799,6 +831,29 @@ const Checkout: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+      {!isLoading && !payButtonVisible && (
+        <div className="co-sticky-action" role="region" aria-label={t('payment.pay')}>
+          <div className="co-sticky-action__copy">
+            <span>{!isFormReady
+              ? t('payment.completeDetailsFirst')
+              : !selectedPaymentMethod
+                ? t('payment.selectMethodPrompt')
+                : t('cart.total')}</span>
+            <strong>{displayTotal.toFixed(2)} {currentCurrency}</strong>
+          </div>
+          <button
+            type="button"
+            onClick={scrollToFirstCheckoutAction}
+            disabled={overlayStage !== null}
+          >
+            {!isFormReady
+              ? t('form.save')
+              : !selectedPaymentMethod
+                ? t('payment.choose')
+                : t('payment.pay')}
+          </button>
         </div>
       )}
       <Footer />

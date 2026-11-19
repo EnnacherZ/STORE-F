@@ -807,6 +807,47 @@
 
 .co-pay-now-btn--ready:active { transform: translateY(1px); }
 
+.co-sticky-action {
+  position: fixed;
+  z-index: 1200;
+  inset-inline-start: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(620px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 12px 11px 16px;
+  border: 1px solid rgba(30, 127, 255, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 14px 42px rgba(15, 28, 53, 0.24);
+  backdrop-filter: blur(14px);
+}
+
+.co-sticky-action__copy { display: grid; gap: 2px; min-width: 0; }
+.co-sticky-action__copy span { color: var(--co-muted); font-size: 0.72rem; font-weight: 650; }
+.co-sticky-action__copy strong { color: var(--co-navy); font-size: 1rem; }
+.co-sticky-action button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--co-blue), var(--co-blue-hover));
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 18px var(--co-blue-glow);
+}
+.co-sticky-action button:disabled { opacity: 0.58; cursor: wait; }
+
+[dir="rtl"] .co-sticky-action { transform: translateX(-50%); }
+
 .co-checkout-hint {
   margin-top: -8px;
   padding: 9px 12px;
@@ -888,7 +929,7 @@
 }
 
 @media (max-width: 520px) {
-  .co-page { padding-bottom: 36px; }
+  .co-page { padding-bottom: 108px; }
 
   .co-topbar__actions { width: 100%; justify-content: space-between; }
   .co-topbar__total { flex: 1; text-align: center; }
@@ -901,6 +942,9 @@
   .co-summary { padding: 16px; }
   .co-pay-method { padding: 12px; gap: 10px; }
   .co-pay-method__icon { width: 40px; height: 40px; }
+  .co-sticky-action { width: calc(100vw - 16px); bottom: max(8px, env(safe-area-inset-bottom)); }
+  .co-sticky-action__copy span { max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .co-sticky-action button { padding-inline: 14px; }
 }
 
 [dir="rtl"] .co-summary__count { margin-left: 0; margin-right: auto; }

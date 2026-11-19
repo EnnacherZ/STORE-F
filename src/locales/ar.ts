@@ -71,6 +71,7 @@ export default {
             shirt: 'أقمصة',
             pant: 'سراويل',
             cap: 'قبعات',
+            jacket: 'سترات',
           },
 
           cart: {

@@ -71,6 +71,7 @@ export default {
             shirt: 'Chemises',
             pant: 'Pantalons',
             cap: 'Casquettes',
+            jacket: 'Vestes',
           },
 
           cart: {

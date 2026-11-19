@@ -10,6 +10,7 @@ import { FaHome, FaShoppingCart, FaUserCircle, FaSignOutAlt, FaUser } from "reac
 import { FaAngleRight } from "react-icons/fa6";
 import { MdLanguage } from "react-icons/md";
 import { goTo, selectedLang } from "./constants";
+import { useSiteSettings } from "../server/siteSettings";
 import icon2 from "../assets/WHITE FIRDAOUS STORE.png";
 import "../styles/header.css";
 
@@ -171,6 +172,7 @@ const Header: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { productTypes } = useParametersContext(); // string[]
+  const siteSettings = useSiteSettings();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -208,13 +210,21 @@ const Header: React.FC = () => {
     goTo('/Cart');
   };
 
+  const productTypeLabel = (type: string) =>
+    t(`productTypes.${type.toLowerCase()}`, { defaultValue: type });
+  const announcementText = selectedLang(currentLang) === "ar"
+    ? siteSettings.announcement_text_ar
+    : selectedLang(currentLang) === "fr"
+      ? siteSettings.announcement_text_fr
+      : siteSettings.announcement_text_en;
+
   return (
     <>
       {/* ── Promo banner ─────────────────────────────────────────────────── */}
-      {isPub && (
+      {isPub && siteSettings.announcement_enabled && announcementText.trim() && (
         <div className="promo-banner" aria-live="polite">
           <Marquee speed={50} gradient={false}>
-            <span className="promo-banner__text">{t("delivery.cityOnly")}</span>
+            <span className="promo-banner__text">{announcementText}</span>
           </Marquee>
         </div>
       )}
@@ -322,7 +332,7 @@ const Header: React.FC = () => {
                             data-active={isActive(`/ProductPage/${type}`) ? "true" : "false"}
                           >
                             <span className="sidebar__link-label">
-                              {t(`productTypes.${type.toLowerCase()}`)}
+                              {productTypeLabel(type)}
                             </span>
                             <FaAngleRight className="sidebar__link-arrow" aria-hidden />
                           </Link>
@@ -402,7 +412,7 @@ const Header: React.FC = () => {
                       data-active={isActive(`/ProductPage/${type}`) ? "true" : "false"}
                       aria-current={isActive(`/ProductPage/${type}`) ? "page" : undefined}
                     >
-                      {t(`productTypes.${type.toLowerCase()}`)}
+                      {productTypeLabel(type)}
                     </button>
                   ))
               }

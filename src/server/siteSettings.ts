@@ -10,6 +10,10 @@ export interface SiteSettings {
   whatsapp_url: string;
   tiktok_url: string;
   youtube_url: string;
+  announcement_enabled: boolean;
+  announcement_text_en: string;
+  announcement_text_fr: string;
+  announcement_text_ar: string;
   updated_at?: string;
 }
 
@@ -21,6 +25,10 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   whatsapp_url: STORE_SOCIALS.whatsapp,
   tiktok_url: STORE_SOCIALS.tiktok,
   youtube_url: STORE_SOCIALS.youtube,
+  announcement_enabled: false,
+  announcement_text_en: "",
+  announcement_text_fr: "",
+  announcement_text_ar: "",
 };
 
 let cachedSettings: SiteSettings | null = null;
