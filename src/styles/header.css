@@ -32,8 +32,7 @@
   background: linear-gradient(90deg, #0096c7, #0e92e4);
   display: flex;
   align-items: center;
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100002;
   border-bottom: 1px solid rgba(255,255,255,.15);
 }
@@ -51,14 +50,20 @@
    SITE HEADER
    ══════════════════════════════════════════════════════════ */
 .site-header {
+  --header-sticky-top: 0px;
+  --mobile-overlay-top: var(--header-h-mobile);
   width: 100%;
   background: var(--color-brand);
   border-bottom: 3px solid rgba(255,255,255,.18);
   box-shadow: 0 2px 20px rgba(14, 146, 228, 0.35);
-  position: sticky;
-  top: 34px;
+  position: relative;
   z-index: 100001;
   overflow: visible;
+}
+
+.site-header--with-announcement {
+  --header-sticky-top: 34px;
+  --mobile-overlay-top: calc(34px + var(--header-h-mobile));
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -408,8 +413,8 @@
    MOBILE LAYOUT  (≤ 800 px)
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 800px) {
-
-  .site-header { top: 34px; }
+  .promo-banner { position: sticky; top: 0; }
+  .site-header { position: sticky; top: var(--header-sticky-top); }
 
   .mobile-bar {
     height: var(--header-h-mobile);
@@ -512,10 +517,10 @@
   /* Sidebar overlay */
   .sidebar-overlay {
     position: fixed;
-    top: calc(34px + var(--header-h-mobile));
+    top: var(--mobile-overlay-top);
     left: 0;
     width: 100%;
-    height: calc(100vh - 34px - var(--header-h-mobile));
+    height: calc(100vh - var(--mobile-overlay-top));
     display: flex;
     z-index: 100000;
     pointer-events: none;

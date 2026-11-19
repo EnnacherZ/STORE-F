@@ -217,11 +217,14 @@ const Header: React.FC = () => {
     : selectedLang(currentLang) === "fr"
       ? siteSettings.announcement_text_fr
       : siteSettings.announcement_text_en;
+  const showAnnouncement = Boolean(
+    isPub && siteSettings.announcement_enabled && announcementText.trim(),
+  );
 
   return (
     <>
       {/* ── Promo banner ─────────────────────────────────────────────────── */}
-      {isPub && siteSettings.announcement_enabled && announcementText.trim() && (
+      {showAnnouncement && (
         <div className="promo-banner" aria-live="polite">
           <Marquee speed={50} gradient={false}>
             <span className="promo-banner__text">{announcementText}</span>
@@ -230,7 +233,7 @@ const Header: React.FC = () => {
       )}
 
       {/* ── Header shell ─────────────────────────────────────────────────── */}
-      <header className="site-header" dir="ltr">
+      <header className={`site-header${showAnnouncement ? " site-header--with-announcement" : ""}`} dir="ltr">
         {isMobile ? (
           /* ══ MOBILE ══════════════════════════════════════════════════════ */
           <>
