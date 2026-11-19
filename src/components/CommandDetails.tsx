@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/CommandDetails.css"
-import { MdOutlineAccessTimeFilled, MdPayment } from "react-icons/md";
+import { MdOutlineAccessTimeFilled, MdPayments } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import { useLangContext } from "../contexts/LanguageContext";
 import { selectedLang } from "./constants";
@@ -30,21 +30,10 @@ return(<>
             </li>
             <li className="Delai-command d-flex">
                 <h6 className="Delai-command-title my-1">
-                    <MdPayment size={22}/> {t('payment.methods')} :
+                    <MdPayments size={22}/> {t('payment.cod')} :
                 </h6>
-                <div className="delai-command-details d-flex justify-content-center">
-                    <div className="col p-0 mx-2">
-                        <img src="https://static4.youcan.shop/store-front/images/visa.png" alt="visa"/>
-                    </div> 
-                    <div className="col p-0 mx-2" style={{width:"25%"}}>
-                        <img src="https://static4.youcan.shop/store-front/images/master-card.png" alt="master-card"/>
-                    </div> 
-                    <div className="col p-0 mx-2" style={{width:"25%"}}>
-                        <img src="https://static4.youcan.shop/store-front/images/american-express.png" alt="visa"/>
-                    </div>
-                    <div className="col p-0 mx-2" style={{width:"25%"}}>
-                        <img src="https://static4.youcan.shop/store-front/images/discover.png" alt="visa"/>
-                    </div>
+                <div className="delai-command-details command-cod-note">
+                    <strong>{t('payment.codHint')}</strong>
                 </div>
             </li>
         </ul>

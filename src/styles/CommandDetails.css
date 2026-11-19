@@ -79,14 +79,7 @@
   font-size: 0.95rem;
 }
 
-.delai-command-details div img {
-  width: 100%;
-  height: 34px;
-  max-width: 52px;
-  object-fit: contain;
-  -webkit-filter: saturate(1.02) contrast(1.02);
-          filter: saturate(1.02) contrast(1.02);
-}
+.command-cod-note { color: #15803d; font-weight: 750; }
 
 .command-time .rtl {
   direction: rtl;
@@ -136,8 +129,4 @@
 
   .delai-command-details { width: 100%; padding: 0; font-size: 0.8rem !important; }
 
-  .delai-command-details div img {
-    max-width: 44px;
-    height: 30px;
-  }
 }
