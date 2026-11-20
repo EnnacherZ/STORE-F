@@ -18,7 +18,7 @@ import Footer from './Footer';
 import { HiOutlineCash } from 'react-icons/hi';
 import { MdCheckCircle } from 'react-icons/md';
 import {
-  cities, goTo, policiesAcceptanceText,
+  goTo, policiesAcceptanceText,
   selectedLang, sendEmail, showToast,
 } from './constants';
 import createInvoice from '../contexts/CreateInvoice';
@@ -646,12 +646,11 @@ const Checkout: React.FC = () => {
                     <label className={`co-field__label ${isRtl ? 'rtl' : ''}`}>{t('form.city.label')}</label>
                     <div className={`co-field__input-wrap ${isFormLocked ? 'co-field__input-wrap--locked' : ''} ${errors.city ? 'co-field__input-wrap--error' : ''}`}>
                       <span className="co-field__icon"><FaCity size={15} /></span>
-                      <select {...register('city', { required: `${t('form.city.required')} !` })}
-                        disabled={isFormLocked}
-                        className={`co-field__select ${isFormLocked ? 'co-field__select--locked' : ''}`}>
-                        <option value="">{t('form.selectCity')}</option>
-                        {cities.map((city, i) => <option key={i} value={city}>{city}</option>)}
-                      </select>
+                      <input {...register('city', { required: `${t('form.city.required')} !` })}
+                        type="text" placeholder={t('form.city.label')}
+                        autoComplete="address-level2"
+                        readOnly={isFormLocked} disabled={isFormLocked}
+                        className={`co-field__input ${isFormLocked ? 'co-field__input--locked' : ''}`} />
                     </div>
                     {renderFieldError(errors.city?.message)}
                   </div>
